@@ -94,6 +94,72 @@ bundle exec jekyll serve
 
 Open http://127.0.0.1:4000/newsletter.si/
 
+## Charts (oil & gold)
+
+Persistent daily time series live in `_data/`. Charts use Chart.js 4.4.6 from a
+pinned jsDelivr CDN URL with SRI (no npm build step).
+
+### War start marker
+
+**28 February 2026** — US–Iran war begins (US–Israeli airstrikes; Strait of Hormuz
+crisis the same day). Cited from [AP News](https://apnews.com/article/iran-us-timeline-trump-hormuz-war-ceasefire-04da58cbae991183f8b52ef5bf615963),
+[ABC News](https://abcnews.com/International/iran-war-timeline-1-month-escalating-strikes-broadening/story?id=131606351),
+and [CNN](https://www.cnn.com/interactive/2026/05/politics/iran-war-key-moments-vis/).
+Series files start on that date; the charts draw a vertical marker there. No
+invented or interpolated prices — missing source days are left blank.
+
+### Data files
+
+| Series | Path | Columns | Source |
+|--------|------|---------|--------|
+| Brent crude (USD/bbl) | `_data/brent.csv` | `date,close` | [FRED DCOILBRENTEU](https://fred.stlouisfed.org/series/DCOILBRENTEU) |
+| Gold (USD/oz) | `_data/gold.csv` | `date,close` | [Yahoo Finance GC=F](https://finance.yahoo.com/quote/GC=F/) (COMEX); LBMA daily was removed from FRED |
+
+Metadata (labels, units, sources, war marker) is in `_data/charts.yml`.
+
+### Append one row (daily process)
+
+After each session close, append **one line** to each file (no header change):
+
+```text
+_data/brent.csv
+2026-10-17,127.40
+
+_data/gold.csv
+2026-10-17,4210.50
+```
+
+Format: `YYYY-MM-DD,close` with the close as a plain number (no `$`, no thousands
+separator). If the source has no print that day, either skip the row or append
+`YYYY-MM-DD,` with an empty close (the chart leaves a gap).
+
+### Embed a chart in a post
+
+Known series (war marker included):
+
+```liquid
+{% include chart.html series="brent" %}
+{% include chart.html series="gold" caption="Gold since the war began (USD/oz)." %}
+```
+
+One-off bar/line chart from inline data:
+
+```liquid
+{% include chart-data.html
+     type="bar"
+     label="ASX sectors"
+     labels='["Banks","Miners","Tech"]'
+     values='[1.2,-0.4,0.3]'
+     unit="%"
+     caption="One-day sector moves." %}
+```
+
+Or from any `_data/*.csv`:
+
+```liquid
+{% include chart-data.html data="brent" type="line" label="Brent" x="date" y="close" %}
+```
+
 ## Feed
 
 Atom feed: [/newsletter.si/feed.xml](https://nick-nguyen-ai.github.io/newsletter.si/feed.xml)

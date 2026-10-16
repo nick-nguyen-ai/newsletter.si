@@ -1,0 +1,23 @@
+# Known time-series charts (CSV files live alongside this file in _data/).
+war_start: "2026-02-28"
+war_start_label: "War begins"
+war_start_note: "US–Iran war began 28 February 2026 (US–Israeli airstrikes; Hormuz crisis the same day). Sources: AP News, ABC News, CNN."
+
+brent:
+  label: Brent crude
+  unit: USD/bbl
+  y_label: USD per barrel
+  data: brent
+  source: "FRED DCOILBRENTEU (Crude Oil Prices: Brent – Europe), daily"
+  source_url: "https://fred.stlouisfed.org/series/DCOILBRENTEU"
+  marker: war_start
+
+gold:
+  label: Gold
+  unit: USD/oz
+  y_label: USD per troy ounce
+  data: gold
+  source: "Yahoo Finance COMEX Gold Futures (GC=F), daily close"
+  source_url: "https://finance.yahoo.com/quote/GC=F/"
+  source_note: "LBMA Gold Price daily series were removed from FRED in Jan 2022; Stooq CSV was unavailable here. GC=F is used as a citable public USD/oz proxy."
+  marker: war_start
