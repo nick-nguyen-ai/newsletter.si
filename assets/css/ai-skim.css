@@ -1,0 +1,352 @@
+/* AI skimmable layout — light + dark via existing CSS variables */
+
+.ai-skim {
+  font-family: var(--font-sans);
+}
+
+.ai-30 {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+}
+
+.ai-30__label {
+  margin: 0 0 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ai-30__biggest {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.ai-30__list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.ai-30__list li {
+  margin-bottom: 0.4rem;
+}
+
+.ai-30__list a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ai-30__list a:hover {
+  text-decoration: underline;
+}
+
+/* Filter chips */
+.ai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1.5rem;
+  position: sticky;
+  top: 0.5rem;
+  z-index: 3;
+  padding: 0.4rem 0;
+  background: linear-gradient(180deg, var(--bg) 60%, transparent);
+}
+
+.ai-chip {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.35rem 0.6rem;
+  border-radius: 2px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.ai-chip:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.ai-chip--active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.ai-section {
+  margin-bottom: 1.75rem;
+  scroll-margin-top: 3.5rem;
+}
+
+.ai-section__title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Compact expandable cards */
+.ai-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ai-card {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  padding: 0;
+}
+
+.ai-card__summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.75rem 0.9rem;
+}
+
+.ai-card__summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-card__summary::marker {
+  content: "";
+}
+
+.ai-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ai-card__title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.ai-card__title-row::before {
+  content: "▸";
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.ai-card[open] .ai-card__title-row::before {
+  content: "▾";
+}
+
+.ai-card__takeaway {
+  margin: 0.35rem 0 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.ai-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.45rem;
+}
+
+.ai-tag {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--badge-ai);
+  border-color: currentColor;
+}
+
+.ai-tag--agent {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.ai-domain {
+  display: inline-block;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-card__body {
+  padding: 0 0.9rem 0.9rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.ai-card__body > .ai-card__full > p {
+  margin: 0.75rem 0 0;
+}
+
+.ai-card__body > .ai-card__full > p:first-child {
+  margin-top: 0.75rem;
+}
+
+.ai-card__full li {
+  margin-bottom: 0.35rem;
+}
+
+/* Dense papers / repos */
+.ai-dense {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+}
+
+.ai-dense__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.ai-dense__table th {
+  text-align: left;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.ai-dense__table td {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.ai-dense__table tr:last-child td {
+  border-bottom: none;
+}
+
+.ai-dense__name {
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: 11rem;
+}
+
+.ai-dense__name a {
+  text-decoration: none;
+}
+
+.ai-dense__name a:hover {
+  text-decoration: underline;
+}
+
+.ai-dense__takeaway {
+  color: var(--text-muted);
+  min-width: 12rem;
+}
+
+.ai-dense__meta {
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-dense__details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.ai-dense__details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-dense__details > summary::before {
+  content: "▸ ";
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.ai-dense__details[open] > summary::before {
+  content: "▾ ";
+}
+
+.ai-dense__full {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.ai-skim__fallback {
+  margin: 1.25rem 0 0;
+  font-size: 0.75rem;
+}
+
+.ai-skim__fallback-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ai-skim__fallback-btn:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 540px) {
+  .ai-dense__table th:nth-child(3),
+  .ai-dense__table td:nth-child(3) {
+    /* keep stars/links visible but allow wrap */
+    white-space: normal;
+  }
+
+  .ai-dense__name {
+    white-space: normal;
+    max-width: 8rem;
+  }
+
+  .ai-30 {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .ai-card__summary {
+    padding: 0.7rem 0.75rem;
+  }
+}

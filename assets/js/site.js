@@ -34,36 +34,5 @@
     });
   }
 
-  function buildAiToc() {
-    document.querySelectorAll("[data-ai-toc]").forEach(function (list) {
-      var panel = list.closest("#ai") || list.closest(".day-panel");
-      if (!panel) return;
-      var body = panel.querySelector("[data-ai-body]");
-      if (!body) return;
-
-      list.innerHTML = "";
-      body.querySelectorAll("h2").forEach(function (heading) {
-        if (!heading.id) {
-          heading.id = heading.textContent
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "");
-        }
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        a.href = "#" + heading.id;
-        a.textContent = heading.textContent;
-        li.appendChild(a);
-        list.appendChild(li);
-      });
-
-      if (!list.children.length) {
-        var toc = list.closest(".ai-toc");
-        if (toc) toc.hidden = true;
-      }
-    });
-  }
-
   document.querySelectorAll(".issue-body").forEach(markUnconfirmed);
-  buildAiToc();
 })();

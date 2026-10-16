@@ -23,6 +23,7 @@
   <meta property="twitter:description" content="{{ site.description | xml_escape }}">
   {% endif %}
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/ai-skim.css' | relative_url }}">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 </head>
 <body>
@@ -47,6 +48,7 @@
   </footer>
 
   <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/ai-skim.js' | relative_url }}" defer></script>
   {%- comment -%}Chart.js 4.4.6 from jsDelivr, pinned + SRI{%- endcomment -%}
   <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"

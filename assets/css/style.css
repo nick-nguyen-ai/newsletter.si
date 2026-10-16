@@ -539,6 +539,83 @@ a:hover {
   padding: 0;
 }
 
+.chart__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-sans);
+}
+
+.chart__stats {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.chart__stat-latest strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__stat-yoy {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__stat-up {
+  color: #1a7a4c;
+}
+
+.chart__stat-down {
+  color: #a33b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .chart__stat-up {
+    color: #5dcca0;
+  }
+
+  .chart__stat-down {
+    color: #e08a8a;
+  }
+}
+
+.chart__ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.chart__range {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.25rem 0.45rem;
+  border-radius: 2px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.chart__range:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.chart__range--active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .chart__frame {
   position: relative;
   width: 100%;
@@ -551,7 +628,7 @@ a:hover {
 
 @media (min-width: 600px) {
   .chart__frame {
-    height: 16rem;
+    height: 17rem;
   }
 }
 

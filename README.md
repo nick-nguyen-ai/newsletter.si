@@ -62,17 +62,68 @@ section: ai
 | `date`    | yes      | Calendar day (group key)       |
 | `section` | yes      | Must be `ai`                   |
 
-Then paste the briefing body. For AI, keep the usual `#` title, biggest-story
-line, and `##` numbered sections — the site builds a table of contents from those
-headings. Text like `(unconfirmed)` or `**Unconfirmed**` is styled as a muted badge.
+Then paste the briefing body using the structure below (unchanged from Hannah’s
+usual format). The site turns it into a skimmable UI in the browser — **every
+item is kept**; expand a card for the full summary, “For you:” line, and links.
+
+### AI Markdown convention (keep writing like this)
+
+```markdown
+# Daily AI briefing for …
+
+**The biggest story today:** …
+
+## 1. Claude Code and Codex
+**Item title**
+Summary paragraph…
+For you: …
+[Source](https://…)
+
+## 2. Other coding agents and dev tools
+…same item pattern…
+
+## 3. Evaluating and validating AI
+## 4. Open-source agent frameworks
+## 5. Big AI companies
+## 6. General AI news to talk about
+
+## 7. Trending on X
+- [@handle …](https://x.com/…): one-liner
+
+## 8. Trending AI papers
+**Paper title:** …
+(same item pattern as sections 1–6)
+
+## 9. Trending AI repos on GitHub
+1. [org/repo](https://github.com/…), description (N today).
+```
+
+Rules the skim UI relies on:
+
+- One `**The biggest story today:**` line near the top
+- Numbered `##` section headings (names can vary slightly; chips map by keyword)
+- Story items: bold title on its own line, then summary + optional `For you:` + links (blank line before the next title)
+- Mark uncertain items with `(unconfirmed)` in the title or body
+- Section 7 = bullet list; section 8 = paper items; section 9 = numbered repo list
+
+**AI coding agents (render-time merge):** headings like “Claude Code and Codex” and
+“Other coding agents and dev tools” are merged into one section titled **AI coding
+agents**, with a single filter chip. All items from both headings are kept. Each
+card gets small per-agent tags detected from the item text (Claude Code, Codex,
+Cursor, Copilot, Gemini CLI, Pi, OpenCode, Grok, Aider, Cline, and similar). You
+can keep writing the two old headings — no Markdown change required.
+
+The rendered page shows: **Today in 30 seconds** (biggest story + top 5 one-liners),
+section filter chips, expandable cards (with agent tags in the coding-agents
+section), and dense tables for papers/repos.
 
 ### Publish
 
 Commit and push to `main`. That’s it — do not edit any other files.
 
 Same-day Markets + AI appear on one issue page (Markets first, then AI), with an
-anchor switcher and an AI table of contents. The archive shows **one row per day**,
-with badges for which sections exist.
+anchor switcher. The archive shows **one row per day**, with badges for which
+sections exist.
 
 ## Enable GitHub Pages
 
@@ -110,12 +161,16 @@ invented or interpolated prices — missing source days are left blank.
 
 ### Data files
 
+Series run from **2020-01-01** (no invented values; blank closes where the source has gaps).
+
 | Series | Path | Columns | Source |
 |--------|------|---------|--------|
 | Brent crude (USD/bbl) | `_data/brent.csv` | `date,close` | [FRED DCOILBRENTEU](https://fred.stlouisfed.org/series/DCOILBRENTEU) |
 | Gold (USD/oz) | `_data/gold.csv` | `date,close` | [Yahoo Finance GC=F](https://finance.yahoo.com/quote/GC=F/) (COMEX); LBMA daily was removed from FRED |
 
-Metadata (labels, units, sources, war marker) is in `_data/charts.yml`.
+Metadata (labels, units, sources, era markers/bands) is in `_data/charts.yml`.
+
+Charts default to **2020–now**, with quick ranges **1M / 6M / 1Y / Since war / 2020–now**. Long ranges downsample to weekly for mobile performance. Each chart header shows the latest print and change vs a year ago. Era overlays: COVID (Mar 2020), Ukraine (24 Feb 2022), Biden band, Trump 2nd-term band, US–Iran war (28 Feb 2026). All issues share the same CSV files (intended — the line is always current).
 
 ### Append one row (daily process)
 
