@@ -4,6 +4,10 @@ description: Daily ASX & global markets briefing, plus a daily AI report
 url: "https://nick-nguyen-ai.github.io"
 baseurl: "/newsletter.si"
 lang: en
+# Issues publish ~08:25 Australia/Sydney; Actions/Pages builds run in UTC.
+# Without these, same-day posts can look "future" and be skipped.
+timezone: Australia/Sydney
+future: true
 
 markdown: kramdown
 highlighter: rouge
