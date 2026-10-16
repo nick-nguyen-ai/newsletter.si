@@ -88,11 +88,7 @@
       <span class="day-panel__section-title">{{ ai.title }}</span>
     </p>
 
-    <nav class="ai-toc" aria-label="AI sections">
-      <p class="ai-toc__label">In this AI briefing</p>
-      <ol class="ai-toc__list" data-ai-toc></ol>
-    </nav>
-
+    {%- comment -%}Section nav is built by assets/js/ai-skim.js as filter chips{%- endcomment -%}
     <div class="issue-body" data-ai-body>
       {% if ai.content contains '<p>' or ai.content contains '<h1' %}
         {{ ai.content }}
