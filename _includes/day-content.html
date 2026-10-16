@@ -1,0 +1,99 @@
+{%- comment -%}
+  Renders one calendar day's combined issue (markets then AI).
+  Expects: include.day_date (Time)
+  Optional: include.link_title, include.show_permalink
+{%- endcomment -%}
+
+{% assign day_str = include.day_date | date: "%Y-%m-%d" %}
+{% assign markets = false %}
+{% assign ai = false %}
+
+{% for p in site.posts %}
+  {% assign p_day = p.date | date: "%Y-%m-%d" %}
+  {% if p_day == day_str %}
+    {% if p.section == "markets" %}
+      {% assign markets = p %}
+    {% elsif p.section == "ai" %}
+      {% assign ai = p %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign day_url = false %}
+{% if markets %}
+  {% assign day_url = markets.url %}
+{% elsif ai %}
+  {% assign day_url = ai.url %}
+{% endif %}
+
+<article class="day" data-day="{{ day_str }}">
+  <header class="issue-header">
+    <div class="issue-meta">
+      <time class="issue-date" datetime="{{ day_str }}">
+        {{ include.day_date | date: "%A %-d %B %Y" }}
+      </time>
+      {% if markets %}
+        <span class="badge badge--markets">Markets</span>
+        {% if markets.edition %}
+          <span class="badge badge--{{ markets.edition }}">{{ markets.edition }}</span>
+        {% endif %}
+      {% endif %}
+      {% if ai %}
+        <span class="badge badge--ai">AI</span>
+      {% endif %}
+    </div>
+    <h1 class="issue-title">
+      {% if include.link_title and day_url %}
+        <a href="{{ day_url | relative_url }}">{{ include.day_date | date: "%-d %B %Y" }}</a>
+      {% else %}
+        {{ include.day_date | date: "%-d %B %Y" }}
+      {% endif %}
+    </h1>
+  </header>
+
+  {% if markets and ai %}
+  <nav class="day-switcher" aria-label="Sections">
+    <a class="day-switcher__link" href="#markets">Markets</a>
+    <a class="day-switcher__link" href="#ai">AI</a>
+  </nav>
+  {% endif %}
+
+  {% if markets %}
+  <section class="day-panel" id="markets" aria-labelledby="markets-heading">
+    <h2 class="day-panel__label" id="markets-heading">Markets</h2>
+    <p class="day-panel__meta">
+      {% if markets.edition %}
+        <span class="badge badge--{{ markets.edition }}">{{ markets.edition }}</span>
+      {% endif %}
+      <span class="day-panel__section-title">{{ markets.title }}</span>
+    </p>
+    <div class="issue-body">
+      {{ markets.content | markdownify }}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if ai %}
+  <section class="day-panel" id="ai" aria-labelledby="ai-heading">
+    <h2 class="day-panel__label" id="ai-heading">AI</h2>
+    <p class="day-panel__meta">
+      <span class="day-panel__section-title">{{ ai.title }}</span>
+    </p>
+
+    <nav class="ai-toc" aria-label="AI sections">
+      <p class="ai-toc__label">In this AI briefing</p>
+      <ol class="ai-toc__list" data-ai-toc></ol>
+    </nav>
+
+    <div class="issue-body" data-ai-body>
+      {{ ai.content | markdownify }}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if include.show_permalink and day_url %}
+  <p class="permalink">
+    <a href="{{ day_url | relative_url }}">Permalink →</a>
+  </p>
+  {% endif %}
+</article>

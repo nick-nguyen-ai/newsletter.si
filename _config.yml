@@ -1,13 +1,14 @@
 title: newsletter.si
-tagline: Daily ASX & global markets briefing
-description: Daily ASX & global markets briefing for Nick — weekday ASX morning briefings and weekend global macro editions.
+tagline: Daily ASX & AI briefing
+description: Daily markets and AI briefing — weekday ASX mornings, weekend global macro, and a daily AI report.
 url: "https://nick-nguyen-ai.github.io"
 baseurl: "/newsletter.si"
 lang: en
 
 markdown: kramdown
 highlighter: rouge
-permalink: /:year/:month/:day/:title/
+# Per-section URL from filename slug, e.g. .../markets/ or .../ai/
+permalink: /:year/:month/:day/:slug/
 
 # GitHub Pages–supported plugins only
 plugins:
@@ -26,4 +27,4 @@ defaults:
       path: ""
       type: posts
     values:
-      layout: post
+      layout: day

@@ -3,40 +3,85 @@ layout: default
 title: Home
 ---
 
-{% assign posts = site.posts %}
+{% assign seen = "" %}
+{% assign day_count = 0 %}
+{% assign latest_date = false %}
 
-{% if posts.size > 0 %}
-  {% assign latest = posts.first %}
+{% for post in site.posts %}
+  {% assign d = post.date | date: "%Y-%m-%d" %}
+  {% assign token = "|" | append: d | append: "|" %}
+  {% unless seen contains token %}
+    {% assign seen = seen | append: token %}
+    {% assign day_count = day_count | plus: 1 %}
+    {% if latest_date == false %}
+      {% assign latest_date = post.date %}
+    {% endif %}
+  {% endunless %}
+{% endfor %}
+
+{% if day_count > 0 %}
 
   <section class="home-latest" aria-labelledby="latest-heading">
     <p class="section-label" id="latest-heading">Latest issue</p>
-    <article class="issue">
-      {% include issue-header.html post=latest link=true %}
-      <div class="issue-body">
-        {{ latest.content }}
-      </div>
-      <p class="permalink">
-        <a href="{{ latest.url | relative_url }}">Permalink →</a>
-      </p>
-    </article>
+    {% include day-content.html day_date=latest_date link_title=true show_permalink=true %}
   </section>
 
-  {% if posts.size > 1 %}
+  {% if day_count > 1 %}
   <section class="home-archive" aria-labelledby="archive-heading">
     <h2 class="section-label" id="archive-heading">Archive</h2>
-    <ol class="archive" reversed>
-      {% for post in posts offset:1 %}
-        <li class="archive__item">
-          <time class="archive__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
-            {{ post.date | date: '%-d %b %Y' }}
-          </time>
-          <span class="archive__title">
-            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-          </span>
-          {% if post.edition %}
-            <span class="archive__badge badge badge--{{ post.edition }}">{{ post.edition }}</span>
+    <ol class="archive">
+      {% assign archive_seen = "" %}
+      {% assign skip_first = true %}
+      {% for post in site.posts %}
+        {% assign d = post.date | date: "%Y-%m-%d" %}
+        {% assign token = "|" | append: d | append: "|" %}
+        {% unless archive_seen contains token %}
+          {% assign archive_seen = archive_seen | append: token %}
+          {% if skip_first %}
+            {% assign skip_first = false %}
+          {% else %}
+            {% assign day_markets = false %}
+            {% assign day_ai = false %}
+            {% assign day_url = false %}
+            {% assign day_edition = false %}
+            {% for p in site.posts %}
+              {% assign p_day = p.date | date: "%Y-%m-%d" %}
+              {% if p_day == d %}
+                {% if p.section == "markets" %}
+                  {% assign day_markets = true %}
+                  {% assign day_url = p.url %}
+                  {% if p.edition %}
+                    {% assign day_edition = p.edition %}
+                  {% endif %}
+                {% elsif p.section == "ai" %}
+                  {% assign day_ai = true %}
+                  {% unless day_url %}
+                    {% assign day_url = p.url %}
+                  {% endunless %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            <li class="archive__item">
+              <time class="archive__date" datetime="{{ d }}">
+                {{ post.date | date: "%-d %b %Y" }}
+              </time>
+              <span class="archive__title">
+                <a href="{{ day_url | relative_url }}">{{ post.date | date: "%A %-d %B %Y" }}</a>
+              </span>
+              <span class="archive__badges">
+                {% if day_markets %}
+                  <span class="badge badge--markets">Markets</span>
+                {% endif %}
+                {% if day_ai %}
+                  <span class="badge badge--ai">AI</span>
+                {% endif %}
+                {% if day_edition %}
+                  <span class="badge badge--{{ day_edition }}">{{ day_edition }}</span>
+                {% endif %}
+              </span>
+            </li>
           {% endif %}
-        </li>
+        {% endunless %}
       {% endfor %}
     </ol>
   </section>
