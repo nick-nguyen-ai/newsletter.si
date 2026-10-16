@@ -161,12 +161,16 @@ invented or interpolated prices — missing source days are left blank.
 
 ### Data files
 
+Series run from **2020-01-01** (no invented values; blank closes where the source has gaps).
+
 | Series | Path | Columns | Source |
 |--------|------|---------|--------|
 | Brent crude (USD/bbl) | `_data/brent.csv` | `date,close` | [FRED DCOILBRENTEU](https://fred.stlouisfed.org/series/DCOILBRENTEU) |
 | Gold (USD/oz) | `_data/gold.csv` | `date,close` | [Yahoo Finance GC=F](https://finance.yahoo.com/quote/GC=F/) (COMEX); LBMA daily was removed from FRED |
 
-Metadata (labels, units, sources, war marker) is in `_data/charts.yml`.
+Metadata (labels, units, sources, era markers/bands) is in `_data/charts.yml`.
+
+Charts default to **2020–now**, with quick ranges **1M / 6M / 1Y / Since war / 2020–now**. Long ranges downsample to weekly for mobile performance. Each chart header shows the latest print and change vs a year ago. Era overlays: COVID (Mar 2020), Ukraine (24 Feb 2022), Biden band, Trump 2nd-term band, US–Iran war (28 Feb 2026). All issues share the same CSV files (intended — the line is always current).
 
 ### Append one row (daily process)
 
