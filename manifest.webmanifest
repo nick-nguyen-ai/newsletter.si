@@ -1,0 +1,25 @@
+{
+  "name": "newsletter.si",
+  "short_name": "newsletter.si",
+  "description": "Daily ASX & global markets briefing, plus a daily AI report",
+  "start_url": "/newsletter.si/",
+  "scope": "/newsletter.si/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf9f7",
+  "theme_color": "#0d6e6e",
+  "icons": [
+    {
+      "src": "/newsletter.si/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/newsletter.si/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

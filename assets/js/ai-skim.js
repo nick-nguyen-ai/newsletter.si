@@ -582,7 +582,7 @@
       section.id = "ai-section-" + sec.id;
       section.setAttribute("data-section", sec.id);
 
-      var h = el("h3", "ai-section__title");
+      var h = el("h2", "ai-section__title");
       h.textContent = sec.headingText;
       section.appendChild(h);
 

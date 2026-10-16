@@ -241,10 +241,16 @@
     statsEl.innerHTML = html;
   }
 
+  function isNarrow() {
+    return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
+  }
+
   function buildChart(canvas, payload, colors, view) {
     var type = payload.type || "line";
     var labels = view.labels;
     var values = view.values;
+    var narrow = isNarrow();
+    var tickSize = narrow ? 11 : 10;
 
     var dataset = {
       label: payload.label || "",
@@ -253,7 +259,8 @@
       backgroundColor: colors.accentFill,
       borderWidth: 1.5,
       pointRadius: 0,
-      pointHoverRadius: 3,
+      pointHoverRadius: narrow ? 5 : 3,
+      pointHitRadius: narrow ? 18 : 8,
       tension: 0.15,
       spanGaps: false,
       fill: type === "line",
@@ -266,11 +273,30 @@
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
-        interaction: { mode: "index", intersect: false },
+        layout: {
+          padding: { top: 4, right: narrow ? 4 : 8, bottom: 0, left: 0 },
+        },
+        interaction: { mode: "nearest", intersect: false, axis: "x" },
         plugins: {
           legend: { display: false },
           tooltip: {
+            enabled: true,
+            displayColors: false,
+            padding: narrow ? 10 : 8,
+            titleFont: { size: narrow ? 13 : 12, weight: "600" },
+            bodyFont: { size: narrow ? 13 : 12 },
+            caretSize: 6,
+            caretPadding: 8,
             callbacks: {
+              title: function (items) {
+                if (!items.length) return "";
+                var label = items[0].label || "";
+                if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
+                  var p = label.split("-");
+                  return MONTHS[+p[1] - 1] + " " + (+p[2]) + ", " + p[0];
+                }
+                return label;
+              },
               label: function (ctx) {
                 var v = ctx.parsed.y;
                 if (v === null || v === undefined) return (ctx.dataset.label || "") + ": —";
@@ -285,9 +311,9 @@
             ticks: {
               maxRotation: 0,
               autoSkip: true,
-              maxTicksLimit: 6,
+              maxTicksLimit: narrow ? 4 : 6,
               color: colors.text,
-              font: { size: 10 },
+              font: { size: tickSize },
               callback: function (val) {
                 var label = this.getLabelForValue(val);
                 if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
@@ -300,10 +326,20 @@
             grid: { color: colors.grid, drawBorder: false },
           },
           y: {
-            ticks: { color: colors.text, font: { size: 10 } },
+            ticks: {
+              color: colors.text,
+              font: { size: tickSize },
+              maxTicksLimit: narrow ? 5 : 8,
+              padding: 4,
+            },
             grid: { color: colors.grid, drawBorder: false },
             title: payload.y_label
-              ? { display: true, text: payload.y_label, color: colors.text, font: { size: 10, weight: "600" } }
+              ? {
+                  display: !narrow,
+                  text: payload.y_label,
+                  color: colors.text,
+                  font: { size: 10, weight: "600" },
+                }
               : undefined,
           },
         },

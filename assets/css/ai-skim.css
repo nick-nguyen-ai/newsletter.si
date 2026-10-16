@@ -91,7 +91,7 @@
 
 .ai-section {
   margin-bottom: 1.75rem;
-  scroll-margin-top: 3.5rem;
+  scroll-margin-top: calc(var(--header-offset, 3.25rem) + 3.25rem);
 }
 
 .ai-section__title {
@@ -102,24 +102,28 @@
   color: var(--text);
 }
 
-/* Compact expandable cards */
+/* Compact expandable cards — full width, large tap targets on phone */
 .ai-card-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.65rem;
+  width: 100%;
 }
 
 .ai-card {
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--bg-elevated);
   padding: 0;
+  width: 100%;
 }
 
 .ai-card__summary {
   list-style: none;
   cursor: pointer;
-  padding: 0.75rem 0.9rem;
+  padding: 0.9rem 1rem;
+  min-height: var(--tap-min, 44px);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .ai-card__summary::-webkit-details-marker {
@@ -137,10 +141,11 @@
 }
 
 .ai-card__title {
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .ai-card__title-row::before {
@@ -199,11 +204,17 @@
 }
 
 .ai-card__body {
-  padding: 0 0.9rem 0.9rem;
+  padding: 0 1rem 1rem;
   border-top: 1px solid var(--border);
   font-family: var(--font-serif);
-  font-size: 0.92rem;
-  line-height: 1.65;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ai-card__body a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ai-card__body > .ai-card__full > p {
@@ -218,71 +229,92 @@
   margin-bottom: 0.35rem;
 }
 
-/* Dense papers / repos */
+/* Dense papers / repos — stacked cards on phone, table from 768px */
 .ai-dense {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg-elevated);
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  border: none;
+  background: transparent;
 }
 
 .ai-dense__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
-  line-height: 1.35;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
-.ai-dense__table th {
-  text-align: left;
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 0.55rem 0.65rem;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+.ai-dense__table thead {
+  display: none;
+}
+
+.ai-dense__table tbody,
+.ai-dense__table tr,
+.ai-dense__table td {
+  display: block;
+  width: 100%;
+}
+
+.ai-dense__table tr {
+  margin: 0 0 0.65rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-elevated);
 }
 
 .ai-dense__table td {
-  padding: 0.55rem 0.65rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.2rem 0;
+  border: none;
   vertical-align: top;
-}
-
-.ai-dense__table tr:last-child td {
-  border-bottom: none;
 }
 
 .ai-dense__name {
   font-weight: 600;
-  white-space: nowrap;
-  max-width: 11rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  margin-bottom: 0.35rem;
+  overflow-wrap: anywhere;
 }
 
 .ai-dense__name a {
   text-decoration: none;
+  color: var(--text);
 }
 
 .ai-dense__name a:hover {
+  color: var(--accent);
   text-decoration: underline;
 }
 
 .ai-dense__takeaway {
   color: var(--text-muted);
-  min-width: 12rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .ai-dense__meta {
-  white-space: nowrap;
+  margin-top: 0.45rem;
   color: var(--text-muted);
+  font-size: 0.8rem;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.ai-dense__meta a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .ai-dense__details > summary {
   cursor: pointer;
   list-style: none;
+  min-height: var(--tap-min, 44px);
+  display: flex;
+  align-items: flex-start;
+  padding: 0.25rem 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .ai-dense__details > summary::-webkit-details-marker {
@@ -293,6 +325,8 @@
   content: "▸ ";
   color: var(--text-muted);
   font-size: 0.7rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
 }
 
 .ai-dense__details[open] > summary::before {
@@ -304,9 +338,99 @@
   padding-top: 0.5rem;
   border-top: 1px solid var(--border);
   font-family: var(--font-serif);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   line-height: 1.6;
   color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 768px) {
+  .ai-dense {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-elevated);
+  }
+
+  .ai-dense__table {
+    display: table;
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  .ai-dense__table thead {
+    display: table-header-group;
+  }
+
+  .ai-dense__table tbody {
+    display: table-row-group;
+  }
+
+  .ai-dense__table tr {
+    display: table-row;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .ai-dense__table th {
+    display: table-cell;
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .ai-dense__table td {
+    display: table-cell;
+    width: auto;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ai-dense__table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .ai-dense__name {
+    white-space: nowrap;
+    max-width: 14rem;
+    font-size: inherit;
+    margin-bottom: 0;
+  }
+
+  .ai-dense__name a {
+    color: var(--link);
+  }
+
+  .ai-dense__takeaway {
+    min-width: 12rem;
+    font-size: inherit;
+  }
+
+  .ai-dense__meta {
+    white-space: nowrap;
+    margin-top: 0;
+    font-size: inherit;
+  }
+
+  .ai-dense__details > summary {
+    min-height: 0;
+    display: list-item;
+    padding: 0;
+  }
+
+  .ai-dense__full {
+    font-size: 0.88rem;
+  }
 }
 
 .ai-skim__fallback {
@@ -330,23 +454,11 @@
   color: var(--accent);
 }
 
-@media (max-width: 540px) {
-  .ai-dense__table th:nth-child(3),
-  .ai-dense__table td:nth-child(3) {
-    /* keep stars/links visible but allow wrap */
-    white-space: normal;
-  }
+.ai-30 {
+  padding: 0.9rem 1rem;
+}
 
-  .ai-dense__name {
-    white-space: normal;
-    max-width: 8rem;
-  }
-
-  .ai-30 {
-    padding: 0.85rem 0.9rem;
-  }
-
-  .ai-card__summary {
-    padding: 0.7rem 0.75rem;
-  }
+.ai-30__biggest {
+  font-size: 1rem;
+  line-height: 1.5;
 }

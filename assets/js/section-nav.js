@@ -151,6 +151,23 @@
     }
   }
 
+  function scrollChipIntoView(listEl, filterId) {
+    var active = listEl.querySelector(
+      '[data-section-filter="' + filterId + '"]'
+    );
+    if (!active || typeof active.scrollIntoView !== "function") return;
+    // Horizontal chip row on phone; no-op harmlessly on desktop column
+    try {
+      active.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    } catch (e) {
+      active.scrollIntoView(false);
+    }
+  }
+
   function setActive(listEl, filterId) {
     listEl.querySelectorAll(".section-nav__item").forEach(function (btn) {
       btn.classList.toggle(
@@ -158,6 +175,7 @@
         btn.getAttribute("data-section-filter") === filterId
       );
     });
+    scrollChipIntoView(listEl, filterId);
   }
 
   function updateHash(filterId) {
