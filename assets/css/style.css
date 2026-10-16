@@ -531,3 +531,52 @@ a:hover {
 .disclaimer {
   font-style: italic;
 }
+
+/* —— Charts —— */
+
+.chart {
+  margin: 1.5rem 0 1.75rem;
+  padding: 0;
+}
+
+.chart__frame {
+  position: relative;
+  width: 100%;
+  height: 14rem;
+  padding: 0.75rem 0.5rem 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+}
+
+@media (min-width: 600px) {
+  .chart__frame {
+    height: 16rem;
+  }
+}
+
+.chart__canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart__caption {
+  margin: 0.55rem 0 0.15rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.chart__source {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.chart__source a {
+  color: var(--text-muted);
+}

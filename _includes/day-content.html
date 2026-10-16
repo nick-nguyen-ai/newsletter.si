@@ -68,7 +68,15 @@
       <span class="day-panel__section-title">{{ markets.title }}</span>
     </p>
     <div class="issue-body">
-      {{ markets.content | markdownify }}
+      {%- comment -%}
+        Prefer already-rendered HTML (so {% include chart.html %} in the post works
+        on both the issue page and the home page). Fall back to markdownify.
+      {%- endcomment -%}
+      {% if markets.content contains '<figure class="chart"' or markets.content contains '<p>' %}
+        {{ markets.content }}
+      {% else %}
+        {{ markets.content | markdownify }}
+      {% endif %}
     </div>
   </section>
   {% endif %}
@@ -86,7 +94,11 @@
     </nav>
 
     <div class="issue-body" data-ai-body>
-      {{ ai.content | markdownify }}
+      {% if ai.content contains '<p>' or ai.content contains '<h1' %}
+        {{ ai.content }}
+      {% else %}
+        {{ ai.content | markdownify }}
+      {% endif %}
     </div>
   </section>
   {% endif %}
