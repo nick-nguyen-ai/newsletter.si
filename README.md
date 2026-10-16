@@ -126,7 +126,13 @@ section), and dense tables for papers/repos.
 
 ### Publish
 
-Commit and push to `main`. That’s it — do not edit any other files.
+**Preferred (zero approval):** open a PR from a branch named `cursor/issue-*`
+that only changes `_posts/`, `_data/*.csv`, and/or `assets/issues/`. The
+[auto-merge-issues](.github/workflows/auto-merge-issues.yml) workflow builds the
+site with the `github-pages` gem and, if the build passes, **squash-merges into
+`main` with `GITHUB_TOKEN`** — no human merge click.
+
+You can still push straight to `main` if you prefer.
 
 Each post appears on its topic page (`/markets/` or `/ai/`) when it is the
 latest for that section, on its own day URL, and in **/archive/** (one row per
@@ -143,6 +149,44 @@ One-time setup in the repo:
 4. Save
 
 The site will be at `https://nick-nguyen-ai.github.io/newsletter.si/`.
+
+## Auto-merge daily issues (required Actions settings)
+
+Workflow: `.github/workflows/auto-merge-issues.yml`.
+
+It runs on `pull_request` events targeting `main` when the head branch matches
+`cursor/issue-*`. It:
+
+1. Rejects the PR if any changed file is outside `_posts/**`, `_data/*.csv`, or
+   `assets/issues/**`
+2. Runs `bundle exec jekyll build` (github-pages gem)
+3. Squash-merges into `main` with `GITHUB_TOKEN` (works **without** branch
+   protection — it merges via the API, it does not rely on “Enable auto-merge”)
+4. Requests a GitHub Pages rebuild via `POST /repos/.../pages/builds`
+
+**Why step 4:** GitHub’s docs state that commits made with `GITHUB_TOKEN` do
+**not** trigger a Pages build for “Deploy from a branch”. A normal human push
+to `main` still rebuilds Pages on its own; auto-merged issues need the explicit
+API call.
+
+### Owner must toggle (once)
+
+In the GitHub UI for this repo:
+
+1. **Settings → Actions → General → Workflow permissions**
+   - Select **Read and write permissions**
+   - Check **Allow GitHub Actions to create and approve pull requests**
+   - Save
+2. **Settings → Pages** — keep **Deploy from a branch** / `main` / `/ (root)`
+   as above (no change if already set)
+
+No branch protection rules are required for this workflow.
+
+### Optional (only if Pages rebuild returns 403)
+
+Add a repo secret **`PAGES_BUILD_TOKEN`**: a classic PAT with `public_repo`
+(or a fine-grained token that can request Pages builds). The workflow uses it
+instead of `GITHUB_TOKEN` only for the Pages rebuild request.
 
 ## Local preview (optional)
 

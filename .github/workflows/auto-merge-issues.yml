@@ -1,0 +1,117 @@
+# Auto-merge daily issue PRs from cursor/issue-* branches.
+# After a GITHUB_TOKEN squash-merge, GitHub does NOT rebuild Pages from
+# "Deploy from a branch" — we explicitly request a Pages build via the API.
+name: Auto-merge daily issues
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  pages: write
+
+concurrency:
+  group: auto-merge-issues-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check-and-merge:
+    # Same-repo, non-draft PRs from cursor/issue-* only. No branch protection required:
+    # we squash-merge via the API once checks pass (not "Enable auto-merge").
+    if: >
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'main' &&
+      startsWith(github.head_ref, 'cursor/issue-') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Fetch base for path check
+        run: git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+
+      - name: Verify PR only touches allowed paths
+        id: paths
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMRTUXB \
+            "origin/${{ github.base_ref }}...HEAD")
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "::error::PR has no file changes — refusing to merge."
+            exit 1
+          fi
+          echo "Changed files:"
+          printf '  %s\n' "${files[@]}"
+          disallowed=0
+          for f in "${files[@]}"; do
+            if [[ "$f" == _posts/* ]]; then
+              continue
+            fi
+            if [[ "$f" == assets/issues/* ]]; then
+              continue
+            fi
+            if [[ "$f" == _data/*.csv ]]; then
+              continue
+            fi
+            echo "::error::Disallowed path: $f (only _posts/**, _data/*.csv, assets/issues/**)"
+            disallowed=1
+          done
+          if [ "$disallowed" -ne 0 ]; then
+            exit 1
+          fi
+          echo "All paths allowed."
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Jekyll build (github-pages gem)
+        run: |
+          set -euo pipefail
+          bundle install
+          bundle exec jekyll build
+
+      - name: Squash-merge into main
+        id: merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Direct merge (works without branch protection). Avoid --auto.
+          gh pr merge "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --squash \
+            --delete-branch
+          echo "merged=true" >> "$GITHUB_OUTPUT"
+
+      - name: Request GitHub Pages rebuild
+        if: steps.merge.outputs.merged == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: classic PAT (public_repo) or fine-grained token with Pages: Write.
+          # Only needed if GITHUB_TOKEN gets 403 from pages/builds.
+          PAGES_BUILD_TOKEN: ${{ secrets.PAGES_BUILD_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "GITHUB_TOKEN merges do not trigger 'Deploy from a branch' Pages builds."
+          echo "Requesting an explicit Pages build…"
+          TOKEN="${PAGES_BUILD_TOKEN:-$GH_TOKEN}"
+          if GH_TOKEN="$TOKEN" gh api -X POST "repos/${{ github.repository }}/pages/builds"; then
+            echo "Pages build requested."
+          else
+            status=$?
+            echo "::error::Pages build request failed (exit $status)."
+            echo "Confirm Settings → Actions → General → Workflow permissions = Read and write."
+            echo "If still 403, add repo secret PAGES_BUILD_TOKEN (PAT that can request Pages builds)."
+            exit "$status"
+          fi
