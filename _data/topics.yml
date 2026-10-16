@@ -1,0 +1,14 @@
+# Topic tabs — add a row here and posts with matching `section:` front matter.
+# path is the topic landing URL (latest issue for that section).
+
+- id: markets
+  label: Markets
+  section: markets
+  path: /markets/
+  description: Daily ASX morning briefing and weekend global macro.
+
+- id: ai
+  label: AI
+  section: ai
+  path: /ai/
+  description: Daily AI report — coding agents, evals, papers and repos.

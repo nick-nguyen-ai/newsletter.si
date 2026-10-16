@@ -3,18 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {%- comment -%}
-    title=false: avoid jekyll-seo-tag appending the tagline on the home page
-    ("newsletter.si | …"). We emit <title> ourselves. og:/twitter: title still
-    come from the plugin (site.title on home, page.title on issues).
-  {%- endcomment -%}
   {% seo title=false %}
   {% if page.title and page.title != site.title %}
   <title>{{ page.title }} | {{ site.title }}</title>
   {% else %}
   <title>{{ site.title }}</title>
   {% endif %}
-  {%- comment -%}jekyll-seo-tag 2.8 does not emit twitter:description{%- endcomment -%}
   {% if page.description %}
   <meta property="twitter:description" content="{{ page.description | xml_escape }}">
   {% elsif page.excerpt %}
@@ -24,19 +18,25 @@
   {% endif %}
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/ai-skim.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/nav.css' | relative_url }}">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 </head>
-<body>
-  <header class="site-header">
-    <div class="site-header__inner">
-      <p class="site-title"><a href="{{ '/' | relative_url }}">{{ site.title }}</a></p>
-      <p class="site-tagline">{{ site.tagline }}</p>
-    </div>
-  </header>
+<body class="layout-{{ page.layout | default: 'default' }}{% if page.topic or page.section %} has-section-nav{% endif %}">
+  {% include top-nav.html active=page.nav_active %}
 
-  <main class="site-main">
-    {{ content }}
-  </main>
+  {% assign show_section_nav = false %}
+  {% if page.topic or page.section %}
+    {% assign show_section_nav = true %}
+  {% endif %}
+
+  <div class="site-shell{% if show_section_nav %} site-shell--with-nav{% endif %}">
+    {% if show_section_nav %}
+      {% include section-sidebar.html %}
+    {% endif %}
+    <main class="site-main">
+      {{ content }}
+    </main>
+  </div>
 
   <footer class="site-footer">
     <div class="site-footer__inner">
@@ -49,7 +49,8 @@
 
   <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/ai-skim.js' | relative_url }}" defer></script>
-  {%- comment -%}Chart.js 4.4.6 from jsDelivr, pinned + SRI{%- endcomment -%}
+  <script src="{{ '/assets/js/section-nav.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/archive.js' | relative_url }}" defer></script>
   <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"
     integrity="sha384-Sse/HDqcypGpyTDpvZOJNnG0TT3feGQUkF9H+mnRvic+LjR+K1NhTt8f51KIQ3v3"

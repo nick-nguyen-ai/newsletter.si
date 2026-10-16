@@ -626,11 +626,13 @@
     return root;
   }
 
-  function enhance(panel) {
-    var body = panel.querySelector("[data-ai-body]");
+  function enhance(panelOrBody) {
+    var body = panelOrBody.matches && panelOrBody.matches("[data-ai-body]")
+      ? panelOrBody
+      : panelOrBody.querySelector("[data-ai-body]");
     if (!body || body.getAttribute("data-ai-skimmed") === "1") return;
 
-    var toc = panel.querySelector(".ai-toc");
+    var toc = (panelOrBody.querySelector && panelOrBody.querySelector(".ai-toc")) || null;
     if (toc) toc.hidden = true;
 
     var parsed = parseBody(body);
@@ -664,8 +666,8 @@
   }
 
   function run() {
-    document.querySelectorAll("#ai, .day-panel").forEach(function (panel) {
-      if (panel.id === "ai" || panel.querySelector("[data-ai-body]")) enhance(panel);
+    document.querySelectorAll("[data-ai-body]").forEach(function (body) {
+      enhance(body);
     });
   }
 

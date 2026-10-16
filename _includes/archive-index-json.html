@@ -1,0 +1,17 @@
+[
+{%- assign first = true -%}
+{%- for post in site.posts -%}
+  {%- unless first -%},{%- endunless -%}
+  {%- assign first = false -%}
+  {
+    "id": {{ post.url | jsonify }},
+    "url": {{ post.url | relative_url | jsonify }},
+    "title": {{ post.title | jsonify }},
+    "date": {{ post.date | date: "%Y-%m-%d" | jsonify }},
+    "month": {{ post.date | date: "%Y-%m" | jsonify }},
+    "topic": {{ post.section | jsonify }},
+    "edition": {{ post.edition | default: "" | jsonify }},
+    "text": {{ post.content | strip_html | normalize_whitespace | truncate: 5000 | jsonify }}
+  }
+{%- endfor -%}
+]

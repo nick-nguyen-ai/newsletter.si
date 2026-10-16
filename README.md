@@ -3,10 +3,17 @@
 Daily ASX & global markets briefing, plus a daily AI report — hosted on GitHub Pages at
 [https://nick-nguyen-ai.github.io/newsletter.si/](https://nick-nguyen-ai.github.io/newsletter.si/).
 
-Two streams share one calendar day:
+Two streams (topics) share the site:
 
-1. **Markets** — weekday ASX morning briefing, or weekend global macro
-2. **AI** — daily AI report (long-form, sectioned)
+1. **Markets** — weekday ASX morning briefing, or weekend global macro → `/markets/`
+2. **AI** — daily AI report → `/ai/`
+
+Topics are config-driven in `_data/topics.yml` (maps a tab label to a post
+`section` value and path). Adding a topic later is one YAML row plus posts with
+that `section`. The home page is a short landing with latest cards; each topic
+page shows only that topic’s latest issue with a section sidebar (hash filters,
+deep-linkable). **Archive** (`/archive/`) groups by month with search and topic
+filters.
 
 Built with GitHub Pages’ native Jekyll. Push a markdown file to `main` and it
 publishes automatically. No manual build step.
@@ -121,9 +128,10 @@ section), and dense tables for papers/repos.
 
 Commit and push to `main`. That’s it — do not edit any other files.
 
-Same-day Markets + AI appear on one issue page (Markets first, then AI), with an
-anchor switcher. The archive shows **one row per day**, with badges for which
-sections exist.
+Each post appears on its topic page (`/markets/` or `/ai/`) when it is the
+latest for that section, on its own day URL, and in **/archive/** (one row per
+post, grouped by month, with topic badges). Same-day Markets + AI stay separate
+topic streams — use the top tabs, not a combined scroll.
 
 ## Enable GitHub Pages
 
