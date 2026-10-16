@@ -1,0 +1,17 @@
+<header class="issue-header">
+  <div class="issue-meta">
+    <time class="issue-date" datetime="{{ include.post.date | date: '%Y-%m-%d' }}">
+      {{ include.post.date | date: '%-d %B %Y' }}
+    </time>
+    {% if include.post.edition %}
+      <span class="badge badge--{{ include.post.edition }}">{{ include.post.edition }}</span>
+    {% endif %}
+  </div>
+  <h1 class="issue-title">
+    {% if include.link %}
+      <a href="{{ include.post.url | relative_url }}">{{ include.post.title }}</a>
+    {% else %}
+      {{ include.post.title }}
+    {% endif %}
+  </h1>
+</header>

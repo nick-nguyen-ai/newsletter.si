@@ -1,0 +1,47 @@
+---
+layout: default
+title: Home
+---
+
+{% assign posts = site.posts %}
+
+{% if posts.size > 0 %}
+  {% assign latest = posts.first %}
+
+  <section class="home-latest" aria-labelledby="latest-heading">
+    <p class="section-label" id="latest-heading">Latest issue</p>
+    <article class="issue">
+      {% include issue-header.html post=latest link=true %}
+      <div class="issue-body">
+        {{ latest.content }}
+      </div>
+      <p class="permalink">
+        <a href="{{ latest.url | relative_url }}">Permalink →</a>
+      </p>
+    </article>
+  </section>
+
+  {% if posts.size > 1 %}
+  <section class="home-archive" aria-labelledby="archive-heading">
+    <h2 class="section-label" id="archive-heading">Archive</h2>
+    <ol class="archive" reversed>
+      {% for post in posts offset:1 %}
+        <li class="archive__item">
+          <time class="archive__date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
+            {{ post.date | date: '%-d %b %Y' }}
+          </time>
+          <span class="archive__title">
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          </span>
+          {% if post.edition %}
+            <span class="archive__badge badge badge--{{ post.edition }}">{{ post.edition }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endif %}
+
+{% else %}
+  <p class="empty-state">No issues yet. Drop a markdown file into <code>_posts/</code> to publish.</p>
+{% endif %}

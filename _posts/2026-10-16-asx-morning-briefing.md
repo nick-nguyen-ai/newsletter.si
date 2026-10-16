@@ -1,0 +1,30 @@
+---
+title: "ASX morning briefing: Friday 16 October"
+date: 2026-10-16
+edition: weekday
+---
+
+**Big picture**
+The ASX looks set for a solid bounce, with futures up about 0.8–1% ([AFR](https://www.afr.com/markets/equity-markets/asx-to-rise-huang-says-coreweave-improving-every-day-20261016-p6160c)). Yesterday the ASX 200 slipped just 0.1%. Miners fell, but banks rallied hard after weak jobs data cut the odds of an RBA rate hike ([Investing.com](https://investing.com.au/news/asx-slips-0-1-as-miners-fall-ingenia-tanks-11-6/)). Overnight, Wall Street investors sold AI stocks and moved into safer shares and bonds. The Dow rose 1.1%, while the tech-heavy Nasdaq barely gained ([AP](https://apnews.com/article/stock-markets-kospi-tech-shares-e889ad7dee2b7dd959f1b8bc87366914)). That shift favours ASX banks and industrials over tech.
+
+**Macro and geopolitics**
+- **US inflation:** US producer prices for September rose the most since 2022, and markets still expect at least one more Fed hike this year. Even so, the 10-year bond yield had its biggest one-day fall since August, as investors bought bonds as a safe haven ([CNBC](https://www.cnbc.com/2026/10/15/us-treasury-yields-investors-economic-data-.html)). Lower yields help rate-sensitive stocks.
+- **Hormuz:** The oil trackers disagree. TankerTrackers puts October flows above 12m barrels a day, slightly up on September. Kpler says nearly 10m, down from about 11m. Both are well below the 17m that flowed before the war ([NYT via DNYUZ](https://dnyuz.com/2026/10/15/attacks-on-tankers-in-mideast-surge-but-oil-exports-remain-steady/)). Iranian attacks on ships are at their highest since the war began, and two cargo ships have been sunk ([CNN](https://www.cnn.com/2026/10/15/middleeast/strait-of-hormuz-ships-sunk-iran-intl-hnk)). Brent oil held near US$106 even after the IEA agreed to release its remaining emergency oil stocks faster ([IEA](https://www.iea.org/news/iea-governing-board-statement-on-energy-markets-and-security)). That's good for energy stocks but bad for inflation and travel companies.
+- **RBA:** Unemployment rose to 4.7%, a five-year high. Markets now see only about a 17% chance of a rate hike on Melbourne Cup Day ([Reuters via Business Recorder](https://www.brecorder.com/news/40444343)).
+
+**Where analysts differ**
+- **RBA:** Westpac's Luci Ellis, ANZ, EY and BetaShares' David Bassanese still expect a hike in November. CBA and NAB expect no change, though CBA says a hike is still possible ([ABC](https://www.abc.net.au/news/2026-10-15/unemployment-rate-september-2026-australia/107268870), [Investor Daily](https://www.investordaily.com.au/big-four-split-over-rbas-next-move/)). So markets are betting rates stay put, while many economists still expect a hike.
+- **AI stocks:** Goldman's Peter Callahan thinks AI stocks will keep rising overall, but says investors now need to pick winners carefully ([Goldman Sachs](https://www.goldmansachs.com/insights/the-markets/ai-is-becoming-a-stock-pickers-market)). JPMorgan doesn't expect a quick rebound from this sell-off like the one in July ([MarketWatch](https://www.marketwatch.com/story/why-the-ai-trade-is-not-set-up-for-a-rebound-like-julys-according-to-jpmorgan-5ae511db)).
+
+**Your watchlist (yesterday's moves)**
+- **ZIP (−4.1%):** A sharp fall with no company news. Watch how its new Zip Cash product does in the US over the holiday season.
+- **CSL (+1.3%):** Nothing new this week. The most recent news was its switch to Haemonetics plasma collection machines, and a UK regulator rebuking its Seqirus vaccines business over compliance.
+- **FLT (+1.2%):** Its share buy-back continues. Most brokers rate it a strong buy, with an average target of about $13.75. But the company warns that travel demand will stay subdued while the Middle East conflict lasts ([Motley Fool](https://www.fool.com.au/2026/10/14/woodside-new-hope-flight-centre-shares-buy-hold-or-sell/)).
+- **IEL (+0.9%):** State Street has become a substantial shareholder, with 5.5%. There's been no new word from Blackstone since the board rejected its $2.50 a share offer ([AFR](https://www.afr.com/company/asx/iel)).
+
+**What to watch**
+- Whether the bank rally holds if expectations of a rate hike come back.
+- Australia's inflation data later this month, which Bassanese calls "all-important" for the November RBA decision.
+- Hormuz attack headlines, and swings in AI stocks before the Fed meeting at the end of October.
+
+*Information only, not financial advice.*

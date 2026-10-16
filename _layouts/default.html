@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% seo %}
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <p class="site-title"><a href="{{ '/' | relative_url }}">{{ site.title }}</a></p>
+      <p class="site-tagline">{{ site.tagline }}</p>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="disclaimer">Information only, not financial advice.</p>
+      <p>
+        <a href="{{ '/feed.xml' | relative_url }}">Atom feed</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

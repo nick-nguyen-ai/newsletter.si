@@ -1,0 +1,43 @@
+---
+layout: default
+---
+
+<article class="issue" itemscope itemtype="https://schema.org/Article">
+  <header class="issue-header">
+    <div class="issue-meta">
+      <time class="issue-date" datetime="{{ page.date | date: '%Y-%m-%d' }}" itemprop="datePublished">
+        {{ page.date | date: '%-d %B %Y' }}
+      </time>
+      {% if page.edition %}
+        <span class="badge badge--{{ page.edition }}">{{ page.edition }}</span>
+      {% endif %}
+    </div>
+    <h1 class="issue-title" itemprop="headline">{{ page.title }}</h1>
+  </header>
+
+  <div class="issue-body" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  {%- comment -%}
+    In reverse-chronological site.posts, page.next is older and page.previous is newer.
+  {%- endcomment -%}
+  {% if page.next or page.previous %}
+  <nav class="issue-nav" aria-label="Issue navigation">
+    {% if page.next %}
+      <a class="issue-nav__prev" href="{{ page.next.url | relative_url }}">
+        <span class="issue-nav__label">← Older</span>
+        {{ page.next.title }}
+      </a>
+    {% else %}
+      <span></span>
+    {% endif %}
+    {% if page.previous %}
+      <a class="issue-nav__next" href="{{ page.previous.url | relative_url }}">
+        <span class="issue-nav__label">Newer →</span>
+        {{ page.previous.title }}
+      </a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</article>
