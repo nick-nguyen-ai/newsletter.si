@@ -182,6 +182,15 @@
   border-color: currentColor;
 }
 
+.ai-tag--agent {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .ai-domain {
   display: inline-block;
   font-size: 0.68rem;

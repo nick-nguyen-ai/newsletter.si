@@ -106,8 +106,16 @@ Rules the skim UI relies on:
 - Mark uncertain items with `(unconfirmed)` in the title or body
 - Section 7 = bullet list; section 8 = paper items; section 9 = numbered repo list
 
+**AI coding agents (render-time merge):** headings like “Claude Code and Codex” and
+“Other coding agents and dev tools” are merged into one section titled **AI coding
+agents**, with a single filter chip. All items from both headings are kept. Each
+card gets small per-agent tags detected from the item text (Claude Code, Codex,
+Cursor, Copilot, Gemini CLI, Pi, OpenCode, Grok, Aider, Cline, and similar). You
+can keep writing the two old headings — no Markdown change required.
+
 The rendered page shows: **Today in 30 seconds** (biggest story + top 5 one-liners),
-section filter chips, expandable cards, and dense tables for papers/repos.
+section filter chips, expandable cards (with agent tags in the coding-agents
+section), and dense tables for papers/repos.
 
 ### Publish
 

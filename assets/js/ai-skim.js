@@ -1,9 +1,15 @@
 (function () {
   "use strict";
 
+  // Both legacy headings ("Claude Code and Codex", "Other coding agents…")
+  // map to one section id so they merge at render time.
   var SECTION_CHIPS = [
-    { match: /claude\s*code|codex/i, id: "claude-codex", label: "Claude Code & Codex" },
-    { match: /coding agents|dev tools/i, id: "coding-agents", label: "Coding agents" },
+    {
+      match: /claude\s*code|codex|coding agents|dev tools/i,
+      id: "coding-agents",
+      label: "AI coding agents",
+      mergeHeading: "AI coding agents",
+    },
     { match: /evaluat|validat/i, id: "eval", label: "Eval & validation" },
     { match: /agent frameworks|open-?source agent/i, id: "frameworks", label: "Agent frameworks" },
     { match: /big ai compan/i, id: "big-cos", label: "Big AI cos" },
@@ -11,6 +17,25 @@
     { match: /trending on x/i, id: "x", label: "Trending on X", kind: "x" },
     { match: /papers/i, id: "papers", label: "Papers", kind: "papers" },
     { match: /repos|github/i, id: "repos", label: "Repos", kind: "repos" },
+  ];
+
+  // Longer / more specific names first so "Claude Code" wins over a bare "Claude".
+  var AGENT_TAGS = [
+    { name: "Claude Code", re: /\bclaude\s*code\b/i },
+    { name: "Codex", re: /\bcodex\b/i },
+    { name: "Cursor", re: /\bcursor\b/i },
+    { name: "Copilot", re: /\b(?:github\s+)?copilot\b/i },
+    { name: "Gemini CLI", re: /\bgemini\s*cli\b/i },
+    { name: "OpenCode", re: /\bopencode\b/i },
+    { name: "Windsurf", re: /\bwindsurf\b/i },
+    { name: "Cline", re: /\bcline\b/i },
+    { name: "Aider", re: /\baider\b/i },
+    { name: "Devin", re: /\bdevin\b/i },
+    { name: "Grok", re: /\bgrok\b/i },
+    { name: "Continue", re: /\bcontinue\.dev\b|\bcontinue\b(?=\s+(?:agent|extension|IDE))/i },
+    { name: "Amp", re: /\bamp\b(?=\s+(?:code|agent|CLI|harness))?/i },
+    { name: "Goose", re: /\bgoose\b/i },
+    { name: "Pi", re: /\bpi\b(?=\s|v\d|[./:'"]|$)|\/pi\b|\bpi\s+v\d/i },
   ];
 
   function slugify(text) {
@@ -48,6 +73,25 @@
 
   function isUnconfirmed(text) {
     return /\bunconfirmed\b/i.test(text || "");
+  }
+
+  function detectAgents(item) {
+    var hay = [item.title || "", item.summary || "", item.forYou || "", item.takeaway || ""];
+    (item.links || []).forEach(function (l) {
+      hay.push(l.text || "", l.href || "", l.domain || "");
+    });
+    if (item.bodyEl) hay.push(textOf(item.bodyEl));
+    var blob = hay.join(" \n ");
+    var found = [];
+    var seen = {};
+    AGENT_TAGS.forEach(function (agent) {
+      if (seen[agent.name]) return;
+      if (agent.re.test(blob)) {
+        seen[agent.name] = true;
+        found.push(agent.name);
+      }
+    });
+    return found;
   }
 
   function textOf(el) {
@@ -100,7 +144,7 @@
     body.className = "ai-card__full";
     body.appendChild(p.cloneNode(true));
 
-    return {
+    var item = {
       kind: "card",
       sectionId: section.id,
       sectionLabel: section.label,
@@ -111,7 +155,10 @@
       links: links,
       unconfirmed: isUnconfirmed(title) || isUnconfirmed(full),
       bodyEl: body,
+      agents: [],
     };
+    item.agents = detectAgents(item);
+    return item;
   }
 
   function parseXItem(li, section) {
@@ -215,8 +262,9 @@
           id: chip.id,
           label: chip.label,
           kind: chip.kind || "cards",
-          headingText: textOf(el).trim(),
+          headingText: chip.mergeHeading || textOf(el).trim(),
           headingEl: el,
+          mergeHeading: chip.mergeHeading || null,
           items: [],
           extras: [],
         };
@@ -279,7 +327,49 @@
       current.extras.push(el);
     });
 
+    sections = mergeSectionsById(sections);
     return { biggest: biggest, biggestEl: biggestEl, sections: sections, preamble: preamble };
+  }
+
+  function mergeSectionsById(sections) {
+    var order = [];
+    var byId = {};
+    sections.forEach(function (sec) {
+      if (!byId[sec.id]) {
+        byId[sec.id] = {
+          id: sec.id,
+          label: sec.label,
+          kind: sec.kind,
+          headingText: sec.mergeHeading || sec.label || sec.headingText,
+          headingEl: sec.headingEl,
+          items: [],
+          extras: [],
+          mergeHeading: sec.mergeHeading,
+        };
+        // Prefer canonical merge heading when chip defines one
+        var chip = SECTION_CHIPS.filter(function (c) {
+          return c.id === sec.id;
+        })[0];
+        if (chip && chip.mergeHeading) {
+          byId[sec.id].headingText = chip.mergeHeading;
+          byId[sec.id].label = chip.label;
+        }
+        order.push(sec.id);
+      }
+      var target = byId[sec.id];
+      sec.items.forEach(function (it) {
+        it.sectionId = target.id;
+        it.sectionLabel = target.label;
+        if (!it.agents || !it.agents.length) it.agents = detectAgents(it);
+        target.items.push(it);
+      });
+      sec.extras.forEach(function (ex) {
+        target.extras.push(ex);
+      });
+    });
+    return order.map(function (id) {
+      return byId[id];
+    });
   }
 
   function sourceChips(links) {
@@ -316,9 +406,17 @@
     summary.appendChild(takeaway);
 
     var meta = el("div", "ai-card__meta");
-    var tag = el("span", "ai-tag");
-    tag.textContent = item.sectionLabel;
-    meta.appendChild(tag);
+    if (item.sectionId === "coding-agents" && item.agents && item.agents.length) {
+      item.agents.forEach(function (name) {
+        var agentTag = el("span", "ai-tag ai-tag--agent");
+        agentTag.textContent = name;
+        meta.appendChild(agentTag);
+      });
+    } else {
+      var tag = el("span", "ai-tag");
+      tag.textContent = item.sectionLabel;
+      meta.appendChild(tag);
+    }
     if (item.unconfirmed) {
       var badge = el("span", "badge badge--unconfirmed");
       badge.textContent = "unconfirmed";
