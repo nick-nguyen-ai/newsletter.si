@@ -1,0 +1,79 @@
+{%- comment -%}
+  Older / newer navigation between calendar days.
+  Expects: include.day_date
+  site.posts is newest-first, so day_list is newest-first too.
+{%- endcomment -%}
+
+{% assign current_day = include.day_date | date: "%Y-%m-%d" %}
+{% assign seen = "" %}
+{% assign day_list = "" %}
+
+{% for p in site.posts %}
+  {% assign d = p.date | date: "%Y-%m-%d" %}
+  {% assign token = "|" | append: d | append: "|" %}
+  {% unless seen contains token %}
+    {% assign seen = seen | append: token %}
+    {% assign day_list = day_list | append: d | append: "," %}
+  {% endunless %}
+{% endfor %}
+
+{% assign days = day_list | split: "," %}
+{% assign older_day = false %}
+{% assign newer_day = false %}
+{% assign passed_current = false %}
+
+{% for d in days %}
+  {% if d != "" %}
+    {% if passed_current %}
+      {% unless older_day %}
+        {% assign older_day = d %}
+      {% endunless %}
+    {% elsif d == current_day %}
+      {% assign passed_current = true %}
+    {% else %}
+      {% assign newer_day = d %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% if older_day or newer_day %}
+<nav class="issue-nav" aria-label="Issue navigation">
+  {% if older_day %}
+    {% assign older_url = false %}
+    {% assign older_label = older_day %}
+    {% for p in site.posts %}
+      {% assign p_day = p.date | date: "%Y-%m-%d" %}
+      {% if p_day == older_day %}
+        {% if older_url == false or p.section == "markets" %}
+          {% assign older_url = p.url %}
+          {% assign older_label = p.date | date: "%-d %b %Y" %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    <a class="issue-nav__prev" href="{{ older_url | relative_url }}">
+      <span class="issue-nav__label">← Older</span>
+      {{ older_label }}
+    </a>
+  {% else %}
+    <span></span>
+  {% endif %}
+
+  {% if newer_day %}
+    {% assign newer_url = false %}
+    {% assign newer_label = newer_day %}
+    {% for p in site.posts %}
+      {% assign p_day = p.date | date: "%Y-%m-%d" %}
+      {% if p_day == newer_day %}
+        {% if newer_url == false or p.section == "markets" %}
+          {% assign newer_url = p.url %}
+          {% assign newer_label = p.date | date: "%-d %b %Y" %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    <a class="issue-nav__next" href="{{ newer_url | relative_url }}">
+      <span class="issue-nav__label">Newer →</span>
+      {{ newer_label }}
+    </a>
+  {% endif %}
+</nav>
+{% endif %}
