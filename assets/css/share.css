@@ -1,0 +1,210 @@
+/* Share button, toast, fallback sheet */
+
+.share-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-min, 44px);
+  min-height: var(--tap-min, 44px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.share-btn:hover,
+.share-btn:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  outline: none;
+}
+
+.share-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.share-btn__icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Top bar placement (desktop+) */
+.site-header__actions {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.share-btn--header {
+  border-radius: 2px;
+}
+
+/* Mobile FAB — thumb zone */
+.share-fab {
+  position: fixed;
+  z-index: 30;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  width: var(--tap-min, 44px);
+  height: var(--tap-min, 44px);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--text) 18%, transparent);
+  background: var(--bg-elevated);
+}
+
+@media (min-width: 1024px) {
+  .site-header__actions {
+    display: flex;
+  }
+
+  .share-fab {
+    display: none;
+  }
+}
+
+/* Inline section share */
+.share-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.share-btn--inline {
+  min-width: 2rem;
+  min-height: 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 2px;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.share-btn--inline:hover,
+.share-btn--inline:focus-visible {
+  opacity: 1;
+}
+
+@media (max-width: 1023px) {
+  .share-btn--inline {
+    min-width: var(--tap-min, 44px);
+    min-height: var(--tap-min, 44px);
+    width: var(--tap-min, 44px);
+    height: var(--tap-min, 44px);
+  }
+}
+
+/* Toast */
+.share-toast {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: max(5rem, calc(env(safe-area-inset-bottom, 0px) + 5rem));
+  transform: translateX(-50%) translateY(0.5rem);
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.share-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Fallback sheet */
+.share-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, #000 40%, transparent);
+}
+
+.share-fallback[hidden] {
+  display: none !important;
+}
+
+.share-fallback__sheet {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1rem;
+  border-radius: 12px 12px 8px 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+}
+
+.share-fallback__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.share-fallback__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-min, 44px);
+  padding: 0 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.share-fallback__btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.share-fallback__close {
+  appearance: none;
+  margin-top: 0.25rem;
+  min-height: var(--tap-min, 44px);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (min-width: 640px) {
+  .share-fallback {
+    align-items: center;
+  }
+
+  .share-fallback__sheet {
+    border-radius: 8px;
+  }
+}

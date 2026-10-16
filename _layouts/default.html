@@ -21,12 +21,27 @@
   {% else %}
   <meta property="twitter:description" content="{{ site.description | xml_escape }}">
   {% endif %}
+  {% assign og_image = "/assets/og/default.png" %}
+  {% if page.nav_active == "archive" or page.url == "/archive/" %}
+    {% assign og_image = "/assets/og/archive.png" %}
+  {% elsif page.topic == "markets" or page.section == "markets" or page.nav_active == "markets" %}
+    {% assign og_image = "/assets/og/markets.png" %}
+  {% elsif page.topic == "ai" or page.section == "ai" or page.nav_active == "ai" %}
+    {% assign og_image = "/assets/og/ai.png" %}
+  {% endif %}
+  {% assign og_image_abs = og_image | absolute_url %}
+  <meta property="og:image" content="{{ og_image_abs }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ og_image_abs }}">
   <link rel="manifest" href="{{ '/manifest.webmanifest' | relative_url }}">
   <link rel="apple-touch-icon" href="{{ '/assets/icons/apple-touch-icon.png' | relative_url }}">
   <link rel="icon" type="image/png" sizes="192x192" href="{{ '/assets/icons/icon-192.png' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/ai-skim.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/nav.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/share.css' | relative_url }}">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 </head>
 <body class="layout-{{ page.layout | default: 'default' }}{% if page.topic or page.section %} has-section-nav{% endif %}">
@@ -57,6 +72,7 @@
 
   <script src="{{ '/assets/js/site.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/chrome.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/share.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/ai-skim.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/section-nav.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/archive.js' | relative_url }}" defer></script>

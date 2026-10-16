@@ -12,6 +12,12 @@
 {% if active == blank or active == nil %}
   {% assign active = page.section %}
 {% endif %}
+{% assign share_page_title = page.title %}
+{% if share_page_title == blank or share_page_title == nil or share_page_title == site.title %}
+  {% assign share_page_title = site.title %}
+{% else %}
+  {% assign share_page_title = page.title | append: " | " | append: site.title %}
+{% endif %}
 <header class="site-header" data-site-header>
   <div class="site-header__bar">
     <a class="site-brand" href="{{ '/' | relative_url }}">
@@ -30,5 +36,9 @@
         href="{{ '/archive/' | relative_url }}"
       >Archive</a>
     </nav>
+    <div class="site-header__actions">
+      {% include share-button.html class="share-btn--header" title=share_page_title %}
+    </div>
   </div>
 </header>
+{% include share-button.html class="share-fab" title=share_page_title %}
