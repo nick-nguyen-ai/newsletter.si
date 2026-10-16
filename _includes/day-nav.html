@@ -1,20 +1,22 @@
 {%- comment -%}
-  Older / newer navigation between calendar days.
-  Expects: include.day_date
-  site.posts is newest-first, so day_list is newest-first too.
+  Older / newer within the same topic (section).
+  Expects: include.day_date, optional include.topic (section id)
 {%- endcomment -%}
 
 {% assign current_day = include.day_date | date: "%Y-%m-%d" %}
+{% assign topic = include.topic | default: page.section %}
 {% assign seen = "" %}
 {% assign day_list = "" %}
 
 {% for p in site.posts %}
-  {% assign d = p.date | date: "%Y-%m-%d" %}
-  {% assign token = "|" | append: d | append: "|" %}
-  {% unless seen contains token %}
-    {% assign seen = seen | append: token %}
-    {% assign day_list = day_list | append: d | append: "," %}
-  {% endunless %}
+  {% if topic == blank or p.section == topic %}
+    {% assign d = p.date | date: "%Y-%m-%d" %}
+    {% assign token = "|" | append: d | append: "|" %}
+    {% unless seen contains token %}
+      {% assign seen = seen | append: token %}
+      {% assign day_list = day_list | append: d | append: "," %}
+    {% endunless %}
+  {% endif %}
 {% endfor %}
 
 {% assign days = day_list | split: "," %}
@@ -43,17 +45,19 @@
     {% assign older_label = older_day %}
     {% for p in site.posts %}
       {% assign p_day = p.date | date: "%Y-%m-%d" %}
-      {% if p_day == older_day %}
-        {% if older_url == false or p.section == "markets" %}
-          {% assign older_url = p.url %}
-          {% assign older_label = p.date | date: "%-d %b %Y" %}
-        {% endif %}
+      {% if p_day == older_day and p.section == topic %}
+        {% assign older_url = p.url %}
+        {% assign older_label = p.date | date: "%-d %b %Y" %}
       {% endif %}
     {% endfor %}
+    {% if older_url %}
     <a class="issue-nav__prev" href="{{ older_url | relative_url }}">
       <span class="issue-nav__label">← Older</span>
       {{ older_label }}
     </a>
+    {% else %}
+    <span></span>
+    {% endif %}
   {% else %}
     <span></span>
   {% endif %}
@@ -63,17 +67,17 @@
     {% assign newer_label = newer_day %}
     {% for p in site.posts %}
       {% assign p_day = p.date | date: "%Y-%m-%d" %}
-      {% if p_day == newer_day %}
-        {% if newer_url == false or p.section == "markets" %}
-          {% assign newer_url = p.url %}
-          {% assign newer_label = p.date | date: "%-d %b %Y" %}
-        {% endif %}
+      {% if p_day == newer_day and p.section == topic %}
+        {% assign newer_url = p.url %}
+        {% assign newer_label = p.date | date: "%-d %b %Y" %}
       {% endif %}
     {% endfor %}
+    {% if newer_url %}
     <a class="issue-nav__next" href="{{ newer_url | relative_url }}">
       <span class="issue-nav__label">Newer →</span>
       {{ newer_label }}
     </a>
+    {% endif %}
   {% endif %}
 </nav>
 {% endif %}

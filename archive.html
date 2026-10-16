@@ -1,0 +1,74 @@
+---
+layout: default
+title: Archive
+nav_active: archive
+permalink: /archive/
+description: Browse all newsletter.si issues by month, topic, or search.
+---
+
+<section class="archive-page" data-archive-page>
+  <header class="archive-page__header">
+    <h1 class="archive-page__title">Archive</h1>
+    <p class="archive-page__lead">Search titles and full text, or filter by topic.</p>
+  </header>
+
+  <div class="archive-page__controls">
+    <label class="archive-search">
+      <span class="visually-hidden">Search archive</span>
+      <input
+        type="search"
+        class="archive-search__input"
+        data-archive-search
+        placeholder="Search titles and text…"
+        autocomplete="off"
+      >
+    </label>
+    <div class="archive-filters" data-archive-filters role="group" aria-label="Topic filter">
+      <button type="button" class="archive-filter archive-filter--active" data-topic-filter="all">All</button>
+      {% for topic in site.data.topics %}
+        <button type="button" class="archive-filter" data-topic-filter="{{ topic.section }}">{{ topic.label }}</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <p class="archive-page__status" data-archive-status hidden></p>
+
+  <div class="archive-months" data-archive-months>
+    {% assign month_seen = "" %}
+    {% for post in site.posts %}
+      {% assign month_key = post.date | date: "%Y-%m" %}
+      {% assign month_token = "|" | append: month_key | append: "|" %}
+      {% unless month_seen contains month_token %}
+        {% assign month_seen = month_seen | append: month_token %}
+        <details class="archive-month" open data-archive-month="{{ month_key }}">
+          <summary class="archive-month__summary">
+            {{ post.date | date: "%B %Y" }}
+          </summary>
+          <ol class="archive-month__list">
+            {% for p in site.posts %}
+              {% assign p_month = p.date | date: "%Y-%m" %}
+              {% if p_month == month_key %}
+                <li
+                  class="archive-month__item"
+                  data-archive-item
+                  data-topic="{{ p.section }}"
+                  data-date="{{ p.date | date: '%Y-%m-%d' }}"
+                  data-id="{{ p.url | slugify }}"
+                >
+                  <time datetime="{{ p.date | date: '%Y-%m-%d' }}">{{ p.date | date: "%-d %b" }}</time>
+                  <a href="{{ p.url | relative_url }}">{{ p.title }}</a>
+                  <span class="badge badge--{{ p.section }}">{{ p.section }}</span>
+                  {% if p.edition %}<span class="badge badge--{{ p.edition }}">{{ p.edition }}</span>{% endif %}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ol>
+        </details>
+      {% endunless %}
+    {% endfor %}
+  </div>
+</section>
+
+<script type="application/json" data-archive-index>
+{% include archive-index-json.html %}
+</script>

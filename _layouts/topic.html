@@ -1,0 +1,28 @@
+---
+layout: default
+---
+
+{% assign topic_id = page.topic %}
+{% assign topic_meta = false %}
+{% for t in site.data.topics %}
+  {% if t.id == topic_id %}
+    {% assign topic_meta = t %}
+  {% endif %}
+{% endfor %}
+
+{% assign latest = false %}
+{% for post in site.posts %}
+  {% if post.section == topic_meta.section %}
+    {% if latest == false %}
+      {% assign latest = post %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% include topic-body.html post=latest %}
+
+{% if latest %}
+<p class="permalink">
+  <a href="{{ latest.url | relative_url }}">Permalink →</a>
+</p>
+{% endif %}

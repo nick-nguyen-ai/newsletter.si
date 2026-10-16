@@ -77,49 +77,15 @@ a:hover {
   color: var(--link-hover);
 }
 
-.site-header {
-  padding: calc(var(--space) * 2) var(--space) var(--space);
-  border-bottom: 1px solid var(--border);
-}
-
-.site-header__inner,
-.site-main,
-.site-footer__inner {
-  width: 100%;
-  max-width: var(--max-width);
-  margin-inline: auto;
-}
-
-.site-title {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.site-title a {
-  color: var(--text);
-  text-decoration: none;
-}
-
-.site-title a:hover {
-  color: var(--accent);
-}
-
-.site-tagline {
-  margin: 0.35rem 0 0;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  letter-spacing: 0.01em;
-}
-
+/* Header / main chrome live in nav.css (topic shell). */
 .site-main {
   flex: 1;
-  padding: calc(var(--space) * 2.5) var(--space) calc(var(--space) * 3);
+}
+
+.site-footer__inner {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
 }
 
 /* —— Badges —— */

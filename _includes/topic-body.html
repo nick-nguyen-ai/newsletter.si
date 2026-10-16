@@ -1,0 +1,36 @@
+{%- comment -%}
+  Render a single topic post body with section-nav hooks.
+  Expects: include.post
+{%- endcomment -%}
+{% assign post = include.post %}
+{% unless post %}
+  <p class="empty-state">No issues yet for this topic.</p>
+{% else %}
+<article class="topic-issue" data-topic="{{ post.section }}" data-day="{{ post.date | date: '%Y-%m-%d' }}">
+  <header class="issue-header">
+    <div class="issue-meta">
+      <time class="issue-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
+        {{ post.date | date: "%A %-d %B %Y" }}
+      </time>
+      <span class="badge badge--{{ post.section }}">{{ post.section }}</span>
+      {% if post.edition %}
+        <span class="badge badge--{{ post.edition }}">{{ post.edition }}</span>
+      {% endif %}
+    </div>
+    <h1 class="issue-title">{{ post.title }}</h1>
+  </header>
+
+  <div
+    class="issue-body topic-body"
+    data-topic-body
+    data-topic-section="{{ post.section }}"
+    {% if post.section == 'ai' %}data-ai-body{% endif %}
+  >
+    {% if post.content contains '<p>' or post.content contains '<h1' or post.content contains '<figure' %}
+      {{ post.content }}
+    {% else %}
+      {{ post.content | markdownify }}
+    {% endif %}
+  </div>
+</article>
+{% endunless %}

@@ -1,0 +1,34 @@
+{%- comment -%}
+  Top bar: brand + topic tabs (from site.data.topics) + Archive.
+  Optional: include.active = topic id or "archive" or "home"
+{%- endcomment -%}
+{% assign active = include.active %}
+{% if active == blank or active == nil %}
+  {% assign active = page.nav_active %}
+{% endif %}
+{% if active == blank or active == nil %}
+  {% assign active = page.topic %}
+{% endif %}
+{% if active == blank or active == nil %}
+  {% assign active = page.section %}
+{% endif %}
+<header class="site-header">
+  <div class="site-header__bar">
+    <div class="site-brand">
+      <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+      <p class="site-tagline">{{ site.tagline }}</p>
+    </div>
+    <nav class="top-nav" aria-label="Topics">
+      {% for topic in site.data.topics %}
+        <a
+          class="top-nav__link{% if active == topic.id or active == topic.section %} top-nav__link--active{% endif %}"
+          href="{{ topic.path | relative_url }}"
+        >{{ topic.label }}</a>
+      {% endfor %}
+      <a
+        class="top-nav__link{% if active == 'archive' or page.url == '/archive/' %} top-nav__link--active{% endif %}"
+        href="{{ '/archive/' | relative_url }}"
+      >Archive</a>
+    </nav>
+  </div>
+</header>

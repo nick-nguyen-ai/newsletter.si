@@ -2,5 +2,5 @@
 layout: default
 ---
 
-{% include day-content.html day_date=page.date %}
-{% include day-nav.html day_date=page.date %}
+{% include topic-body.html post=page %}
+{% include day-nav.html day_date=page.date topic=page.section %}
