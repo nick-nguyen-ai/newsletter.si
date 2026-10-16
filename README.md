@@ -1,6 +1,6 @@
 # newsletter.si
 
-Daily ASX & AI briefing — hosted on GitHub Pages at
+Daily ASX & global markets briefing, plus a daily AI report — hosted on GitHub Pages at
 [https://nick-nguyen-ai.github.io/newsletter.si/](https://nick-nguyen-ai.github.io/newsletter.si/).
 
 Two streams share one calendar day:
