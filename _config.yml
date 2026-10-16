@@ -15,6 +15,9 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
+include:
+  - manifest.webmanifest
+
 exclude:
   - Gemfile
   - Gemfile.lock

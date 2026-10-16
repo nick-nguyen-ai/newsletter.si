@@ -12,12 +12,12 @@
 {% if active == blank or active == nil %}
   {% assign active = page.section %}
 {% endif %}
-<header class="site-header">
+<header class="site-header" data-site-header>
   <div class="site-header__bar">
-    <div class="site-brand">
-      <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-      <p class="site-tagline">{{ site.tagline }}</p>
-    </div>
+    <a class="site-brand" href="{{ '/' | relative_url }}">
+      <span class="site-title">{{ site.title }}</span>
+      <span class="site-tagline">{{ site.tagline }}</span>
+    </a>
     <nav class="top-nav" aria-label="Topics">
       {% for topic in site.data.topics %}
         <a
