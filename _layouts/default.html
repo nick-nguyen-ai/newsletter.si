@@ -3,7 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% seo %}
+  {%- comment -%}
+    title=false: avoid jekyll-seo-tag appending the tagline on the home page
+    ("newsletter.si | …"). We emit <title> ourselves. og:/twitter: title still
+    come from the plugin (site.title on home, page.title on issues).
+  {%- endcomment -%}
+  {% seo title=false %}
+  {% if page.title and page.title != site.title %}
+  <title>{{ page.title }} | {{ site.title }}</title>
+  {% else %}
+  <title>{{ site.title }}</title>
+  {% endif %}
+  {%- comment -%}jekyll-seo-tag 2.8 does not emit twitter:description{%- endcomment -%}
+  {% if page.description %}
+  <meta property="twitter:description" content="{{ page.description | xml_escape }}">
+  {% elsif page.excerpt %}
+  <meta property="twitter:description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 200 | xml_escape }}">
+  {% else %}
+  <meta property="twitter:description" content="{{ site.description | xml_escape }}">
+  {% endif %}
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 </head>
