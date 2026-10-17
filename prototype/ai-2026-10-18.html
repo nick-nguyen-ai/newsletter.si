@@ -73,6 +73,6 @@ document.getElementById('sel').onchange=ev=>show(ev.target.value);
 document.getElementById('side').onclick=ev=>{const a=ev.target.closest('a');if(a){ev.preventDefault();show(a.dataset.s)}};
 document.getElementById('list').onclick=ev=>{const b=ev.target.closest('button.hd');if(b){const c=b.parentNode;c.classList.toggle('open');b.setAttribute('aria-expanded',c.classList.contains('open'))}};
 document.getElementById('sig').onclick=ev=>{const a=ev.target.closest('a');if(!a)return;ev.preventDefault();const c=D.cards.find(x=>x.id==a.dataset.j);cur=c.sec;render();const el=document.getElementById(c.id);el.classList.add('open','flash');scrollTo({top:el.getBoundingClientRect().top+scrollY-document.querySelector('header').offsetHeight-12});setTimeout(()=>el.classList.remove('flash'),1500)};
-document.getElementById('share').onclick=async()=>{const d={title:'newsletter.si',url:location.href};try{if(navigator.share)await navigator.share(d);else{await navigator.clipboard.writeText(location.href);const t=document.getElementById('toast');t.style.display='block';setTimeout(()=>t.style.display='none',1500)}}catch(_){}};
+document.getElementById('share').onclick=async()=>{const d={url:location.href};try{if(navigator.share)await navigator.share(d);else{await navigator.clipboard.writeText(location.href);const t=document.getElementById('toast');t.style.display='block';setTimeout(()=>t.style.display='none',1500)}}catch(_){}};
 render();
 </script></body></html>
