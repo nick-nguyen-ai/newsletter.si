@@ -11,14 +11,6 @@
     );
   }
 
-  function shareTitle(fromEl) {
-    if (fromEl && fromEl.getAttribute("data-share-title")) {
-      return fromEl.getAttribute("data-share-title");
-    }
-    var el = pageShareEl();
-    return (el && el.getAttribute("data-share-title")) || document.title || "newsletter.si";
-  }
-
   function shareUrl(fromEl) {
     var el = fromEl || pageShareEl();
     var base =
@@ -118,32 +110,31 @@
     return panel;
   }
 
-  function showFallback(title, url, sourceEl) {
+  function showFallback(url, sourceEl) {
     var panel = ensureFallback();
     panel._shareSource = sourceEl || null;
     var enc = encodeURIComponent;
-    panel.querySelector("[data-share-wa]").href =
-      "https://wa.me/?text=" + enc(title + " " + url);
+    // URL only — never prepend titles containing a bare "newsletter.si" token
+    // (messaging apps auto-link it to the unrelated Slovenian site).
+    panel.querySelector("[data-share-wa]").href = "https://wa.me/?text=" + enc(url);
     panel.querySelector("[data-share-x]").href =
-      "https://twitter.com/intent/tweet?text=" + enc(title) + "&url=" + enc(url);
-    panel.querySelector("[data-share-mail]").href =
-      "mailto:?subject=" + enc(title) + "&body=" + enc(url);
+      "https://twitter.com/intent/tweet?url=" + enc(url);
+    panel.querySelector("[data-share-mail]").href = "mailto:?body=" + enc(url);
     panel.hidden = false;
   }
 
   function doShare(fromEl) {
-    var title = shareTitle(fromEl);
     var url = shareUrl(fromEl);
     if (typeof navigator.share === "function") {
       navigator
-        .share({ title: title, text: title, url: url })
+        .share({ url: url })
         .catch(function (err) {
           if (err && err.name === "AbortError") return;
-          showFallback(title, url, fromEl);
+          showFallback(url, fromEl);
         });
       return;
     }
-    showFallback(title, url, fromEl);
+    showFallback(url, fromEl);
   }
 
   document.addEventListener("click", function (e) {
@@ -163,7 +154,6 @@
     var pageUrl =
       (pageEl && pageEl.getAttribute("data-share-url")) ||
       location.href.split("#")[0];
-    var pageTitle = shareTitle(pageEl);
 
     root.querySelectorAll(".topic-section, .ai-section").forEach(function (sec) {
       if (sec.querySelector("[data-share-section]")) return;
@@ -184,10 +174,9 @@
       btn.setAttribute("data-share", "");
       btn.setAttribute("data-share-section", id);
       btn.setAttribute("data-share-url", pageUrl);
-      btn.setAttribute("data-share-title", pageTitle + " — " + label);
       btn.setAttribute("aria-label", "Share " + label + " section");
       btn.innerHTML =
-        '<svg class="share-btn__icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
+        '<svg class="share-btn__icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>';
       titleEl.appendChild(btn);
     });
     return true;

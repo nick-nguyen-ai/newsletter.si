@@ -1,14 +1,8 @@
 {%- comment -%}
-  Share control. Pass title / url optionally; defaults to page/site.
+  Share control. Pass url optionally; defaults to page absolute URL.
+  Title is intentionally omitted — Android messaging apps auto-link bare
+  "newsletter.si" tokens and preview the wrong (unrelated) site.
 {%- endcomment -%}
-{% assign share_title = include.title %}
-{% if share_title == blank or share_title == nil %}
-  {% if page.title and page.title != site.title %}
-    {% assign share_title = page.title | append: " | " | append: site.title %}
-  {% else %}
-    {% assign share_title = site.title %}
-  {% endif %}
-{% endif %}
 {% assign share_url = include.url %}
 {% if share_url == blank or share_url == nil %}
   {% assign share_url = page.url | absolute_url %}
@@ -20,7 +14,6 @@
   type="button"
   class="share-btn {{ include.class }}"
   data-share
-  data-share-title="{{ share_title | xml_escape }}"
   data-share-url="{{ share_url | xml_escape }}"
   aria-label="{{ include.label | default: 'Share this page' }}"
 >
