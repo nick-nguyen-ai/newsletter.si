@@ -1,11 +1,20 @@
 {%- comment -%}
   Render a single topic post body with section-nav hooks.
   Expects: include.post
+  AI posts with signal + sections use the card report; otherwise markdown body.
 {%- endcomment -%}
 {% assign post = include.post %}
 {% unless post %}
   <p class="empty-state">No issues yet for this topic.</p>
 {% else %}
+  {% assign use_ai_cards = false %}
+  {% if post.section == "ai" and post.signal and post.sections %}
+    {% assign use_ai_cards = true %}
+  {% endif %}
+
+  {% if use_ai_cards %}
+    {% include ai-report.html post=post %}
+  {% else %}
 <article class="topic-issue" data-topic="{{ post.section }}" data-day="{{ post.date | date: '%Y-%m-%d' }}">
   <header class="issue-header">
     <div class="issue-meta">
@@ -33,4 +42,5 @@
     {% endif %}
   </div>
 </article>
+  {% endif %}
 {% endunless %}
