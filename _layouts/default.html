@@ -3,41 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d6e6e" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#0F1724" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0F1724" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="{{ site.title }}">
-  {% seo title=false %}
-  {% if page.title and page.title != site.title %}
-  <title>{{ page.title }} | {{ site.title }}</title>
-  {% else %}
-  <title>{{ site.title }}</title>
-  {% endif %}
-  {% if page.description %}
-  <meta property="twitter:description" content="{{ page.description | xml_escape }}">
-  {% elsif page.excerpt %}
-  <meta property="twitter:description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 200 | xml_escape }}">
-  {% else %}
-  <meta property="twitter:description" content="{{ site.description | xml_escape }}">
-  {% endif %}
-  {% assign og_image = "/assets/og/default.png" %}
-  {% if page.nav_active == "archive" or page.url == "/archive/" %}
-    {% assign og_image = "/assets/og/archive.png" %}
-  {% elsif page.topic == "markets" or page.section == "markets" or page.nav_active == "markets" %}
-    {% assign og_image = "/assets/og/markets.png" %}
-  {% elsif page.topic == "ai" or page.section == "ai" or page.nav_active == "ai" %}
-    {% assign og_image = "/assets/og/ai.png" %}
-  {% endif %}
-  {% assign og_image_abs = og_image | absolute_url %}
-  <meta property="og:image" content="{{ og_image_abs }}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="{{ og_image_abs }}">
-  <link rel="manifest" href="{{ '/manifest.webmanifest' | relative_url }}">
+  {% include social-meta.html %}
+  <link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
+  <link rel="icon" href="{{ '/assets/icons/favicon.svg' | relative_url }}" type="image/svg+xml">
+  <link rel="icon" href="{{ '/assets/icons/favicon.ico' | relative_url }}" sizes="any">
   <link rel="apple-touch-icon" href="{{ '/assets/icons/apple-touch-icon.png' | relative_url }}">
   <link rel="icon" type="image/png" sizes="192x192" href="{{ '/assets/icons/icon-192.png' | relative_url }}">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ '/assets/icons/icon-512.png' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/fonts.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/ai-skim.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/ai-cards.css' | relative_url }}">
@@ -64,10 +42,21 @@
 
   <footer class="site-footer">
     <div class="site-footer__inner">
-      <p class="disclaimer">Information only, not financial advice.</p>
-      <p>
-        <a href="{{ '/feed.xml' | relative_url }}">Atom feed</a>
-      </p>
+      <div class="site-footer__brand">
+        <a class="site-footer__lockup" href="{{ '/' | relative_url }}">
+          <span class="site-footer__mark" aria-hidden="true">
+            <img src="{{ '/assets/brand/mark-app-ink.svg' | relative_url }}" width="24" height="24" alt="">
+          </span>
+          <span class="site-footer__word">newsletter<span class="site-footer__tld">.si</span></span>
+        </a>
+        <p class="site-footer__motto">Signal over noise.</p>
+      </div>
+      <div class="site-footer__meta">
+        <p class="disclaimer">Information only, not financial advice.</p>
+        <p>
+          <a href="{{ '/feed.xml' | relative_url }}">Atom feed</a>
+        </p>
+      </div>
     </div>
   </footer>
 

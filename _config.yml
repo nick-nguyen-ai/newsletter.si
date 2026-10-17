@@ -1,6 +1,6 @@
 title: newsletter.si
-tagline: Daily ASX & global markets briefing, plus a daily AI report
-description: Daily ASX & global markets briefing, plus a daily AI report
+tagline: Signal over noise. The few things that matter today.
+description: Signal over noise. The few things that matter today.
 url: "https://nick-nguyen-ai.github.io"
 baseurl: "/newsletter.si"
 lang: en
@@ -20,6 +20,7 @@ plugins:
   - jekyll-seo-tag
 
 include:
+  - site.webmanifest
   - manifest.webmanifest
 
 exclude:
@@ -29,6 +30,7 @@ exclude:
   - docs
   - vendor
   - .gitignore
+  - scripts
 
 defaults:
   - scope:

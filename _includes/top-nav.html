@@ -1,5 +1,5 @@
 {%- comment -%}
-  Top bar: brand + topic tabs (from site.data.topics) + Archive.
+  Top bar: Direction C lockup + topic tabs (from site.data.topics) + Archive.
   Optional: include.active = topic id or "archive" or "home"
 {%- endcomment -%}
 {% assign active = include.active %}
@@ -21,8 +21,14 @@
 <header class="site-header" data-site-header>
   <div class="site-header__bar">
     <a class="site-brand" href="{{ '/' | relative_url }}">
-      <span class="site-title">{{ site.title }}</span>
-      <span class="site-tagline">{{ site.tagline }}</span>
+      <span class="site-brand__lockup">
+        <span class="site-brand__mark" aria-hidden="true">
+          <img class="site-brand__mark-ink" src="{{ '/assets/brand/mark-app-ink.svg' | relative_url }}" width="32" height="32" alt="">
+          <img class="site-brand__mark-paper" src="{{ '/assets/brand/mark-app-paper.svg' | relative_url }}" width="32" height="32" alt="">
+        </span>
+        <span class="site-brand__word">newsletter<span class="site-brand__tld">.si</span></span>
+      </span>
+      <span class="site-brand__motto">Signal over noise.</span>
     </a>
     <nav class="top-nav" aria-label="Topics">
       {% for topic in site.data.topics %}

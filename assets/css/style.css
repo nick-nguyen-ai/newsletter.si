@@ -1,43 +1,48 @@
-/* newsletter.si — clean, readable, light-first */
+/* newsletter.si — Direction C: Signal over noise. */
 
 :root {
-  --bg: #faf9f7;
+  --ink: #0f1724;
+  --paper: #f3f2ee;
+  --teal: #2e7d72;
+  --teal-bright: #6bbfae;
+  --bg: var(--paper);
   --bg-elevated: #ffffff;
-  --text: #1a1a1a;
-  --text-muted: #5c5c5c;
-  --border: #e6e4df;
-  --accent: #0d6e6e;
-  --accent-soft: #e6f3f3;
-  --badge-weekday: #0d6e6e;
+  --text: var(--ink);
+  --text-muted: #5c6570;
+  --border: #e0ddd6;
+  --accent: var(--teal);
+  --accent-soft: #e4f1ef;
+  --badge-weekday: var(--teal);
   --badge-weekend: #5a4a3a;
-  --badge-markets: #0d6e6e;
+  --badge-markets: var(--teal);
   --badge-ai: #3d5a80;
   --badge-unconfirmed: #595959;
-  --link: #0d6e6e;
-  --link-hover: #094f4f;
+  --link: var(--teal);
+  --link-hover: #1f5a52;
   --max-width: 40rem;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-serif: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --font-sans: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
   --space: 1.125rem;
   --tap-min: 44px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141414;
-    --bg-elevated: #1c1c1c;
-    --text: #ececec;
-    --text-muted: #a3a3a3;
-    --border: #2e2e2e;
-    --accent: #5cb8b8;
+    --bg: var(--ink);
+    --bg-elevated: #162032;
+    --text: var(--paper);
+    --text-muted: #a3aab4;
+    --border: #2a3344;
+    --accent: var(--teal-bright);
     --accent-soft: #1a2e2e;
-    --badge-weekday: #5cb8b8;
+    --badge-weekday: var(--teal-bright);
     --badge-weekend: #c4a882;
-    --badge-markets: #5cb8b8;
+    --badge-markets: var(--teal-bright);
     --badge-ai: #8fb3d9;
     --badge-unconfirmed: #9a9a9a;
-    --link: #7ecfcf;
-    --link-hover: #a8e0e0;
+    --link: var(--teal-bright);
+    --link-hover: #9ad4c8;
   }
 }
 
@@ -525,8 +530,70 @@ a:hover {
 .site-footer__inner {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 0.5rem 1.5rem;
+  gap: 0.75rem 1.5rem;
+}
+
+.site-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.site-footer__lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.site-footer__lockup:hover {
+  color: var(--text);
+}
+
+.site-footer__mark {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+  border-radius: 0.3rem;
+  overflow: hidden;
+}
+
+.site-footer__mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.site-footer__word {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.site-footer__tld {
+  color: var(--accent);
+}
+
+.site-footer__motto {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.site-footer__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: right;
 }
 
 .site-footer a {

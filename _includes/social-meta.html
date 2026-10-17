@@ -1,0 +1,96 @@
+{%- comment -%}
+  Open Graph + Twitter cards. Absolute https URLs for the /newsletter.si baseurl.
+  Does not use jekyll-seo-tag social output (avoids duplicates).
+{%- endcomment -%}
+
+{%- assign is_home = false -%}
+{%- if page.url == "/" or page.nav_active == "home" -%}
+  {%- assign is_home = true -%}
+{%- endif -%}
+
+{%- comment -%} Title rules {%- endcomment -%}
+{%- if is_home -%}
+  {%- assign social_title = "newsletter.si" -%}
+{%- elsif page.section == "ai" -%}
+  {%- capture social_title -%}AI · {{ page.date | date: "%a %-d %b %Y" }} · newsletter.si{%- endcapture -%}
+{%- elsif page.section == "markets" -%}
+  {%- capture social_title -%}Markets · {{ page.date | date: "%a %-d %b %Y" }} · newsletter.si{%- endcapture -%}
+{%- elsif page.topic == "markets" or page.nav_active == "markets" -%}
+  {%- assign social_title = "Markets · newsletter.si" -%}
+{%- elsif page.topic == "ai" or page.nav_active == "ai" -%}
+  {%- assign social_title = "AI · newsletter.si" -%}
+{%- elsif page.nav_active == "archive" or page.url == "/archive/" -%}
+  {%- assign social_title = "Archive · newsletter.si" -%}
+{%- elsif page.title and page.title != site.title -%}
+  {%- assign social_title = page.title | append: " · newsletter.si" -%}
+{%- else -%}
+  {%- assign social_title = "newsletter.si" -%}
+{%- endif -%}
+{%- assign social_title = social_title | strip -%}
+
+{%- comment -%} Description rules {%- endcomment -%}
+{%- if page.section == "ai" and page.signal -%}
+  {%- capture social_description -%}
+{%- for item in page.signal -%}
+{%- unless forloop.first %} · {% endunless %}{{ item.headline }}
+{%- endfor -%}
+  {%- endcapture -%}
+  {%- assign social_description = social_description | strip | normalize_whitespace -%}
+{%- elsif page.description and page.description != blank -%}
+  {%- assign social_description = page.description | strip -%}
+{%- elsif page.section == "markets" -%}
+  {%- if page.excerpt -%}
+    {%- assign social_description = page.excerpt | strip_html | normalize_whitespace | truncate: 200 -%}
+  {%- else -%}
+    {%- assign social_description = site.tagline -%}
+  {%- endif -%}
+{%- elsif is_home or page.layout == "topic" or page.nav_active == "archive" or page.url == "/archive/" -%}
+  {%- assign social_description = site.description -%}
+{%- elsif page.excerpt -%}
+  {%- assign social_description = page.excerpt | strip_html | normalize_whitespace | truncate: 200 -%}
+{%- else -%}
+  {%- assign social_description = site.description -%}
+{%- endif -%}
+
+{%- assign social_url = page.url | absolute_url -%}
+
+{%- if page.image and page.image != blank -%}
+  {%- assign og_image_path = page.image -%}
+{%- elsif page.nav_active == "archive" or page.url == "/archive/" -%}
+  {%- assign og_image_path = "/assets/og/archive.png" -%}
+{%- elsif page.topic == "markets" or page.section == "markets" or page.nav_active == "markets" -%}
+  {%- assign og_image_path = "/assets/og/markets.png" -%}
+{%- elsif page.topic == "ai" or page.section == "ai" or page.nav_active == "ai" -%}
+  {%- assign og_image_path = "/assets/og/ai.png" -%}
+{%- else -%}
+  {%- assign og_image_path = "/assets/og/default.png" -%}
+{%- endif -%}
+{%- assign og_image_abs = og_image_path | absolute_url -%}
+
+{%- if page.section == "ai" or page.section == "markets" -%}
+  {%- assign og_type = "article" -%}
+{%- else -%}
+  {%- assign og_type = "website" -%}
+{%- endif -%}
+
+<title>{{ social_title | xml_escape }}</title>
+<meta name="description" content="{{ social_description | xml_escape }}">
+<link rel="canonical" href="{{ social_url }}">
+
+<meta property="og:title" content="{{ social_title | xml_escape }}">
+<meta property="og:description" content="{{ social_description | xml_escape }}">
+<meta property="og:url" content="{{ social_url }}">
+<meta property="og:site_name" content="newsletter.si">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:image" content="{{ og_image_abs }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ social_title | xml_escape }}">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ social_title | xml_escape }}">
+<meta name="twitter:description" content="{{ social_description | xml_escape }}">
+<meta name="twitter:image" content="{{ og_image_abs }}">
+{%- if page.section == "ai" or page.section == "markets" %}
+<meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+{%- endif %}

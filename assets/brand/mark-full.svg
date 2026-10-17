@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="newsletter.si mark">
+  <title>newsletter.si - full mark</title>
+  <path d="M6 40 L8.2 37.5 L10.5 41.2 L12.8 38 L15 40.8 L17.2 37.8 L19.5 40"
+        fill="none" stroke="#8A9099" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M19.5 40 L22 40 L22 24.5 C22 18.8 26.2 15.5 32 15.5 C37.8 15.5 42 18.8 42 24.5 L42 40 L44.5 40"
+        fill="none" stroke="#0F1724" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44.5 40 L47 37.6 L49.2 41 L51.5 38.2 L53.8 40.5 L55.5 38.8 L57.2 40"
+        fill="none" stroke="#8A9099" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="58.5" cy="40" r="2.4" fill="#2E7D72"/>
+</svg>
