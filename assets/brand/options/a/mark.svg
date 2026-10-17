@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="newsletter.si">
+  <title>newsletter.si - Option A mark</title>
+  <!-- Classic editorial: italic serif n with refined .si -->
+  <rect width="64" height="64" rx="8" fill="#0b1c2c"/>
+  <text x="10" y="44" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-style="italic" font-weight="700" fill="#f5f2ea">n</text>
+  <text x="32" y="44" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" fill="#c4a574">.si</text>
+</svg>

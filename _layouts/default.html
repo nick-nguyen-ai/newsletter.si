@@ -8,36 +8,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="{{ site.title }}">
-  {% seo title=false %}
-  {% if page.title and page.title != site.title %}
-  <title>{{ page.title }} | {{ site.title }}</title>
-  {% else %}
-  <title>{{ site.title }}</title>
-  {% endif %}
-  {% if page.description %}
-  <meta property="twitter:description" content="{{ page.description | xml_escape }}">
-  {% elsif page.excerpt %}
-  <meta property="twitter:description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 200 | xml_escape }}">
-  {% else %}
-  <meta property="twitter:description" content="{{ site.description | xml_escape }}">
-  {% endif %}
-  {% assign og_image = "/assets/og/default.png" %}
-  {% if page.nav_active == "archive" or page.url == "/archive/" %}
-    {% assign og_image = "/assets/og/archive.png" %}
-  {% elsif page.topic == "markets" or page.section == "markets" or page.nav_active == "markets" %}
-    {% assign og_image = "/assets/og/markets.png" %}
-  {% elsif page.topic == "ai" or page.section == "ai" or page.nav_active == "ai" %}
-    {% assign og_image = "/assets/og/ai.png" %}
-  {% endif %}
-  {% assign og_image_abs = og_image | absolute_url %}
-  <meta property="og:image" content="{{ og_image_abs }}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="{{ og_image_abs }}">
+  {% include social-meta.html %}
   <link rel="manifest" href="{{ '/manifest.webmanifest' | relative_url }}">
   <link rel="apple-touch-icon" href="{{ '/assets/icons/apple-touch-icon.png' | relative_url }}">
   <link rel="icon" type="image/png" sizes="192x192" href="{{ '/assets/icons/icon-192.png' | relative_url }}">
+  <link rel="icon" href="{{ '/assets/icons/icon-192.png' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/ai-skim.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/ai-cards.css' | relative_url }}">
