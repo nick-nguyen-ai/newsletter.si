@@ -53,6 +53,41 @@ edition: weekday
 | `section` | yes      | Must be `markets`                         |
 | `edition` | yes      | `weekday` or `weekend` (badge)            |
 
+### Markets Markdown convention
+
+**Prefer native `##` headings** for sections — Jekyll renders them as `<h2>` and
+the section nav wraps each one without extra client-side guessing:
+
+```markdown
+## Big picture
+…
+
+## Macro and geopolitics
+…
+
+## Where analysts differ
+…
+
+## Your watchlist
+…
+
+## What to watch
+…
+```
+
+The older bold-paragraph style still works (kept for existing posts):
+
+```markdown
+**Big picture**
+…
+**Macro and geopolitics**
+…
+```
+
+Known section titles (matched case-insensitively): Big picture, Macro…,
+Where analysts differ, Your watchlist, What to watch… Chart `{% include chart… %}`
+blocks are grouped into a **Charts** section automatically.
+
 ### AI front matter
 
 ```yaml

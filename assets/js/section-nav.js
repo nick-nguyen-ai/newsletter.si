@@ -4,10 +4,10 @@
   var MARKETS_SECTIONS = [
     { id: "big-picture", label: "Big picture", match: /^big picture$/i },
     { id: "macro", label: "Macro & geopolitics", match: /^macro/i },
-    { id: "charts", label: "Charts", match: null },
-    { id: "analysts", label: "Analysts", match: /analysts differ|where analysts/i },
+    { id: "charts", label: "Charts", match: /^charts$/i },
+    { id: "analysts", label: "Where analysts differ", match: /analysts differ|where analysts/i },
     { id: "watchlist", label: "Watchlist", match: /watchlist/i },
-    { id: "what-to-watch", label: "What to watch", match: /^what to watch$/i },
+    { id: "what-to-watch", label: "What to watch", match: /^what to watch/i },
   ];
 
   function el(tag, className) {
@@ -20,12 +20,52 @@
     return (node && node.textContent || "").replace(/\s+/g, " ").trim();
   }
 
-  function marketsHeadingId(strongText) {
+  function slugify(text) {
+    return text
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 48) || "section";
+  }
+
+  function marketsHeadingDef(headingText) {
     for (var i = 0; i < MARKETS_SECTIONS.length; i++) {
       var s = MARKETS_SECTIONS[i];
-      if (s.match && s.match.test(strongText)) return s;
+      if (s.match && s.match.test(headingText)) return s;
     }
     return null;
+  }
+
+  /**
+   * Convert a <p><strong>Title</strong>…</p> heading into an h2.
+   * Title-only paragraphs are discarded after the h2 is created.
+   * If body text follows the bold title in the same <p>, strip the strong
+   * and return the remaining paragraph; otherwise return null.
+   */
+  function promoteStrongHeading(node, strong, headingText) {
+    var h = el("h2", "topic-section__title");
+    h.textContent = headingText;
+    if (textOf(node) === headingText) {
+      return { heading: h, rest: null };
+    }
+    strong.parentNode.removeChild(strong);
+    while (node.firstChild) {
+      var c = node.firstChild;
+      if (c.nodeType === 3 && !String(c.textContent || "").trim()) {
+        node.removeChild(c);
+        continue;
+      }
+      if (c.nodeType === 1 && c.tagName === "BR") {
+        node.removeChild(c);
+        continue;
+      }
+      break;
+    }
+    if (!textOf(node)) {
+      return { heading: h, rest: null };
+    }
+    return { heading: h, rest: node };
   }
 
   function wrapMarketsSections(body) {
@@ -34,16 +74,37 @@
     var fragment = document.createDocumentFragment();
     var current = null;
     var chartSection = null;
+    var usedIds = {};
 
-    function startSection(def, headingText) {
+    function startSection(def, headingEl) {
+      var id = def.id;
+      if (usedIds[id]) {
+        var n = 2;
+        while (usedIds[id + "-" + n]) n += 1;
+        id = id + "-" + n;
+      }
+      usedIds[id] = true;
       current = el("section", "topic-section");
-      current.id = "section-" + def.id;
-      current.setAttribute("data-section-id", def.id);
-      var h = el("h2", "topic-section__title");
-      h.textContent = def.label || headingText;
-      current.appendChild(h);
+      current.id = "section-" + id;
+      current.setAttribute("data-section-id", id);
+      if (headingEl) {
+        if (!headingEl.classList.contains("topic-section__title")) {
+          headingEl.classList.add("topic-section__title");
+        }
+        current.appendChild(headingEl);
+      }
       fragment.appendChild(current);
       return current;
+    }
+
+    function defForText(text) {
+      return (
+        marketsHeadingDef(text) || {
+          id: slugify(text),
+          label: text,
+          match: null,
+        }
+      );
     }
 
     children.forEach(function (node) {
@@ -56,34 +117,56 @@
       // Chart figures → Charts section
       if (node.matches && node.matches("figure.chart")) {
         if (!chartSection) {
-          chartSection = startSection(MARKETS_SECTIONS[2], "Charts");
+          var chartsH = el("h2", "topic-section__title");
+          chartsH.textContent = "Charts";
+          chartSection = startSection(MARKETS_SECTIONS[2], chartsH);
         }
         chartSection.appendChild(node);
         current = chartSection;
         return;
       }
 
-      var strong = node.tagName === "P" ? node.querySelector("strong") : null;
+      // Native markdown ## headings — move the original h2 into the section
+      if (node.tagName === "H2") {
+        var h2Text = textOf(node);
+        if (h2Text) {
+          var h2Def = defForText(h2Text);
+          if (h2Def.id === "charts") chartSection = startSection(h2Def, node);
+          else current = startSection(h2Def, node);
+          return;
+        }
+      }
+
+      var strong = node.tagName === "P" ? node.querySelector(":scope > strong, strong") : null;
       var strongText = strong ? textOf(strong) : "";
       var isHeading =
         strong &&
         textOf(node).indexOf(strongText) === 0 &&
-        strongText.length < 80 &&
-        (textOf(node) === strongText || textOf(node).length > strongText.length);
+        strongText.length > 0 &&
+        strongText.length < 80;
 
       if (isHeading) {
-        var def = marketsHeadingId(strongText);
-        if (def && def.id !== "charts") {
-          current = startSection(def, strongText);
-          // Keep the original paragraph (has the body text after the bold title)
-          current.appendChild(node);
+        var def = marketsHeadingDef(strongText);
+        if (def) {
+          if (def.id === "charts") {
+            var promotedCharts = promoteStrongHeading(node, strong, strongText);
+            chartSection = startSection(def, promotedCharts.heading);
+            if (promotedCharts.rest) chartSection.appendChild(promotedCharts.rest);
+            current = chartSection;
+            return;
+          }
+          var promoted = promoteStrongHeading(node, strong, strongText);
+          current = startSection(def, promoted.heading);
+          if (promoted.rest) current.appendChild(promoted.rest);
           return;
         }
       }
 
       if (!current) {
         // Preamble before first heading — put in Big picture bucket if needed
-        current = startSection(MARKETS_SECTIONS[0], "Big picture");
+        var preH = el("h2", "topic-section__title");
+        preH.textContent = "Big picture";
+        current = startSection(MARKETS_SECTIONS[0], preH);
       }
       current.appendChild(node);
     });
