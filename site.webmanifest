@@ -1,0 +1,25 @@
+{
+  "name": "newsletter.si",
+  "short_name": "newsletter.si",
+  "description": "Signal over noise. The few things that matter today.",
+  "start_url": "/newsletter.si/",
+  "scope": "/newsletter.si/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F3F2EE",
+  "theme_color": "#0F1724",
+  "icons": [
+    {
+      "src": "/newsletter.si/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/newsletter.si/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

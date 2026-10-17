@@ -45,7 +45,7 @@
     {%- assign social_description = site.tagline -%}
   {%- endif -%}
 {%- elsif is_home or page.layout == "topic" or page.nav_active == "archive" or page.url == "/archive/" -%}
-  {%- assign social_description = site.tagline -%}
+  {%- assign social_description = site.description -%}
 {%- elsif page.excerpt -%}
   {%- assign social_description = page.excerpt | strip_html | normalize_whitespace | truncate: 200 -%}
 {%- else -%}

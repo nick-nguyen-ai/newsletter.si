@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="newsletter.si mark">
+  <title>newsletter.si - small cut</title>
+  <path d="M14 46 L18 46 L18 24 C18 17.2 23.2 13 32 13 C40.8 13 46 17.2 46 24 L46 46 L50 46"
+        fill="none" stroke="#0F1724" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="54.5" cy="46" r="3.2" fill="#2E7D72"/>
+</svg>
