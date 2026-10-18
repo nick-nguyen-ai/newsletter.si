@@ -221,10 +221,8 @@
   font-size: 0.95rem;
   line-height: 1.5;
   color: var(--text-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  /* Full why line on hero cards — no mid-sentence ellipsis on mobile */
+  overflow: visible;
 }
 
 .ai-signal__cta {
@@ -257,25 +255,43 @@
 /* —— Verdict legend —— */
 
 .ai-verdict-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem 0.65rem;
   margin: 0 0 1.35rem;
-  padding: 0.55rem 0;
+  padding: 0.65rem 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  font-size: 0.78rem;
   color: var(--text-muted);
 }
 
 .ai-verdict-legend__label {
+  margin: 0 0 0.45rem;
   font-family: var(--font-mono, var(--font-sans));
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-right: 0.25rem;
+}
+
+.ai-verdict-legend__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ai-verdict-legend__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.ai-verdict-legend__meaning {
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .ai-verdict-legend .ai-verdict {
@@ -284,6 +300,7 @@
   min-height: 28px;
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 /* —— Sections —— */
@@ -600,10 +617,32 @@ body:has(.ai-report) .site-shell--with-nav .site-main {
   .ai-signal__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
+    align-items: stretch;
   }
 
   .ai-signal__headline {
     font-size: 1.05rem;
+  }
+
+  /* Prefer full why text in the 3-up grid; soft visual budget ~5 lines for
+     typical copy. Outliers wrap fully — cards stretch, CTA stays pinned. */
+  .ai-signal__why {
+    overflow: visible;
+    overflow-wrap: break-word;
+    word-break: normal;
+    /* Soft hint only: max ~5 lines of height before the card grows */
+    max-height: none;
+  }
+
+  .ai-verdict-legend__list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.25rem;
+  }
+
+  .ai-verdict-legend__item {
+    flex: 1 1 14rem;
+    max-width: 22rem;
   }
 
   .ai-card {

@@ -100,12 +100,23 @@
       </section>
       {% endif %}
 
-      <p class="ai-verdict-legend" aria-label="Verdict legend">
-        <span class="ai-verdict-legend__label">Verdicts</span>
-        <span class="ai-verdict ai-verdict--try">Worth trying</span>
-        <span class="ai-verdict ai-verdict--read">Worth reading</span>
-        <span class="ai-verdict ai-verdict--monitor">Monitor only</span>
-      </p>
+      <div class="ai-verdict-legend" aria-label="Verdict legend">
+        <p class="ai-verdict-legend__label">Verdicts</p>
+        <ul class="ai-verdict-legend__list">
+          <li class="ai-verdict-legend__item">
+            <span class="ai-verdict ai-verdict--try">Worth trying</span>
+            <span class="ai-verdict-legend__meaning">a tool or workflow you can test now</span>
+          </li>
+          <li class="ai-verdict-legend__item">
+            <span class="ai-verdict ai-verdict--read">Worth reading</span>
+            <span class="ai-verdict-legend__meaning">important context or research</span>
+          </li>
+          <li class="ai-verdict-legend__item">
+            <span class="ai-verdict ai-verdict--monitor">Monitor only</span>
+            <span class="ai-verdict-legend__meaning">good to know, no action needed yet</span>
+          </li>
+        </ul>
+      </div>
 
       <div data-ai-list>
         {% for sec in post.sections %}
