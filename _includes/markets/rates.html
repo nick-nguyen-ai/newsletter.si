@@ -1,0 +1,21 @@
+{% assign rates = include.rates %}
+<div class="mk-rates">
+  {% for cb in "rba,fed" | split: "," %}
+    {% assign p = rates[cb] %}
+    <div class="mk-rates__row">
+      <p class="mk-rates__label">{% if cb == "rba" %}RBA: what markets price{% else %}Fed: what markets price{% endif %}</p>
+      {% if p and p.status == "available" %}
+        <p class="mk-rates__txt">{{ p.summary }}</p>
+        <p class="mk-micro">As of {{ p.as_of }} · <a href="{{ p.source.url }}" rel="noopener">{{ p.source.label }}</a> (published pricing, attributed)</p>
+      {% else %}
+        <p class="mk-rates__txt mk-unavail">Market pricing unavailable</p>
+      {% endif %}
+      {% if p.forecasts and p.forecasts.size > 0 %}
+        <p class="mk-rates__sub">Economist forecasts (opinion, attributed)</p>
+        <ul class="mk-rates__fc">
+          {% for f in p.forecasts %}<li><b>{{ f.who }}:</b> {{ f.view }}{% if f.source %} <a href="{{ f.source.url }}" rel="noopener">{{ f.source.label }}</a>{% endif %}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>

@@ -1,0 +1,20 @@
+{% assign q = include.q %}
+<div class="mk-tile{% if q.status != 'ok' %} mk-tile--na{% endif %}" data-metric="{{ q.id }}">
+  <p class="mk-tile__name">{{ q.display_name }}</p>
+  {% if q.status == "ok" %}
+    <p class="mk-tile__value">{% if q.unit == "USD/bbl" or q.unit == "USD/oz" %}US${% endif %}{{ q.display_value }}</p>
+    <p class="mk-tile__chg"><span class="mk-chg">{{ q.display_change }}</span>{% if q.display_week_change %} <span class="mk-chg mk-chg--wk">{{ q.display_week_change }}</span>{% endif %}</p>
+    <p class="mk-micro">
+      {{ q.market_session_date | date: "%a %-d %b" }}{% case q.quote_kind %}{% when "spot" %} spot{% when "futures_last" %} futures close{% when "yield" %} close{% else %} close{% endcase %}
+      · {{ q.provider | split: " (" | first }}
+    </p>
+    <p class="mk-tile__flags">
+      {% if q.official == false %}<span class="mk-flag">delayed, unofficial</span>{% endif %}
+      {% if q.freshness_state == "scheduled_lag" %}<span class="mk-flag mk-flag--lag" title="Published with a lag; latest available observation">lagged source</span>{% endif %}
+      {% if q.freshness_state == "stale" %}<span class="mk-flag mk-flag--stale">stale</span>{% endif %}
+    </p>
+  {% else %}
+    <p class="mk-tile__value mk-unavail">Unavailable</p>
+    <p class="mk-micro">{{ q.unavailable_reason }}</p>
+  {% endif %}
+</div>

@@ -69,6 +69,14 @@ jobs:
           fi
           echo "All paths allowed."
 
+      - name: Markets v2 QA (never blocks on content; fails only if a post cannot be parsed)
+        run: |
+          set -euo pipefail
+          mapfile -t mk < <(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '_posts/*-markets.md')
+          if [ "${#mk[@]}" -eq 0 ]; then echo "No Markets posts changed."; exit 0; fi
+          python3 -m pip install --quiet pyyaml jsonschema
+          python3 scripts/qa_markets.py "${mk[@]}"
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:

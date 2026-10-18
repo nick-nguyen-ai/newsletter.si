@@ -272,6 +272,52 @@
     }
   }
 
+  /**
+   * Markets v2: sections are never hidden. Buttons jump to stable anchors and
+   * show item counts; the active button follows the scroll position.
+   */
+  function initJumpNav(listEl, sections) {
+    listEl.innerHTML = "";
+    sections.forEach(function (sec) {
+      var btn = el("button", "section-nav__item");
+      btn.type = "button";
+      btn.setAttribute("data-section-filter", sec.id);
+      btn.setAttribute("aria-controls", sec.el.id);
+      var label = el("span", "section-nav__text");
+      label.textContent = sec.label;
+      btn.appendChild(label);
+      var count = sec.el.getAttribute("data-count");
+      if (count !== null && count !== "") {
+        var c = el("span", "section-nav__count");
+        c.textContent = count;
+        c.setAttribute("aria-label", count + " items");
+        btn.appendChild(c);
+      }
+      listEl.appendChild(btn);
+    });
+    listEl.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-section-filter]");
+      if (!btn) return;
+      var id = btn.getAttribute("data-section-filter");
+      var target = document.getElementById(id);
+      if (!target) return;
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      history.replaceState(null, "", "#" + id);
+      setActive(listEl, id);
+    });
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) setActive(listEl, en.target.id);
+        });
+      }, { rootMargin: "-30% 0px -60% 0px" });
+      sections.forEach(function (s) { io.observe(s.el); });
+    }
+    var hash = (window.location.hash || "").replace(/^#/, "");
+    setActive(listEl, hash && document.getElementById(hash) ? hash : sections[0].id);
+  }
+
   function init() {
     var nav = document.querySelector("[data-section-nav]");
     var body = document.querySelector("[data-topic-body]");
@@ -284,10 +330,15 @@
 
     // Wait a tick so ai-skim can transform AI bodies first
     function run() {
-      if (topic === "markets") wrapMarketsSections(body);
+      var jumpMode = body.getAttribute("data-nav-mode") === "jump";
+      if (topic === "markets" && !jumpMode) wrapMarketsSections(body);
       var sections = collectSections(body);
       if (!sections.length) {
         nav.hidden = true;
+        return;
+      }
+      if (jumpMode) {
+        initJumpNav(listEl, sections);
         return;
       }
       buildNav(listEl, sections);

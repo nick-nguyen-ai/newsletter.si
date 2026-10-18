@@ -26,20 +26,20 @@ bands:
     label: "Trump 2"
 
 brent:
-  label: Brent crude
+  label: Brent crude (spot)
   unit: USD/bbl
   y_label: USD per barrel
   data: brent
-  source: "FRED DCOILBRENTEU (Crude Oil Prices: Brent – Europe), daily"
+  source: "FRED DCOILBRENTEU (EIA Europe Brent spot price), daily. Spot assessment, not futures; published with a lag"
   source_url: "https://fred.stlouisfed.org/series/DCOILBRENTEU"
   ranges: true
 
 gold:
-  label: Gold
+  label: Gold (COMEX futures)
   unit: USD/oz
   y_label: USD per troy ounce
   data: gold
-  source: "Yahoo Finance COMEX Gold Futures (GC=F), daily close"
+  source: "Yahoo Finance COMEX gold futures (GC=F, active contract), daily close. Futures, not spot; delayed, unofficial"
   source_url: "https://finance.yahoo.com/quote/GC=F/"
   source_note: "LBMA Gold Price daily series were removed from FRED in Jan 2022; Stooq CSV was unavailable here. GC=F is used as a citable public USD/oz proxy."
   ranges: true
