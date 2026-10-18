@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Generate SignaLetter Open Graph cards (1200×630) — Direction C share style."""
+"""Generate SignaLetter Open Graph cards (1200×630) matching brand PDF page 6."""
 
 from __future__ import annotations
 
 import math
 import random
+import re
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -12,15 +13,28 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets" / "og"
 FONTS = Path(__file__).resolve().parent / "fonts"
+BRAND = ROOT / "assets" / "brand"
 
 INK = (15, 23, 36)  # #0F1724
 PAPER = (243, 242, 238)  # #F3F2EE
-TEAL_MUTED = (47, 122, 117)  # #2F7A75 — sampled from brand PDF
 TEAL_LIGHT = (102, 184, 172)  # #66B8AC — on dark
 META = (160, 168, 176)
-NOISE = (90, 100, 112)
+NOISE_COL = (154, 154, 154)  # #9A9A9A
 
 W, H = 1200, 630
+
+# Master path fitted to mark-paper.png (viewBox 0..549 × 0..548)
+MASTER_PATH = (
+    "M157 151 L157 402 "
+    "C169.0 268.0 194.0 219.0 245 200 "
+    "C325.0 241.0 294.0 352.0 355 385 "
+    "C386.0 368.0 387.0 309.0 393 152 "
+    "L393 400 L461 388"
+)
+MASTER_SW = 26.5
+MASTER_TEAL = (490.77, 379.84)
+MASTER_TEAL_R = 22.0
+MASTER_VB = (549.0, 548.0)
 
 
 def font(name: str, size: int) -> ImageFont.FreeTypeFont:
@@ -30,14 +44,53 @@ def font(name: str, size: int) -> ImageFont.FreeTypeFont:
             "SourceSerif4-Semibold.ttf": "/tmp/SourceSerif4-Semibold.ttf",
             "SourceSerif4-It.ttf": "/tmp/SourceSerif4-It.ttf",
             "IBMPlexMono-Regular.ttf": "/usr/share/fonts/truetype/ibm-plex/IBMPlexMono-Regular.ttf",
-            "IBMPlexMono-Light.ttf": "/usr/share/fonts/truetype/ibm-plex/IBMPlexMono-Light.ttf",
         }
         path = Path(alts.get(name, str(path)))
     return ImageFont.truetype(str(path), size)
 
 
+def parse_path(d: str) -> list[tuple[str, list[float]]]:
+    """Parse a simple SVG path of M/L/C commands into segments."""
+    tokens = re.findall(r"[MLC]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?", d)
+    segs: list[tuple[str, list[float]]] = []
+    i = 0
+    while i < len(tokens):
+        cmd = tokens[i]
+        i += 1
+        nums: list[float] = []
+        while i < len(tokens) and tokens[i] not in "MLC":
+            nums.append(float(tokens[i]))
+            i += 1
+        segs.append((cmd, nums))
+    return segs
+
+
+def sample_path(d: str, n_per_cubic: int = 32) -> list[tuple[float, float]]:
+    segs = parse_path(d)
+    pts: list[tuple[float, float]] = []
+    cx = cy = 0.0
+    for cmd, nums in segs:
+        if cmd == "M":
+            cx, cy = nums[0], nums[1]
+            pts.append((cx, cy))
+        elif cmd == "L":
+            cx, cy = nums[0], nums[1]
+            pts.append((cx, cy))
+        elif cmd == "C":
+            x1, y1, x2, y2, x3, y3 = nums
+            x0, y0 = cx, cy
+            for i in range(1, n_per_cubic + 1):
+                t = i / n_per_cubic
+                u = 1 - t
+                x = u**3 * x0 + 3 * u**2 * t * x1 + 3 * u * t**2 * x2 + t**3 * x3
+                y = u**3 * y0 + 3 * u**2 * t * y1 + 3 * u * t**2 * y2 + t**3 * y3
+                pts.append((x, y))
+            cx, cy = x3, y3
+    return pts
+
+
 def noise_polyline(
-    x0: float, x1: float, y: float, amp: float = 3.2, step: float = 7.0, seed: int = 7
+    x0: float, x1: float, y: float, amp: float = 2.6, step: float = 7.0, seed: int = 11
 ) -> list[tuple[float, float]]:
     rng = random.Random(seed)
     pts = []
@@ -50,80 +103,6 @@ def noise_polyline(
     return pts
 
 
-def draw_signal_mark(d: ImageDraw.ImageDraw, y: float = 520) -> None:
-    """Long noise → nL signal stroke → teal dot (page-6 share card)."""
-    left = 72
-    right = W - 72
-    mark_start = 820
-    flat_end = right - 36
-
-    # Noise before mark
-    pts = noise_polyline(left, mark_start, y, amp=2.8, step=6.5, seed=11)
-    d.line(pts, fill=NOISE, width=2, joint="curve")
-
-    # nL mark scaled from 64-unit brand path into pixel space
-    # Brand SIGNAL_D in 64 viewBox → map into [mark_start, flat_end] × height
-    # Path: left stem, n-arch, valley, tall L peak, diagonal to teal
-    x0 = mark_start
-    scale_x = (flat_end - 28 - mark_start) / (56 - 15.2)
-    scale_y = 3.6  # px per viewBox unit
-
-    def X(u: float) -> float:
-        return x0 + (u - 15.2) * scale_x
-
-    def Y(v: float) -> float:
-        return y + (v - 44) * scale_y
-
-    # Approximate the SVG path with polylines for Pillow
-    # Left stem + n arch
-    arch = []
-    # Lead-in from noise
-    arch.append((X(15.2), Y(44)))
-    arch.append((X(17.8), Y(44)))
-    # Left stem up
-    for t in range(0, 11):
-        yy = 44 - (44 - 26.5) * (t / 10)
-        arch.append((X(17.8), Y(yy)))
-    # n-arch cubic approx: C17.8 18.8, 23.5 13.8, 30.5 13.8 then C37.2 13.8, 42 18.5, 42 26.5
-    def cubic(p0, p1, p2, p3, n=24):
-        out = []
-        for i in range(n + 1):
-            t = i / n
-            u = 1 - t
-            x = u**3 * p0[0] + 3 * u**2 * t * p1[0] + 3 * u * t**2 * p2[0] + t**3 * p3[0]
-            yv = u**3 * p0[1] + 3 * u**2 * t * p1[1] + 3 * u * t**2 * p2[1] + t**3 * p3[1]
-            out.append((x, yv))
-        return out
-
-    p0 = (17.8, 26.5)
-    arch += cubic(p0, (17.8, 18.8), (23.5, 13.8), (30.5, 13.8))[1:]
-    arch += cubic((30.5, 13.8), (37.2, 13.8), (42, 18.5), (42, 26.5))[1:]
-    # Down toward valley
-    for t in range(1, 11):
-        yy = 26.5 + (40 - 26.5) * (t / 10)
-        arch.append((42, yy))
-    # Valley curve into L rise: C42 43, 43.2 44, 45 42.5 then L48 10.5 L56 37
-    arch += cubic((42, 40), (42, 43), (43.2, 44), (45, 42.5))[1:]
-    # Up to L peak
-    for t in range(1, 16):
-        xx = 45 + (48 - 45) * (t / 15)
-        yy = 42.5 + (10.5 - 42.5) * (t / 15)
-        arch.append((xx, yy))
-    # Diagonal to teal approach
-    for t in range(1, 16):
-        xx = 48 + (56 - 48) * (t / 15)
-        yy = 10.5 + (37 - 10.5) * (t / 15)
-        arch.append((xx, yy))
-
-    pix = [(X(x), Y(yv)) for x, yv in arch]
-    d.line(pix, fill=PAPER, width=5, joint="curve")
-
-    # Teal signal dot
-    tx, ty = X(57.5), Y(38.2)
-    r = 8
-    d.ellipse([tx - r, ty - r, tx + r, ty + r], fill=TEAL_LIGHT)
-
-
 def draw_tracked(
     d: ImageDraw.ImageDraw,
     xy: tuple[float, float],
@@ -133,7 +112,6 @@ def draw_tracked(
     tracking: float = 3.5,
     anchor: str = "lt",
 ) -> None:
-    """Draw uppercase mono with letter-spacing."""
     x, y = xy
     widths = []
     for ch in text:
@@ -142,18 +120,14 @@ def draw_tracked(
     total = sum(widths) + tracking * max(0, len(text) - 1)
     if anchor == "rt":
         x = x - total
-    elif anchor == "mt":
-        x = x - total / 2
     for ch, w in zip(text, widths):
         d.text((x, y), ch, font=font_obj, fill=fill)
         x += w + tracking
 
 
-def draw_wordmark(d: ImageDraw.ImageDraw, y: float = 210) -> None:
-    """SignaLetter — semibold, muted-teal L (left-aligned like page 6)."""
+def draw_wordmark(d: ImageDraw.ImageDraw, y: float = 200) -> None:
     brand = font("SourceSerif4-Semibold.ttf", 92)
     left = 60
-    # Draw in three pieces so L can be teal
     parts = [("Signa", PAPER), ("L", TEAL_LIGHT), ("etter", PAPER)]
     x = left
     for text, fill in parts:
@@ -162,12 +136,43 @@ def draw_wordmark(d: ImageDraw.ImageDraw, y: float = 210) -> None:
         x = bbox[2]
 
 
-def draw_card(
-    path: Path,
-    top_left: str,
-    top_right: str,
-    tagline: str,
-) -> None:
+def draw_signal_mark(d: ImageDraw.ImageDraw) -> None:
+    """Long grey noise along the bottom → master nL mark at bottom-right (~120px tall).
+
+    Placement tuned to raw-001.jpg share card: teal ≈ (1111, 567) on 1200×630.
+    """
+    # ~120px tall on 1200×630 (master left-stem span 151→402)
+    mark_h = 120.0
+    scale = mark_h / (402 - 151)
+    # Anchor by teal position from raw-001 (scaled to 1200×630)
+    teal_target = (1111.0, 567.0)
+    ox = teal_target[0] - MASTER_TEAL[0] * scale
+    oy = teal_target[1] - MASTER_TEAL[1] * scale
+
+    def X(u: float) -> float:
+        return ox + u * scale
+
+    def Y(v: float) -> float:
+        return oy + v * scale
+
+    # Noise from left margin into left-stem foot (no stray diagonals)
+    foot_x, foot_y = X(157), Y(402)
+    noise_pts = noise_polyline(72, foot_x, foot_y, amp=2.4, step=6.5, seed=11)
+    d.line(noise_pts, fill=NOISE_COL, width=2, joint="curve")
+
+    pts = [(X(x), Y(y)) for x, y in sample_path(MASTER_PATH)]
+    sw = max(3, int(round(MASTER_SW * scale)))
+    d.line(pts, fill=PAPER, width=sw, joint="curve")
+    r = sw / 2
+    for p in (pts[0], pts[-1]):
+        d.ellipse([p[0] - r, p[1] - r, p[0] + r, p[1] + r], fill=PAPER)
+
+    tx, ty = X(MASTER_TEAL[0]), Y(MASTER_TEAL[1])
+    tr = MASTER_TEAL_R * scale
+    d.ellipse([tx - tr, ty - tr, tx + tr, ty + tr], fill=TEAL_LIGHT)
+
+
+def draw_card(path: Path, top_left: str, top_right: str, tagline: str) -> None:
     img = Image.new("RGB", (W, H), INK)
     d = ImageDraw.Draw(img)
 
@@ -180,7 +185,7 @@ def draw_card(
     italic = font("SourceSerif4-It.ttf", 28)
     d.text((60, 330), tagline, font=italic, fill=PAPER, anchor="lt")
 
-    draw_signal_mark(d, y=520)
+    draw_signal_mark(d)
 
     path.parent.mkdir(parents=True, exist_ok=True)
     img.save(path, "PNG", optimize=True)
@@ -189,7 +194,6 @@ def draw_card(
 
 
 def main() -> None:
-    # Sydney is on daylight time (AEDT) — prefer AEDT or SYDNEY, not AEST
     daily = "DAILY · 08:25 AEDT"
     cards = [
         (

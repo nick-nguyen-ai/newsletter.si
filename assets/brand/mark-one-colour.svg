@@ -1,6 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SignaLetter mark">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 549 548" role="img" aria-label="SignaLetter mark">
 <title>SignaLetter — one-colour cut</title>
-<rect width="64" height="64" rx="14" fill="#0F1724"/>
-<path d="M8 44 L10 44 L10 26 C10 19 15.5 14.5 23 14.5 C30.5 14.5 35.5 19 35.5 26 L35.5 40 C35.5 43 36.8 44 38.5 42.5 L41 12 L52 36" fill="none" stroke="#F3F2EE" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="54.5" cy="37.5" r="3.0" fill="#66B8AC"/>
+<rect width="549" height="548" fill="#000000"/>
+<rect width="549" height="548" rx="120.8" fill="#000000"/>
+<path d="M157 151 L157 402 C169.0 268.0 194.0 219.0 245 200 C325.0 241.0 294.0 352.0 355 385 C386.0 368.0 387.0 309.0 393 152 L393 400 L461 388" fill="none" stroke="#FFFFFF" stroke-width="26.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="490.77" cy="379.84" r="22.0" fill="#2F7A75"/>
 </svg>
