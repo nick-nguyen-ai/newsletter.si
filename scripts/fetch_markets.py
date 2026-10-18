@@ -5,7 +5,7 @@ Builds the `snapshot` block of a Markets post (dashboard quotes + watchlist
 quotes) with full provenance. No LLM involved; no numbers are ever guessed.
 
 Source policy (Nick, 18 Oct 2026):
-  official free sources first (RBA, FRED/US Treasury, ABS); otherwise Yahoo
+  official free sources first (RBA, FRED/US Treasury, ABS, Cboe VIX CSV); otherwise Yahoo
   Finance labelled "delayed, unofficial". Provider + licence note per metric.
   If a value can't be verified for the target session it is `unavailable`.
 
@@ -39,6 +39,7 @@ LIC = {
     "rba": "RBA statistical tables, CC BY 4.0 (attribution: Reserve Bank of Australia).",
     "fred_public": "FRED (St. Louis Fed); underlying series is US-government public data.",
     "fred_cboe": "FRED series VIXCLS; source Cboe. Cite Cboe/FRED; third-party data, not for bulk redistribution.",
+    "cboe": "Cboe Global Markets daily VIX history CSV; cite Cboe; personal non-commercial display of single closes.",
     "treasury": "US Treasury daily par yield curve; US-government public data.",
     "yahoo": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
     "fred_eia": "FRED DCOILBRENTEU; source US EIA (public data). Spot assessment, published with a lag of several days.",
@@ -128,6 +129,23 @@ def yahoo(symbol: str):
     return _cache[key][0]
 
 
+def cboe_vix(_ref: str = "VIX"):
+    """Cboe free daily VIX history CSV (CLOSE column). Dates are US session dates."""
+    key = ("cboe", "VIX")
+    if key not in _cache:
+        # Official free history; cdn.cboe.com may 307 to cdn-api.cboe.com.
+        txt = get("https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv")
+        rows = []
+        for r in csv.DictReader(io.StringIO(txt)):
+            d_raw = (r.get("DATE") or r.get("Date") or "").strip()
+            c_raw = (r.get("CLOSE") or r.get("Close") or "").strip()
+            if not d_raw or not c_raw:
+                continue
+            rows.append((dt.datetime.strptime(d_raw, "%m/%d/%Y").date(), float(c_raw), None))
+        _cache[key] = sorted(rows)
+    return _cache[key]
+
+
 # ---------------------------------------------------------------- sessions
 
 def expected_session(cutoff_utc: dt.datetime, tz: ZoneInfo, close_hm: tuple[int, int]) -> dt.date:
@@ -177,7 +195,8 @@ METRICS = [
          candidates=[("fred", "DCOILBRENTEU", "FRED DCOILBRENTEU (EIA)", "https://fred.stlouisfed.org/series/DCOILBRENTEU", "fred_eia")]),
     dict(id="vix", display_name="VIX", tier="primary", instrument_type="volatility_index", quote_kind="index_close",
          unit="pts", currency="", decimals=2, change="pts", market="US", lag_days=0,
-         candidates=[("fred", "VIXCLS", "FRED VIXCLS (Cboe)", "https://fred.stlouisfed.org/series/VIXCLS", "fred_cboe"),
+         candidates=[("cboe", "VIX", "Cboe VIX History", "https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv", "cboe"),
+                     ("fred", "VIXCLS", "FRED VIXCLS (Cboe)", "https://fred.stlouisfed.org/series/VIXCLS", "fred_cboe"),
                      ("yahoo", "^VIX", "Yahoo Finance (^VIX)", "https://finance.yahoo.com/quote/%5EVIX/", "yahoo")]),
     # ---- expanded
     dict(id="nasdaq", display_name="Nasdaq Composite", tier="expanded", instrument_type="equity_index", quote_kind="index_close",
@@ -230,6 +249,8 @@ def load_series(kind, ref):
         return treasury(ref)
     if kind == "yahoo":
         return yahoo(ref)
+    if kind == "cboe":
+        return cboe_vix(ref)
     raise ValueError(kind)
 
 
