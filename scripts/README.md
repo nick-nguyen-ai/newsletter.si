@@ -6,7 +6,7 @@ OG generation uses TTFs under `scripts/fonts/` (Source Serif 4 + IBM Plex Mono).
 ```bash
 pip install Pillow
 python3 scripts/generate_brand.py   # favicon.ico, apple-touch, icon-192/512
-python3 scripts/generate_og.py      # assets/og/*.png
+python3 scripts/generate_og.py      # assets/og/*-v2.png (+ legacy name copies)
 ```
 
 # Markets v2 pipeline

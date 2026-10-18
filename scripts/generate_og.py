@@ -183,34 +183,40 @@ def draw_card(path: Path, top_left: str, top_right: str, tagline: str) -> None:
 
 def main() -> None:
     daily = "DAILY · 08:25 AEDT"
+    # Canonical filenames are *-v2.png (cache-bust for link previews).
+    # Legacy names stay as identical copies so stale cached URLs still show new art.
     cards = [
         (
-            "default.png",
+            "default-v2.png",
             daily,
             "MARKETS / AI",
             "Signal over noise. The few things that matter today.",
         ),
         (
-            "markets.png",
+            "markets-v2.png",
             daily,
             "MARKETS",
             "ASX · Macro · Oil · Gold",
         ),
         (
-            "ai.png",
+            "ai-v2.png",
             daily,
             "AI",
             "Coding agents · Evals · Models · Papers",
         ),
         (
-            "archive.png",
+            "archive-v2.png",
             "ARCHIVE",
             "MARKETS / AI",
             "Past issues. Still signal.",
         ),
     ]
     for name, left, right, tagline in cards:
-        draw_card(OUT / name, left, right, tagline)
+        path = OUT / name
+        draw_card(path, left, right, tagline)
+        legacy = OUT / name.replace("-v2.png", ".png")
+        legacy.write_bytes(path.read_bytes())
+        print(f"{legacy.name}: copy of {name}")
     print("done", OUT)
 
 
