@@ -58,13 +58,13 @@
 {%- if page.image and page.image != blank -%}
   {%- assign og_image_path = page.image -%}
 {%- elsif page.nav_active == "archive" or page.url == "/archive/" -%}
-  {%- assign og_image_path = "/assets/og/archive.png" -%}
+  {%- assign og_image_path = "/assets/og/archive-v2.png" -%}
 {%- elsif page.topic == "markets" or page.section == "markets" or page.nav_active == "markets" -%}
-  {%- assign og_image_path = "/assets/og/markets.png" -%}
+  {%- assign og_image_path = "/assets/og/markets-v2.png" -%}
 {%- elsif page.topic == "ai" or page.section == "ai" or page.nav_active == "ai" -%}
-  {%- assign og_image_path = "/assets/og/ai.png" -%}
+  {%- assign og_image_path = "/assets/og/ai-v2.png" -%}
 {%- else -%}
-  {%- assign og_image_path = "/assets/og/default.png" -%}
+  {%- assign og_image_path = "/assets/og/default-v2.png" -%}
 {%- endif -%}
 {%- assign og_image_abs = og_image_path | absolute_url -%}
 
@@ -84,6 +84,7 @@
 <meta property="og:site_name" content="SignaLetter">
 <meta property="og:type" content="{{ og_type }}">
 <meta property="og:image" content="{{ og_image_abs }}">
+<meta property="og:image:secure_url" content="{{ og_image_abs }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{{ social_title | xml_escape }}">
@@ -92,6 +93,7 @@
 <meta name="twitter:title" content="{{ social_title | xml_escape }}">
 <meta name="twitter:description" content="{{ social_description | xml_escape }}">
 <meta name="twitter:image" content="{{ og_image_abs }}">
+<meta name="twitter:image:alt" content="{{ social_title | xml_escape }}">
 {%- if page.section == "ai" or page.section == "markets" %}
 <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
 {%- endif %}
