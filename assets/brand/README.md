@@ -1,18 +1,20 @@
-# Direction C — Signal over noise
+# SignaLetter — Direction C
 
-Nick chose Claude Design’s **Direction C**.
+Wordmark: **SignaLetter** (Source Serif 4). Primary = semibold with muted-teal **L**.
+Domain stays `signaletter.si`.
 
 | File | Use |
 |------|-----|
-| `mark-full.svg` | Full mark with noise squiggle + n-pulse + teal dot |
-| `mark-small.svg` | Small cut (bold n + dot) for 16–48px |
-| `mark-app-ink.svg` | App icon on ink (header, favicons, PWA) |
-| `mark-app-paper.svg` | App icon on paper (dark-mode header) |
-| `mark-one-colour.svg` | Single-colour (paper on ink) |
+| `mark-full.svg` | Full mark on paper |
+| `mark-small.svg` | Small cut (no noise) |
+| `mark-app-ink.svg` | App icon on ink |
+| `mark-app-paper.svg` | App icon on paper |
+| `mark-one-colour.svg` | Black + white stroke + teal dot |
 
-Palette: Ink `#0F1724`, Paper `#F3F2EE`, teal light `#2E7D72`, teal dark `#6BBFAE`.
+Palette: Ink `#0F1724`, Paper `#F3F2EE`, muted teal `#2F7A75`, teal on dark `#66B8AC`, noise `#9A9A9A`.
 
-Regenerate rasters:
+Mark paths fitted to PDF crops (cubic beziers; rounded arch crown). PDF pages are raster-only.
+Noise zigzag stroke ≈ 60% of the main signal stroke. OG cards rasterize this same SVG path.
 
 ```bash
 python3 scripts/generate_brand.py

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rasterize Direction C favicon / app icon set from SVG sources."""
+"""Rasterize SignaLetter Direction C favicon / app icon set from SVG sources."""
 
 from __future__ import annotations
 

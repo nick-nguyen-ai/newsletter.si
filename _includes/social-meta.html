@@ -1,5 +1,6 @@
 {%- comment -%}
   Open Graph + Twitter cards. Absolute https URLs for the /signaletter.si baseurl.
+  Visible brand: SignaLetter. Domain in URLs stays signaletter.si.
   Does not use jekyll-seo-tag social output (avoids duplicates).
 {%- endcomment -%}
 
@@ -10,21 +11,21 @@
 
 {%- comment -%} Title rules {%- endcomment -%}
 {%- if is_home -%}
-  {%- assign social_title = "signaletter.si" -%}
+  {%- assign social_title = "SignaLetter" -%}
 {%- elsif page.section == "ai" -%}
-  {%- capture social_title -%}AI · {{ page.date | date: "%a %-d %b %Y" }} · signaletter.si{%- endcapture -%}
+  {%- capture social_title -%}AI · {{ page.date | date: "%a %-d %b %Y" }} · SignaLetter{%- endcapture -%}
 {%- elsif page.section == "markets" -%}
-  {%- capture social_title -%}Markets · {{ page.date | date: "%a %-d %b %Y" }} · signaletter.si{%- endcapture -%}
+  {%- capture social_title -%}Markets · {{ page.date | date: "%a %-d %b %Y" }} · SignaLetter{%- endcapture -%}
 {%- elsif page.topic == "markets" or page.nav_active == "markets" -%}
-  {%- assign social_title = "Markets · signaletter.si" -%}
+  {%- assign social_title = "Markets · SignaLetter" -%}
 {%- elsif page.topic == "ai" or page.nav_active == "ai" -%}
-  {%- assign social_title = "AI · signaletter.si" -%}
+  {%- assign social_title = "AI · SignaLetter" -%}
 {%- elsif page.nav_active == "archive" or page.url == "/archive/" -%}
-  {%- assign social_title = "Archive · signaletter.si" -%}
+  {%- assign social_title = "Archive · SignaLetter" -%}
 {%- elsif page.title and page.title != site.title -%}
-  {%- assign social_title = page.title | append: " · signaletter.si" -%}
+  {%- assign social_title = page.title | append: " · SignaLetter" -%}
 {%- else -%}
-  {%- assign social_title = "signaletter.si" -%}
+  {%- assign social_title = "SignaLetter" -%}
 {%- endif -%}
 {%- assign social_title = social_title | strip -%}
 
@@ -80,7 +81,7 @@
 <meta property="og:title" content="{{ social_title | xml_escape }}">
 <meta property="og:description" content="{{ social_description | xml_escape }}">
 <meta property="og:url" content="{{ social_url }}">
-<meta property="og:site_name" content="signaletter.si">
+<meta property="og:site_name" content="SignaLetter">
 <meta property="og:type" content="{{ og_type }}">
 <meta property="og:image" content="{{ og_image_abs }}">
 <meta property="og:image:width" content="1200">
