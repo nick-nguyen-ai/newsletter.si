@@ -47,8 +47,12 @@
 
     <div class="ai-report__main">
       <header class="issue-header ai-report__header">
-        <div class="issue-meta">
-          <time class="issue-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
+        {%- comment -%}
+          Titles already include the calendar day (e.g. "Daily AI report · Sunday 18 Oct 2026").
+          Keep a machine-readable time + badge only — avoid a second visible date line.
+        {%- endcomment -%}
+        <div class="issue-meta ai-report__meta">
+          <time class="visually-hidden" datetime="{{ post.date | date: '%Y-%m-%d' }}">
             {{ post.date | date: "%A %-d %B %Y" }}
           </time>
           <span class="badge badge--ai">AI</span>
