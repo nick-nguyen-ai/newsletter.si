@@ -1,4 +1,4 @@
-/* newsletter.si — Markets v2 (Direction C: Signal over noise). Mobile-first. */
+/* signaletter.si — Markets v2 (Direction C: Signal over noise). Mobile-first. */
 
 .mk { --mk-mono: var(--font-mono); --mk-gap: 0.5rem; }
 .mk-session { margin: 0.25rem 0 0; font-family: var(--mk-mono); font-size: 0.72rem; letter-spacing: 0.02em; color: var(--text-muted); text-transform: uppercase; }

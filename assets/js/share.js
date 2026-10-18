@@ -114,7 +114,7 @@
     var panel = ensureFallback();
     panel._shareSource = sourceEl || null;
     var enc = encodeURIComponent;
-    // URL only — never prepend titles containing a bare "newsletter.si" token
+    // URL only — never prepend titles containing a bare "signaletter.si" token
     // (messaging apps auto-link it to the unrelated Slovenian site).
     panel.querySelector("[data-share-wa]").href = "https://wa.me/?text=" + enc(url);
     panel.querySelector("[data-share-x]").href =

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""QA gate for newsletter.si Markets v2 posts.
+"""QA gate for signaletter.si Markets v2 posts.
 
 Policy (Nick, 18 Oct 2026): never block the whole issue. Failing claims or
 modules are DROPPED (or marked unavailable) and logged in `dropped`; the rest
