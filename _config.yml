@@ -1,8 +1,8 @@
 title: SignaLetter
 tagline: Signal over noise. The few things that matter today.
 description: Signal over noise. The few things that matter today.
-url: "https://nick-nguyen-ai.github.io"
-baseurl: "/signaletter.si"
+url: "https://signaletter.si"
+baseurl: ""
 lang: en
 # Issues publish ~08:25 Australia/Sydney; Actions/Pages builds run in UTC.
 # Without these, same-day posts can look "future" and be skipped.
@@ -20,6 +20,7 @@ plugins:
   - jekyll-seo-tag
 
 include:
+  - CNAME
   - site.webmanifest
   - manifest.webmanifest
 
