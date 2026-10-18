@@ -1,0 +1,22 @@
+{% assign c = include.c %}
+<div class="mk-compare">
+  <h4>Different figures: {{ c.title }}</h4>
+  <div class="mk-compare__wrap" tabindex="0" role="region" aria-label="Comparison of reported figures">
+    <table class="mk-compare__table">
+      <thead><tr><th scope="col">Source</th><th scope="col">Figure</th><th scope="col">What it measures</th><th scope="col">When</th><th scope="col">Method</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        {% for r in c.rows %}
+        <tr>
+          <th scope="row">{% if r.url %}<a href="{{ r.url }}" rel="noopener">{{ r.source }}</a>{% else %}{{ r.source }}{% endif %}</th>
+          <td class="mk-compare__fig" data-label="Figure">{{ r.figure }}</td>
+          <td data-label="Measures">{{ r.measure }}</td>
+          <td data-label="When">{{ r.timestamp | default: "—" }}</td>
+          <td data-label="Method">{{ r.method }}</td>
+          <td data-label="Status">{{ r.status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="mk-compare__why"><b>{% if c.resolution == "unresolved" %}Unresolved:{% elsif c.resolution == "reconciled" %}Reconciled:{% else %}Why they differ:{% endif %}</b> {{ c.why_different }}</p>
+</div>

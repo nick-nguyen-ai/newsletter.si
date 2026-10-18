@@ -1,0 +1,40 @@
+{% assign card = include.card %}
+<details class="mk-card" id="{{ card.id }}">
+  <summary class="mk-card__summary">
+    {% if card.tags %}<span class="mk-card__tags">{% for t in card.tags %}<span class="mk-tag">{{ t }}</span>{% endfor %}</span>{% endif %}
+    <span class="mk-card__headline">{{ card.headline }}</span>
+    <span class="mk-card__takeaway">{{ card.takeaway }}</span>
+    {% if card.key_figure %}<span class="mk-card__figure">{{ card.key_figure }}</span>{% endif %}
+    <span class="mk-card__meta">
+      {% for s in card.sources limit: 3 %}{{ s.label }}{% unless forloop.last %} · {% endunless %}{% endfor %}{% if card.sources.size > 3 %} +{{ card.sources.size | minus: 3 }}{% endif %}
+      {% if card.comparison %}<span class="mk-pill">Different figures · {{ card.comparison.rows.size }} sources</span>{% endif %}
+      {% if card.competing_views %}<span class="mk-pill mk-pill--views">Competing views</span>{% endif %}
+    </span>
+  </summary>
+  <div class="mk-card__body">
+    {% if card.new_since_last_issue %}<p class="mk-new"><b>New since last issue:</b> {{ card.new_since_last_issue }}</p>{% endif %}
+    <h4>What happened</h4>{{ card.what_happened | markdownify }}
+    <h4>Why it matters</h4>{{ card.why_it_matters | markdownify }}
+    {% if card.market_reaction %}<h4>Market reaction</h4>{{ card.market_reaction | markdownify }}{% endif %}
+    {% if card.priced_in %}<h4>What's priced in</h4>{{ card.priced_in | markdownify }}{% endif %}
+    {% if card.chart %}
+      {% capture labels_json %}{{ card.chart.labels | jsonify }}{% endcapture %}
+      {% capture values_json %}{{ card.chart.values | jsonify }}{% endcapture %}
+      {% include chart-data.html type=card.chart.type label=card.chart.label labels=labels_json values=values_json unit=card.chart.unit caption=card.chart.caption source=card.chart.source source_url=card.chart.source_url uid=card.id %}
+    {% endif %}
+    {% if card.comparison %}{% include markets/comparison.html c=card.comparison %}{% endif %}
+    {% if card.competing_views %}
+      <h4>Competing views</h4>
+      <ul class="mk-views">
+        {% for v in card.competing_views %}<li><b>{{ v.who }}:</b> {{ v.view }}{% if v.source %} <a href="{{ v.source.url }}" rel="noopener">{{ v.source.label }}</a>{% endif %}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    {% if card.what_to_watch %}<h4>What to watch</h4>{{ card.what_to_watch | markdownify }}{% endif %}
+    <h4>Sources</h4>
+    <ul class="mk-srcs">
+      {% for s in card.sources %}
+        <li><a href="{{ s.url }}" rel="noopener">{{ s.label }}</a>{% if s.claim_type %} <span class="mk-ct">{{ s.claim_type | replace: "_", " " }}</span>{% endif %}{% if s.date %} <span class="mk-micro">{{ s.date }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</details>

@@ -1,7 +1,8 @@
 {%- comment -%}
   Render a single topic post body with section-nav hooks.
   Expects: include.post
-  AI posts with signal + sections use the card report; otherwise markdown body.
+  AI posts with signal + sections use the card report; Markets posts with
+  format: markets-v2 use the Markets v2 report; otherwise markdown body.
 {%- endcomment -%}
 {% assign post = include.post %}
 {% unless post %}
@@ -12,8 +13,15 @@
     {% assign use_ai_cards = true %}
   {% endif %}
 
+  {% assign use_markets_v2 = false %}
+  {% if post.section == "markets" and post.format == "markets-v2" %}
+    {% assign use_markets_v2 = true %}
+  {% endif %}
+
   {% if use_ai_cards %}
     {% include ai-report.html post=post %}
+  {% elsif use_markets_v2 %}
+    {% include markets-report.html post=post %}
   {% else %}
 <article class="topic-issue" data-topic="{{ post.section }}" data-day="{{ post.date | date: '%Y-%m-%d' }}">
   <header class="issue-header">

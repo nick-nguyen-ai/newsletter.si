@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nick-nguyen-ai.github.io/newsletter.si/docs/schemas/markets-post.schema.json",
+  "title": "newsletter.si Markets v2 post front matter",
+  "type": "object",
+  "required": ["title", "date", "section", "edition", "format", "cutoff_local", "summary", "snapshot", "sections"],
+  "properties": {
+    "title": {"type": "string", "minLength": 5},
+    "date": {},
+    "section": {"const": "markets"},
+    "edition": {"enum": ["weekday", "weekend"]},
+    "format": {"const": "markets-v2"},
+    "cutoff_local": {"type": "string", "format": "date-time"},
+    "session_note": {"type": "string"},
+    "rerendered_from": {"type": "string"},
+    "summary": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 10}},
+    "snapshot": {
+      "type": "object",
+      "required": ["retrieved_at_utc", "cutoff_utc", "quotes"],
+      "properties": {
+        "generated_by": {"type": "string"},
+        "retrieved_at_utc": {"type": "string"},
+        "cutoff_utc": {"type": "string", "format": "date-time"},
+        "backfill": {"type": "boolean"},
+        "quotes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/quote"}}
+      }
+    },
+    "long_run_charts": {"type": "array", "items": {"enum": ["brent", "gold"]}},
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "cards"],
+        "properties": {
+          "id": {"enum": ["market-drivers", "australia-asx", "rates-expectations", "global-risk"]},
+          "note": {"type": "string"},
+          "cards": {"type": "array", "items": {"$ref": "#/$defs/card"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "rates": {
+      "type": "object",
+      "properties": {
+        "rba": {"$ref": "#/$defs/pricing"},
+        "fed": {"$ref": "#/$defs/pricing"}
+      },
+      "additionalProperties": false
+    },
+    "watchlist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ticker", "note"],
+        "properties": {
+          "ticker": {"type": "string", "pattern": "^[A-Z0-9]{2,5}$"},
+          "note": {"type": "string"},
+          "next_catalyst": {"type": "string"},
+          "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "calendar": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["when", "event"],
+        "properties": {
+          "when": {"type": "string"},
+          "event": {"type": "string"},
+          "country": {"type": "string"},
+          "importance": {"enum": ["high", "medium", "low"]},
+          "actual": {"type": "string"},
+          "prior": {"type": "string"},
+          "consensus": {"type": "string"},
+          "consensus_source": {"type": "string"},
+          "source": {"$ref": "#/$defs/source"}
+        },
+        "dependentRequired": {"consensus": ["consensus_source"]},
+        "additionalProperties": false
+      }
+    },
+    "dropped": {
+      "type": "array",
+      "items": {"type": "object", "required": ["item", "reason"], "properties": {"item": {"type": "string"}, "reason": {"type": "string"}}}
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["label", "url"],
+      "properties": {
+        "label": {"type": "string"},
+        "url": {"type": "string", "pattern": "^https?://"},
+        "claim_type": {"enum": ["measurement", "official_statement", "reporting", "forecast", "opinion"]},
+        "perspective": {"type": "string"},
+        "date": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "pricing": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["available", "unavailable"]},
+        "summary": {"type": "string"},
+        "as_of": {"type": "string"},
+        "source": {"$ref": "#/$defs/source"},
+        "forecasts": {
+          "type": "array",
+          "items": {"type": "object", "required": ["who", "view"], "properties": {"who": {"type": "string"}, "view": {"type": "string"}, "source": {"$ref": "#/$defs/source"}}, "additionalProperties": false}
+        }
+      },
+      "if": {"properties": {"status": {"const": "available"}}},
+      "then": {"required": ["summary", "as_of", "source"]},
+      "additionalProperties": false
+    },
+    "comparison": {
+      "type": "object",
+      "required": ["title", "why_different", "resolution", "rows"],
+      "properties": {
+        "title": {"type": "string"},
+        "why_different": {"type": "string"},
+        "resolution": {"enum": ["explained", "unresolved", "reconciled"]},
+        "rows": {
+          "type": "array", "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["source", "figure", "measure", "method", "status"],
+            "properties": {
+              "source": {"type": "string"},
+              "url": {"type": "string", "pattern": "^https?://"},
+              "figure": {"type": "string"},
+              "measure": {"type": "string"},
+              "timestamp": {"type": "string"},
+              "method": {"type": "string"},
+              "status": {"enum": ["primary measured", "official claim", "independently reported", "unverified", "estimate"]}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "card": {
+      "type": "object",
+      "required": ["id", "headline", "takeaway", "what_happened", "why_it_matters", "sources"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+        "headline": {"type": "string", "minLength": 5},
+        "takeaway": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}, "maxItems": 4},
+        "key_figure": {"type": "string"},
+        "new_since_last_issue": {"type": "string"},
+        "what_happened": {"type": "string"},
+        "why_it_matters": {"type": "string"},
+        "market_reaction": {"type": "string"},
+        "priced_in": {"type": "string"},
+        "competing_views": {
+          "type": "array",
+          "items": {"type": "object", "required": ["who", "view"], "properties": {"who": {"type": "string"}, "view": {"type": "string"}, "source": {"$ref": "#/$defs/source"}}, "additionalProperties": false}
+        },
+        "what_to_watch": {"type": "string"},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "comparison": {"$ref": "#/$defs/comparison"},
+        "chart": {
+          "type": "object",
+          "required": ["type", "label", "labels", "values", "unit", "source"],
+          "properties": {
+            "type": {"enum": ["bar", "line"]},
+            "label": {"type": "string"},
+            "labels": {"type": "array", "items": {"type": "string"}},
+            "values": {"type": "array", "items": {"type": ["number", "null"]}},
+            "unit": {"type": "string"},
+            "caption": {"type": "string"},
+            "source": {"type": "string"},
+            "source_url": {"type": "string"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "quote": {
+      "type": "object",
+      "required": ["id", "display_name", "tier", "instrument_type", "quote_kind", "unit", "status", "freshness_state"],
+      "properties": {
+        "id": {"type": "string"},
+        "ticker": {"type": "string"},
+        "display_name": {"type": "string"},
+        "tier": {"enum": ["primary", "expanded", "watchlist"]},
+        "instrument_type": {"type": "string"},
+        "quote_kind": {"enum": ["spot", "futures_last", "futures_settle", "index_close", "close", "yield", "spread"]},
+        "unit": {"type": "string"},
+        "currency": {"type": "string"},
+        "decimals": {"type": "integer"},
+        "change_unit": {"enum": ["pct", "bp", "pts"]},
+        "status": {"enum": ["ok", "unavailable"]},
+        "freshness_state": {"enum": ["live_or_delayed", "latest_official_close", "scheduled_lag", "stale", "unavailable"]},
+        "unavailable_reason": {"type": "string"},
+        "provider": {"type": ["string", "null"]},
+        "provider_url": {"type": ["string", "null"]},
+        "licence_note": {"type": ["string", "null"]},
+        "official": {"type": ["boolean", "null"]},
+        "source_label": {"enum": ["official", "delayed, unofficial"]},
+        "note": {"type": "string"},
+        "value": {"type": "number"},
+        "display_value": {"type": "string"},
+        "observation_timezone": {"type": "string"},
+        "expected_session_date": {"type": "string", "format": "date"},
+        "market_session_date": {"type": "string", "format": "date"},
+        "observation_timestamp_utc": {"type": "string", "format": "date-time"},
+        "comparison_date": {"type": "string", "format": "date"},
+        "comparison_value": {"type": "number"},
+        "change_abs": {"type": "number"},
+        "change_pct": {"type": "number"},
+        "change_bp": {"type": "number"},
+        "display_change": {"type": "string"},
+        "week_comparison_date": {"type": "string"},
+        "week_comparison_value": {"type": "number"},
+        "week_change_pct": {"type": "number"},
+        "week_change_bp": {"type": "number"},
+        "week_change_abs": {"type": "number"},
+        "display_week_change": {"type": "string"},
+        "source_vintage": {"type": "string"},
+        "cross_checks": {"type": "array", "items": {"type": "object", "required": ["provider", "value", "session_date"]}}
+      },
+      "if": {"properties": {"status": {"const": "ok"}}},
+      "then": {"required": ["value", "display_value", "provider", "provider_url", "licence_note", "market_session_date", "observation_timestamp_utc", "comparison_date", "comparison_value", "display_change", "change_unit"]},
+      "else": {"required": ["unavailable_reason"]},
+      "additionalProperties": false
+    }
+  }
+}
