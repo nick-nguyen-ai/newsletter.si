@@ -1,8 +1,8 @@
-title: newsletter.si
+title: signaletter.si
 tagline: Signal over noise. The few things that matter today.
 description: Signal over noise. The few things that matter today.
 url: "https://nick-nguyen-ai.github.io"
-baseurl: "/newsletter.si"
+baseurl: "/signaletter.si"
 lang: en
 # Issues publish ~08:25 Australia/Sydney; Actions/Pages builds run in UTC.
 # Without these, same-day posts can look "future" and be skipped.

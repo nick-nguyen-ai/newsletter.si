@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic market-data collector for newsletter.si Markets v2.
+"""Deterministic market-data collector for signaletter.si Markets v2.
 
 Builds the `snapshot` block of a Markets post (dashboard quotes + watchlist
 quotes) with full provenance. No LLM involved; no numbers are ever guessed.
@@ -33,7 +33,7 @@ from zoneinfo import ZoneInfo
 SYD = ZoneInfo("Australia/Sydney")
 NY = ZoneInfo("America/New_York")
 UTC = dt.timezone.utc
-UA = "Mozilla/5.0 (X11; Linux x86_64) newsletter.si-fetch/1.0"
+UA = "Mozilla/5.0 (X11; Linux x86_64) signaletter.si-fetch/1.0"
 
 LIC = {
     "rba": "RBA statistical tables, CC BY 4.0 (attribution: Reserve Bank of Australia).",

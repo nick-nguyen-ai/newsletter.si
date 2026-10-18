@@ -140,7 +140,7 @@ def draw_card(
 
     # Centered wordmark
     brand = font("SourceSerif4-Semibold.ttf", 72)
-    word = "newsletter"
+    word = "signaletter"
     tld = ".si"
     wb = d.textbbox((0, 0), word, font=brand)
     tb = d.textbbox((0, 0), tld, font=brand)

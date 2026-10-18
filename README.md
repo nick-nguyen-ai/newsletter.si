@@ -1,7 +1,7 @@
-# newsletter.si
+# signaletter.si
 
 Daily ASX & global markets briefing, plus a daily AI report — hosted on GitHub Pages at
-[https://nick-nguyen-ai.github.io/newsletter.si/](https://nick-nguyen-ai.github.io/newsletter.si/).
+[https://nick-nguyen-ai.github.io/signaletter.si/](https://nick-nguyen-ai.github.io/signaletter.si/).
 
 Two streams (topics) share the site:
 
@@ -183,7 +183,7 @@ One-time setup in the repo:
 3. Branch: **main**, folder: **/ (root)**
 4. Save
 
-The site will be at `https://nick-nguyen-ai.github.io/newsletter.si/`.
+The site will be at `https://nick-nguyen-ai.github.io/signaletter.si/`.
 
 ## Auto-merge daily issues (required Actions settings)
 
@@ -230,7 +230,7 @@ bundle install
 bundle exec jekyll serve
 ```
 
-Open http://127.0.0.1:4000/newsletter.si/
+Open http://127.0.0.1:4000/signaletter.si/
 
 ## Charts (oil & gold)
 
@@ -304,7 +304,7 @@ Or from any `_data/*.csv`:
 
 ## Feed
 
-Atom feed: [/newsletter.si/feed.xml](https://nick-nguyen-ai.github.io/newsletter.si/feed.xml)
+Atom feed: [/signaletter.si/feed.xml](https://nick-nguyen-ai.github.io/signaletter.si/feed.xml)
 (one entry per section file).
 
 ---
