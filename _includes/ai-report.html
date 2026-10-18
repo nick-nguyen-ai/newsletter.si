@@ -14,14 +14,18 @@
   data-topic="ai"
   data-day="{{ post.date | date: '%Y-%m-%d' }}"
 >
-  <div class="ai-report__secsel">
-    <label class="visually-hidden" for="ai-sec-select-{{ post.date | date: '%Y%m%d' }}">Section</label>
-    <select id="ai-sec-select-{{ post.date | date: '%Y%m%d' }}" data-ai-sec-select aria-label="Section">
-      <option value="all">All sections ({{ total_cards }})</option>
+  {%- comment -%} Mobile: sticky horizontal chip row (desktop uses sidebar only) {%- endcomment -%}
+  <div class="ai-report__chips" data-ai-chips>
+    <nav class="ai-chips" data-ai-chip-row aria-label="Sections">
+      <button type="button" class="ai-chip is-active" data-ai-sec="all">
+        All <span class="ai-chip__count">{{ total_cards }}</span>
+      </button>
       {% for sec in post.sections %}
-        <option value="{{ sec.id | escape }}">{{ sec.name | escape }} ({{ sec.cards.size }})</option>
+        <button type="button" class="ai-chip" data-ai-sec="{{ sec.id | escape }}">
+          {{ sec.name | escape }} <span class="ai-chip__count">{{ sec.cards.size }}</span>
+        </button>
       {% endfor %}
-    </select>
+    </nav>
   </div>
 
   <div class="ai-report__layout">
@@ -29,7 +33,7 @@
       <p class="ai-report__side-label">Sections</p>
       <nav data-ai-sec-side>
         <a href="#all" class="ai-report__side-link is-active" data-ai-sec="all">
-          All sections
+          All
           <b class="ai-report__side-count">{{ total_cards }}</b>
         </a>
         {% for sec in post.sections %}
@@ -42,12 +46,16 @@
     </aside>
 
     <div class="ai-report__main">
-      <header class="issue-header">
-        <div class="issue-meta">
-          <time class="issue-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">
+      <header class="issue-header ai-report__header">
+        {%- comment -%}
+          Titles already include the calendar day (e.g. "Daily AI report · Sunday 18 Oct 2026").
+          Keep a machine-readable time + badge only — avoid a second visible date line.
+        {%- endcomment -%}
+        <div class="issue-meta ai-report__meta">
+          <time class="visually-hidden" datetime="{{ post.date | date: '%Y-%m-%d' }}">
             {{ post.date | date: "%A %-d %B %Y" }}
           </time>
-          <span class="badge badge--ai">ai</span>
+          <span class="badge badge--ai">AI</span>
         </div>
         <h1 class="ai-report__title">{{ post.title | escape }}</h1>
       </header>
@@ -55,41 +63,79 @@
       {% if post.signal and post.signal.size > 0 %}
       <section class="ai-signal" aria-label="Today's AI Signal">
         <h2 class="ai-signal__title">Today's AI Signal</h2>
-        <ol class="ai-signal__list" data-ai-signal>
+        <ol class="ai-signal__grid" data-ai-signal>
           {% for item in post.signal %}
             {% assign sig_sec_name = item.section_id %}
+            {% assign sig_why = "" %}
             {% for sec in post.sections %}
               {% if sec.id == item.section_id %}
                 {% assign sig_sec_name = sec.name %}
               {% endif %}
+              {% for card in sec.cards %}
+                {% if card.id == item.card_id %}
+                  {% if card.why_it_matters and card.why_it_matters != "" %}
+                    {% assign sig_why = card.why_it_matters %}
+                  {% elsif card.takeaway and card.takeaway != "" %}
+                    {% assign sig_why = card.takeaway %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
             {% endfor %}
-            <li class="ai-signal__item">
+            <li class="ai-signal__card">
+              <span class="ai-signal__num" aria-hidden="true">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
+              <p class="ai-signal__cat">{{ sig_sec_name | escape }}</p>
+              <h3 class="ai-signal__headline">{{ item.headline | escape }}</h3>
+              {% if sig_why != "" %}
+                <p class="ai-signal__why">{{ sig_why | escape }}</p>
+              {% endif %}
               <a
-                class="ai-signal__link"
+                class="ai-signal__cta"
                 href="#{{ item.card_id | escape }}"
                 data-ai-jump="{{ item.card_id | escape }}"
                 data-ai-jump-sec="{{ item.section_id | escape }}"
-              >
-                {{ item.headline | escape }}
-                <small class="ai-signal__meta">→ {{ sig_sec_name | escape }}</small>
-              </a>
+              >Read analysis</a>
             </li>
           {% endfor %}
         </ol>
       </section>
       {% endif %}
 
+      <div class="ai-verdict-legend" aria-label="Verdict legend">
+        <p class="ai-verdict-legend__label">Verdicts</p>
+        <ul class="ai-verdict-legend__list">
+          <li class="ai-verdict-legend__item">
+            <span class="ai-verdict ai-verdict--try">Worth trying</span>
+            <span class="ai-verdict-legend__meaning">a tool or workflow you can test now</span>
+          </li>
+          <li class="ai-verdict-legend__item">
+            <span class="ai-verdict ai-verdict--read">Worth reading</span>
+            <span class="ai-verdict-legend__meaning">important context or research</span>
+          </li>
+          <li class="ai-verdict-legend__item">
+            <span class="ai-verdict ai-verdict--monitor">Monitor only</span>
+            <span class="ai-verdict-legend__meaning">good to know, no action needed yet</span>
+          </li>
+        </ul>
+      </div>
+
       <div data-ai-list>
         {% for sec in post.sections %}
+          {% assign sec_kind = "default" %}
+          {% if sec.id == "papers" %}
+            {% assign sec_kind = "papers" %}
+          {% elsif sec.id == "repos" %}
+            {% assign sec_kind = "repos" %}
+          {% endif %}
           <section
             class="ai-sec-block"
             id="section-{{ sec.id | escape }}"
             data-ai-section="{{ sec.id | escape }}"
             data-section-id="{{ sec.id | escape }}"
+            data-ai-section-kind="{{ sec_kind }}"
           >
             <h2 class="ai-sec-heading">
               {{ forloop.index }}. {{ sec.name | escape }}
-              <span class="ai-sec-heading__count">{{ sec.cards.size }} items</span>
+              <span class="ai-sec-heading__count">{{ sec.cards.size }}</span>
             </h2>
 
             {% for card in sec.cards %}
@@ -102,31 +148,49 @@
               {% elsif card.verdict == "Monitor only" %}
                 {% assign vclass = "monitor" %}
               {% endif %}
-              <article class="ai-card" id="{{ card.id | escape }}" data-ai-card data-ai-card-sec="{{ sec.id | escape }}">
-                <button type="button" class="ai-card__hd" aria-expanded="false" data-ai-card-toggle>
-                  <span class="ai-card__chev" aria-hidden="true">›</span>
-                  <h3 class="ai-card__headline">{{ card.headline | escape }}</h3>
-                  <p class="ai-card__takeaway" data-ai-md>{{ card.takeaway | escape }}</p>
-                  <div class="ai-card__tags">
-                    <div class="ai-card__chips">
-                      {% for tag in card.tags %}
-                        <span class="ai-tag">{{ tag | escape }}</span>
-                      {% endfor %}
-                      {% for src in card.sources %}
-                        <span class="ai-src">{{ src | escape }}</span>
-                      {% endfor %}
-                    </div>
-                    <span class="ai-verdict ai-verdict--{{ vclass }}">{{ vlabel | escape }}</span>
+              <article
+                class="ai-card ai-card--{{ sec_kind }}"
+                id="{{ card.id | escape }}"
+                data-ai-card
+                data-ai-card-sec="{{ sec.id | escape }}"
+                data-ai-card-kind="{{ sec_kind }}"
+              >
+                <div class="ai-card__summary">
+                  <div class="ai-card__top">
+                    <p class="ai-card__cat">{{ sec.name | escape }}</p>
+                    {% if vlabel and vlabel != "" %}
+                      <span class="ai-verdict ai-verdict--{{ vclass }}">{{ vlabel | escape }}</span>
+                    {% endif %}
                   </div>
-                </button>
+                  <h3 class="ai-card__headline">{{ card.headline | escape }}</h3>
+                  {% if sec_kind == "papers" %}
+                    {% if card.takeaway and card.takeaway != "" %}
+                      <p class="ai-card__takeaway ai-card__takeaway--clamp" data-ai-md>{{ card.takeaway | escape }}</p>
+                    {% endif %}
+                    {% if card.caveats and card.caveats != "" %}
+                      <p class="ai-card__meta-line"><span class="ai-card__meta-k">Caveat</span> {{ card.caveats | escape | truncate: 140 }}</p>
+                    {% endif %}
+                  {% elsif sec_kind == "repos" %}
+                    {% if card.takeaway and card.takeaway != "" %}
+                      <p class="ai-card__takeaway ai-card__takeaway--clamp" data-ai-md>{{ card.takeaway | escape }}</p>
+                    {% endif %}
+                  {% else %}
+                    {% if card.takeaway and card.takeaway != "" %}
+                      <p class="ai-card__takeaway ai-card__takeaway--clamp" data-ai-md>{{ card.takeaway | escape }}</p>
+                    {% endif %}
+                  {% endif %}
+                  <button type="button" class="ai-card__toggle" aria-expanded="false" data-ai-card-toggle>
+                    <span data-ai-toggle-label>Read details</span>
+                  </button>
+                </div>
                 <div class="ai-card__det" hidden>
-                  <dl>
+                  <dl class="ai-card__dl">
                     {% if card.what_changed and card.what_changed != "" %}
                       <dt>What changed</dt>
                       <dd data-ai-md>{{ card.what_changed | escape }}</dd>
                     {% endif %}
                     {% if card.why_it_matters and card.why_it_matters != "" %}
-                      <dt>Why it matters to you</dt>
+                      <dt>Why it matters</dt>
                       <dd data-ai-md>{{ card.why_it_matters | escape }}</dd>
                     {% endif %}
                     {% if card.caveats and card.caveats != "" %}
@@ -141,12 +205,32 @@
                       <dt>Sources</dt>
                       <dd class="ai-card__links">
                         {% for link in card.links %}
-                          <a href="{{ link.url | escape }}" target="_blank" rel="noopener noreferrer">{{ link.label | escape }} ↗</a>
+                          {% assign host = link.url | split: '://' | last | split: '/' | first | split: '?' | first | downcase %}
+                          {% assign host_bare = host %}
+                          {% if host_bare contains 'www.' %}
+                            {% assign host_bare = host_bare | split: 'www.' | last %}
+                          {% endif %}
+                          {% assign type_label = "" %}
+                          {% assign display_host = host_bare %}
+                          {% if host_bare contains 'arxiv.org' %}
+                            {% assign type_label = "Paper" %}
+                            {% assign display_host = "arXiv" %}
+                          {% elsif host_bare contains 'github.com' %}
+                            {% assign type_label = "GitHub" %}
+                            {% assign display_host = "GitHub" %}
+                          {% elsif host_bare contains 'openai.com' or host_bare contains 'anthropic.com' or host_bare contains 'google.com' or host_bare contains 'microsoft.com' or host_bare contains 'meta.com' or host_bare contains 'deepseek.com' or host_bare == 'replit.com' %}
+                            {% assign type_label = "Official" %}
+                          {% endif %}
+                          <a class="ai-src-link" href="{{ link.url | escape }}" target="_blank" rel="noopener noreferrer" data-ai-ext-link>
+                            {% if type_label != "" %}<span class="ai-src-link__type">{{ type_label }}</span>{% endif %}
+                            <span class="ai-src-link__host">{{ display_host | escape }}</span>
+                            {% if link.label and link.label != "" and link.label != display_host %}
+                              <span class="ai-src-link__label">{{ link.label | escape }}</span>
+                            {% endif %}
+                          </a>
                         {% endfor %}
                       </dd>
                     {% endif %}
-                    <dt>Verdict</dt>
-                    <dd><span class="ai-verdict ai-verdict--{{ vclass }}">{{ vlabel | escape }}</span></dd>
                   </dl>
                 </div>
               </article>
