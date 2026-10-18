@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 549 548" role="img" aria-label="SignaLetter mark">
-<title>SignaLetter — app icon on paper</title>
+<title>SignaLetter — mark app paper</title>
 <rect width="549" height="548" fill="#F3F2EE"/>
 <rect width="549" height="548" rx="120.8" fill="#F3F2EE" stroke="#D0D0D0" stroke-width="1.5"/>
-<path d="M48 402 L62 390 L76 410 L91 392 L106 408 L122 394 L138 406 L157 402" fill="none" stroke="#9A9A9A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M157 151 L157 402 C169.0 268.0 194.0 219.0 245 200 C325.0 241.0 294.0 352.0 355 385 C386.0 368.0 387.0 309.0 393 152 L393 400 L461 388" fill="none" stroke="#0F1724" stroke-width="26.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M45 402 L62 388 L78 412 L94 390 L110 410 L126 392 L142 408 L157 402" fill="none" stroke="#9A9A9A" stroke-width="15.9" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M157 151 L157 402 C165 275 205 200 245 200 C285 192 304.0 342.0 355 385 C386.0 368.0 387.0 309.0 393 152 L393 400 L461 388" fill="none" stroke="#0F1724" stroke-width="26.5" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="490.77" cy="379.84" r="22.0" fill="#2F7A75"/>
 </svg>

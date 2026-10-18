@@ -13,7 +13,8 @@ Domain stays `signaletter.si`.
 
 Palette: Ink `#0F1724`, Paper `#F3F2EE`, muted teal `#2F7A75`, teal on dark `#66B8AC`, noise `#9A9A9A`.
 
-Mark paths fitted to PDF crops (cubic beziers). PDF pages are raster-only.
+Mark paths fitted to PDF crops (cubic beziers; rounded arch crown). PDF pages are raster-only.
+Noise zigzag stroke ≈ 60% of the main signal stroke. OG cards rasterize this same SVG path.
 
 ```bash
 python3 scripts/generate_brand.py

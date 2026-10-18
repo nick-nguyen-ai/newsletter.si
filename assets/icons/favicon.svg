@@ -2,6 +2,6 @@
 <title>SignaLetter</title>
 <rect width="549" height="548" fill="#0F1724"/>
 <rect width="549" height="548" rx="120.8" fill="#0F1724"/>
-<path d="M157 151 L157 402 C169.0 268.0 194.0 219.0 245 200 C325.0 241.0 294.0 352.0 355 385 C386.0 368.0 387.0 309.0 393 152 L393 400 L461 388" fill="none" stroke="#F3F2EE" stroke-width="26.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M157 151 L157 402 C165 275 205 200 245 200 C285 192 304.0 342.0 355 385 C386.0 368.0 387.0 309.0 393 152 L393 400 L461 388" fill="none" stroke="#F3F2EE" stroke-width="26.5" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="490.77" cy="379.84" r="22.0" fill="#66B8AC"/>
 </svg>
