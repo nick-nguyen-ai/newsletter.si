@@ -111,7 +111,7 @@
   white-space: nowrap;
 }
 
-.site-brand__tld {
+.site-brand__l {
   color: var(--accent);
 }
 
@@ -120,7 +120,7 @@
   color: var(--text);
 }
 
-.site-brand:hover .site-brand__tld {
+.site-brand:hover .site-brand__l {
   color: var(--link-hover);
 }
 
@@ -333,6 +333,16 @@ body:not(.has-section-nav) .site-main {
   font-size: 1.05rem;
   line-height: 1.45;
   max-width: 28rem;
+}
+
+.landing__eyebrow {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--text);
 }
 
 .landing__meta {

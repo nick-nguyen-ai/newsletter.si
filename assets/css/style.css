@@ -3,8 +3,8 @@
 :root {
   --ink: #0f1724;
   --paper: #f3f2ee;
-  --teal: #2e7d72;
-  --teal-bright: #6bbfae;
+  --teal: #2f7a75;
+  --teal-bright: #66b8ac;
   --bg: var(--paper);
   --bg-elevated: #ffffff;
   --text: var(--ink);
@@ -576,7 +576,7 @@ a:hover {
   line-height: 1.2;
 }
 
-.site-footer__tld {
+.site-footer__l {
   color: var(--accent);
 }
 

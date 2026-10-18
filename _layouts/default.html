@@ -10,18 +10,18 @@
   <meta name="apple-mobile-web-app-title" content="{{ site.title }}">
   {% include social-meta.html %}
   <link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
-  <link rel="icon" href="{{ '/assets/icons/favicon.svg' | relative_url }}" type="image/svg+xml">
-  <link rel="icon" href="{{ '/assets/icons/favicon.ico' | relative_url }}" sizes="any">
-  <link rel="apple-touch-icon" href="{{ '/assets/icons/apple-touch-icon.png' | relative_url }}">
-  <link rel="icon" type="image/png" sizes="192x192" href="{{ '/assets/icons/icon-192.png' | relative_url }}">
-  <link rel="icon" type="image/png" sizes="512x512" href="{{ '/assets/icons/icon-512.png' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/fonts.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="icon" href="{{ '/assets/icons/favicon.svg' | relative_url }}?v=4" type="image/svg+xml">
+  <link rel="icon" href="{{ '/assets/icons/favicon.ico' | relative_url }}?v=4" sizes="any">
+  <link rel="apple-touch-icon" href="{{ '/assets/icons/apple-touch-icon.png' | relative_url }}?v=4">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ '/assets/icons/icon-192.png' | relative_url }}?v=4">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ '/assets/icons/icon-512.png' | relative_url }}?v=4">
+  <link rel="stylesheet" href="{{ '/assets/css/fonts.css' | relative_url }}?v=4">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v=4">
   <link rel="stylesheet" href="{{ '/assets/css/ai-skim.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/ai-cards.css' | relative_url }}?v=3">
-  <link rel="stylesheet" href="{{ '/assets/css/nav.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/ai-cards.css' | relative_url }}?v=4">
+  <link rel="stylesheet" href="{{ '/assets/css/nav.css' | relative_url }}?v=4">
   <link rel="stylesheet" href="{{ '/assets/css/share.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/markets.css' | relative_url }}?v=1">
+  <link rel="stylesheet" href="{{ '/assets/css/markets.css' | relative_url }}?v=4">
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 </head>
 <body class="layout-{{ page.layout | default: 'default' }}{% if page.topic or page.section %} has-section-nav{% endif %}">
@@ -48,7 +48,7 @@
           <span class="site-footer__mark" aria-hidden="true">
             <img src="{{ '/assets/brand/mark-app-ink.svg' | relative_url }}" width="24" height="24" alt="">
           </span>
-          <span class="site-footer__word">signaletter<span class="site-footer__tld">.si</span></span>
+          <span class="site-footer__word">Signa<span class="site-footer__l">L</span>etter</span>
         </a>
         <p class="site-footer__motto">Signal over noise.</p>
       </div>

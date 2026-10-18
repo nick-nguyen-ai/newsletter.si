@@ -1,18 +1,19 @@
-# Direction C — Signal over noise
+# SignaLetter — Direction C
 
-Nick chose Claude Design’s **Direction C**.
+Wordmark: **SignaLetter** (Source Serif 4). Primary = semibold with muted-teal **L**;
+secondary = regular, ink only. Domain stays `signaletter.si`.
 
 | File | Use |
 |------|-----|
-| `mark-full.svg` | Full mark with noise squiggle + n-pulse + teal dot |
-| `mark-small.svg` | Small cut (bold n + dot) for 16–48px |
-| `mark-app-ink.svg` | App icon on ink (header, favicons, PWA) |
+| `mark-full.svg` | Full mark (noise + nL signal + teal dot) on paper |
+| `mark-small.svg` | Small cut (signal + teal, no noise) for tiny sizes |
+| `mark-app-ink.svg` | App icon on ink (header light mode, PWA) |
 | `mark-app-paper.svg` | App icon on paper (dark-mode header) |
-| `mark-one-colour.svg` | Single-colour (paper on ink) |
+| `mark-one-colour.svg` | One-colour cut (paper stroke on ink, teal dot) |
 
-Palette: Ink `#0F1724`, Paper `#F3F2EE`, teal light `#2E7D72`, teal dark `#6BBFAE`.
+Palette: Ink `#0F1724`, Paper `#F3F2EE`, muted teal `#2F7A75`, teal on dark `#66B8AC`.
 
-Regenerate rasters:
+The mark paths were **redrawn** to match PDF pages 5–6 (PDF embeds rasters only — no extractable vectors).
 
 ```bash
 python3 scripts/generate_brand.py

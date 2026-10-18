@@ -1,6 +1,6 @@
 {
-  "name": "signaletter.si",
-  "short_name": "signaletter.si",
+  "name": "SignaLetter",
+  "short_name": "SignaLetter",
   "description": "Signal over noise. The few things that matter today.",
   "start_url": "/signaletter.si/",
   "scope": "/signaletter.si/",
