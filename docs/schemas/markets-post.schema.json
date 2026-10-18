@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nick-nguyen-ai.github.io/signaletter.si/docs/schemas/markets-post.schema.json",
+  "$id": "https://signaletter.si/docs/schemas/markets-post.schema.json",
   "title": "signaletter.si Markets v2 post front matter",
   "type": "object",
   "required": ["title", "date", "section", "edition", "format", "cutoff_local", "summary", "snapshot", "sections"],
