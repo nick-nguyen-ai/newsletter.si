@@ -234,20 +234,27 @@
     }
   }
 
+  // Centre the active chip by scrolling the chip row only. Do NOT use
+  // element.scrollIntoView here: it also scrolls the page (the chip lives in a
+  // position:sticky bar), and in jump mode this runs from an
+  // IntersectionObserver while the reader is scrolling, so every section
+  // change yanked the page back and touch scrolling appeared frozen.
   function scrollChipIntoView(listEl, filterId) {
     var active = listEl.querySelector(
       '[data-section-filter="' + filterId + '"]'
     );
-    if (!active || typeof active.scrollIntoView !== "function") return;
-    // Horizontal chip row on phone; no-op harmlessly on desktop column
+    if (!active) return;
+    // Desktop column layout does not scroll horizontally; nothing to do.
+    if (listEl.scrollWidth <= listEl.clientWidth + 1) return;
+    var lr = listEl.getBoundingClientRect();
+    var ar = active.getBoundingClientRect();
+    var delta = (ar.left + ar.width / 2) - (lr.left + lr.width / 2);
+    if (Math.abs(delta) < 2) return;
+    var left = Math.max(0, Math.min(listEl.scrollLeft + delta, listEl.scrollWidth - listEl.clientWidth));
     try {
-      active.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
+      listEl.scrollTo({ left: left, behavior: "smooth" });
     } catch (e) {
-      active.scrollIntoView(false);
+      listEl.scrollLeft = left;
     }
   }
 
