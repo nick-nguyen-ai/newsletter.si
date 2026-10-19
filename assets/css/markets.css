@@ -60,20 +60,6 @@
   outline-offset: 2px;
   z-index: 1;
 }
-.mk-tab__badge {
-  display: inline-block;
-  margin-left: 0.4rem;
-  padding: 0.1rem 0.4rem;
-  border: 1px solid var(--accent, #2F7A75);
-  border-radius: 2px;
-  font-family: var(--mk-mono);
-  font-size: 0.58rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent, #2F7A75);
-  vertical-align: middle;
-}
 .mk-panel[hidden] { display: none !important; }
 .section-nav--inline {
   position: sticky;
@@ -83,11 +69,6 @@
   padding: 0.35rem 0;
   background: color-mix(in srgb, var(--paper, #F3F2EE) 92%, transparent);
   border-bottom: 1px solid var(--border);
-}
-.badge--preview {
-  border-color: var(--accent, #2F7A75);
-  color: var(--accent, #2F7A75);
-  background: var(--accent-soft);
 }
 .mk-body { font-family: var(--font-serif); }
 .mk-section { margin: 1.6rem 0 0; }

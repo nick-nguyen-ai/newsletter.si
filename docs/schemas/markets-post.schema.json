@@ -92,7 +92,6 @@
       "type": "object",
       "required": ["cutoff_local", "summary", "snapshot", "sections"],
       "properties": {
-        "preview": {"type": "boolean", "description": "Branch/preview builds only — shows a Preview badge on the Close tab"},
         "cutoff_local": {"type": "string", "format": "date-time"},
         "session_note": {"type": "string"},
         "summary": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 10}},

@@ -25,7 +25,7 @@
   class="topic-issue mk{% if has_close %} mk--tabs{% endif %}"
   data-topic="markets"
   data-day="{{ post.date | date: '%Y-%m-%d' }}"
-  {% if has_close %}data-mk-tabs data-post-date="{{ post.date | date: '%Y-%m-%d' }}"{% if post.close.preview %} data-mk-preview="1"{% endif %}{% endif %}
+  {% if has_close %}data-mk-tabs data-post-date="{{ post.date | date: '%Y-%m-%d' }}"{% endif %}
 >
   <header class="issue-header mk-header">
     <div class="issue-meta">
@@ -57,10 +57,7 @@
       aria-selected="false"
       data-mk-tab="close"
       tabindex="-1"
-    >
-      Close
-      {% if post.close.preview %}<span class="mk-tab__badge">Preview</span>{% endif %}
-    </button>
+    >Close</button>
   </div>
 
   <div

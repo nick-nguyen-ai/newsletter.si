@@ -146,7 +146,6 @@ Shanghai, KOSPI) plus COMEX copper. Same provenance rules as morning.
 
 | Key | Notes |
 |---|---|
-| `preview` | Optional boolean. Branch builds only — shows a **Preview** badge on the Close tab |
 | `cutoff_local` | From the close snapshot (16:30 Sydney) |
 | `session_note` | e.g. "Weekday ASX edition · after the close" |
 | `summary` | **Takeaway** — exactly 3 bullets |

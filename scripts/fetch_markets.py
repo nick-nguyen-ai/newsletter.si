@@ -133,6 +133,39 @@ def yahoo(symbol: str):
     return _cache[key][0]
 
 
+def yahoo_meta(symbol: str) -> dict:
+    """Yahoo chart meta for a symbol (cached alongside daily bars)."""
+    yahoo(symbol)
+    return _cache[("yahoo", symbol)][1]
+
+
+def resolve_yahoo_obs_ts(
+    symbol: str,
+    obs_d: dt.date,
+    bar_ts: dt.datetime,
+    tz: ZoneInfo,
+    session_close: dt.datetime,
+) -> dt.datetime:
+    """Stamp Yahoo quotes with quote/close time, not the daily-bar session OPEN.
+
+    Yahoo's 1d chart timestamps are often the session open (e.g. 09:00 Tokyo for
+    Nikkei, midnight ET for futures). Prefer:
+      1. meta.regularMarketTime when it falls on the same local session date
+      2. otherwise the exchange session close when the bar looks like an open stamp
+      3. otherwise the bar timestamp as returned
+    """
+    meta = yahoo_meta(symbol)
+    rmt = meta.get("regularMarketTime")
+    if rmt:
+        rmt_dt = dt.datetime.fromtimestamp(int(rmt), UTC)
+        if rmt_dt.astimezone(tz).date() == obs_d:
+            return rmt_dt
+    local = bar_ts.astimezone(tz)
+    if local.date() == obs_d and local.replace(tzinfo=None) < session_close.replace(tzinfo=None):
+        return session_close.astimezone(UTC)
+    return bar_ts
+
+
 def cboe_vix(_ref: str = "VIX"):
     """Cboe free daily VIX history CSV (CLOSE column). Dates are US session dates."""
     key = ("cboe", "VIX")
@@ -354,7 +387,7 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
         if len(rows) < 2:
             errors.append(f"{provider}: not enough observations before cutoff")
             continue
-        cand = (rows, kind, provider, url, lic)
+        cand = (rows, kind, ref, provider, url, lic)
         if rows[-1][0] >= exp:
             best = cand
             break
@@ -364,7 +397,7 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
         base.update(status="unavailable", freshness_state="unavailable", provider=None, provider_url=None, licence_note=None,
                     official=None, unavailable_reason="; ".join(errors) or "no data")
         return base
-    rows, kind, provider, url, lic = best
+    rows, kind, ref, provider, url, lic = best
     obs_d, val, obs_ts = rows[-1]
     if spec.get("change_vs") == "last_change":
         prev = next((r for r in reversed(rows) if r[1] != val), rows[-2])
@@ -399,6 +432,8 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
         fresh = "stale"
     if obs_ts is None:
         obs_ts = session_close.astimezone(UTC)
+    elif kind == "yahoo":
+        obs_ts = resolve_yahoo_obs_ts(ref, obs_d, obs_ts, tz, session_close)
     d = spec["decimals"]
     q = dict(base)
     q.update(
