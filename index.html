@@ -27,6 +27,9 @@ nav_active: home
           <time class="landing-card__date" datetime="{{ latest.date | date: '%Y-%m-%d' }}">
             {{ latest.date | date: "%-d %B %Y" }}
           </time>
+          {% if topic.section == "markets" %}
+            <span class="landing-card__status">{% if latest.close %}Updated after the close{% else %}Morning briefing{% endif %}</span>
+          {% endif %}
         {% else %}
           <span class="landing-card__title">No issues yet</span>
         {% endif %}

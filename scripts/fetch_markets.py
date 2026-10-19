@@ -11,7 +11,11 @@ Source policy (Nick, 18 Oct 2026):
 
 Usage:
   python3 scripts/fetch_markets.py --issue-date 2026-10-19 --edition weekday \
-      [--cutoff 07:30] [--out snapshot.json] [--yaml]
+      [--cutoff 07:30] [--out snapshot.json]
+
+  # After the ASX close (~16:30 Sydney): same quotes plus Asia / copper, cutoff 16:30
+  python3 scripts/fetch_markets.py --issue-date 2026-10-19 --edition weekday \
+      --close --out close-snapshot.json
 
 Historical (backfill) mode is the same command with a past --issue-date: every
 series is cut at the cutoff, so nothing published after the session is used for
@@ -169,6 +173,10 @@ MARKETS = {
     "COMEX": (NY, (13, 30)),
     "NYMEX": (NY, (14, 30)),
     "EIA": (NY, (14, 30)),
+    "JP": (ZoneInfo("Asia/Tokyo"), (15, 0)),
+    "HK": (ZoneInfo("Asia/Hong_Kong"), (16, 0)),
+    "CN": (ZoneInfo("Asia/Shanghai"), (15, 0)),
+    "KR": (ZoneInfo("Asia/Seoul"), (15, 30)),
 }
 
 # metric specs: candidates are tried in order; first candidate that has the
@@ -232,6 +240,26 @@ METRICS = [
     dict(id="iron_ore", display_name="Iron ore 62% Fe", tier="expanded", instrument_type="commodity", quote_kind="futures_last",
          unit="USD/t", currency="USD", decimals=2, change="pct", market="US", lag_days=0, candidates=[],
          unavailable_reason="No free, permitted daily benchmark (SGX/Platts are licensed); the only free series (IMF via FRED) is monthly."),
+]
+
+# Extra metrics only pulled in --close mode (Asia session + copper).
+CLOSE_METRICS = [
+    dict(id="nikkei", display_name="Nikkei 225", tier="primary", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="JPY", decimals=1, change="pct", market="JP", lag_days=0,
+         candidates=[("yahoo", "^N225", "Yahoo Finance (^N225)", "https://finance.yahoo.com/quote/%5EN225/", "yahoo")]),
+    dict(id="hang_seng", display_name="Hang Seng", tier="primary", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="HKD", decimals=1, change="pct", market="HK", lag_days=0,
+         candidates=[("yahoo", "^HSI", "Yahoo Finance (^HSI)", "https://finance.yahoo.com/quote/%5EHSI/", "yahoo")]),
+    dict(id="shanghai", display_name="Shanghai Composite", tier="expanded", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="CNY", decimals=1, change="pct", market="CN", lag_days=0,
+         candidates=[("yahoo", "000001.SS", "Yahoo Finance (000001.SS)", "https://finance.yahoo.com/quote/000001.SS/", "yahoo")]),
+    dict(id="kospi", display_name="KOSPI", tier="expanded", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="KRW", decimals=1, change="pct", market="KR", lag_days=0,
+         candidates=[("yahoo", "^KS11", "Yahoo Finance (^KS11)", "https://finance.yahoo.com/quote/%5EKS11/", "yahoo")]),
+    dict(id="copper_fut", display_name="Copper (COMEX futures)", tier="expanded", instrument_type="commodity", quote_kind="futures_last",
+         unit="USD/lb", currency="USD", decimals=3, change="pct", market="COMEX", lag_days=0,
+         note="Yahoo HG=F: active COMEX copper futures contract.",
+         candidates=[("yahoo", "HG=F", "Yahoo Finance (HG=F)", "https://finance.yahoo.com/quote/HG%3DF/", "yahoo")]),
 ]
 
 WEEKLY = False
@@ -388,7 +416,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--issue-date", required=True)
     ap.add_argument("--edition", choices=["weekday", "weekend"], required=True)
-    ap.add_argument("--cutoff", default="07:30", help="local Sydney HH:MM")
+    ap.add_argument("--cutoff", default="07:30", help="local Sydney HH:MM (ignored when --close)")
+    ap.add_argument("--close", action="store_true",
+                    help="after-the-close snapshot: cutoff 16:30 Sydney + Asia/copper metrics")
     ap.add_argument("--watchlist", default="_data/watchlist.csv")
     ap.add_argument("--out")
     ap.add_argument("--backfill", action="store_true", help="re-rendering a past issue")
@@ -397,11 +427,15 @@ def main(argv=None):
     WEEKLY = args.edition == "weekend"
     BACKFILL = args.backfill
     d = dt.date.fromisoformat(args.issue_date)
-    hh, mm = map(int, args.cutoff.split(":"))
+    if args.close:
+        hh, mm = 16, 30
+    else:
+        hh, mm = map(int, args.cutoff.split(":"))
     cutoff = dt.datetime(d.year, d.month, d.day, hh, mm, tzinfo=SYD).astimezone(UTC)
     retrieved = dt.datetime.now(UTC).strftime("%Y-%m-%d %H:%MZ")
     quotes, dropped = [], []
-    for spec in METRICS:
+    specs = list(METRICS) + (list(CLOSE_METRICS) if args.close else [])
+    for spec in specs:
         q = build_quote(spec, cutoff, retrieved)
         quotes.append(q)
         if q["status"] != "ok":
@@ -435,6 +469,7 @@ def main(argv=None):
         "retrieved_at_utc": retrieved,
         "issue_date": d.isoformat(),
         "edition": args.edition,
+        "mode": "close" if args.close else "morning",
         "backfill": BACKFILL,
         "cutoff_utc": cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "cutoff_local": dt.datetime(d.year, d.month, d.day, hh, mm, tzinfo=SYD).isoformat(),

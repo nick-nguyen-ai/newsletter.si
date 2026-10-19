@@ -1,0 +1,152 @@
+{%- comment -%}
+  Shared Markets v2 body (morning or close edition).
+  Expects:
+    include.edition  — object with summary, snapshot, sections, rates, watchlist, calendar, dropped, long_run_charts, session_note, cutoff_local
+    include.scope    — "morning" | "close" (used for section id prefix + chart uids)
+    include.sec_names — pipe list "id:Label|..."
+{%- endcomment -%}
+{% assign ed = include.edition %}
+{% assign scope = include.scope | default: "" %}
+{% if scope != "" %}
+  {% assign prefix = scope | append: "-" %}
+{% else %}
+  {% assign prefix = "" %}
+{% endif %}
+{% assign quotes = ed.snapshot.quotes %}
+{% assign primary = quotes | where: "tier", "primary" %}
+{% assign expanded = quotes | where: "tier", "expanded" %}
+{% assign n_metrics = primary.size | plus: expanded.size %}
+{% assign sec_names = include.sec_names | split: "|" %}
+
+<div
+  class="issue-body topic-body mk-body"
+  data-topic-body
+  data-topic-section="markets"
+  data-nav-mode="jump"
+  data-mk-scope="{{ scope }}"
+>
+  {% if include.inline_nav %}
+  <aside class="section-nav section-nav--inline" data-section-nav aria-label="{% if scope != '' %}{{ scope | capitalize }} {% endif %}sections">
+    <p class="section-nav__label">Sections</p>
+    <nav class="section-nav__list" data-section-nav-list></nav>
+  </aside>
+  {% endif %}
+
+  <section class="topic-section mk-section" id="{{ prefix }}top-stories" data-section-id="{{ prefix }}top-stories" data-count="3">
+    <h2 class="topic-section__title mk-section__title">If you read nothing else</h2>
+    <ol class="mk-summary">
+      {% for s in ed.summary %}<li>{{ s | markdownify | remove: '<p>' | remove: '</p>' | strip }}</li>{% endfor %}
+    </ol>
+  </section>
+
+  <section class="topic-section mk-section" id="{{ prefix }}market-snapshot" data-section-id="{{ prefix }}market-snapshot" data-count="{{ n_metrics }}">
+    <h2 class="topic-section__title mk-section__title">Markets at a glance</h2>
+    <p class="mk-section__note">Each figure shows its own session. Changes are versus the prior session. Yields in basis points.</p>
+    <div class="mk-tiles">
+      {% for q in primary %}{% include markets/tile.html q=q %}{% endfor %}
+    </div>
+    <details class="mk-more">
+      <summary class="mk-more__toggle">All {{ n_metrics }} metrics</summary>
+      <div class="mk-tiles mk-tiles--expanded">
+        {% for q in expanded %}{% include markets/tile.html q=q %}{% endfor %}
+      </div>
+    </details>
+    {% if ed.long_run_charts %}
+    <div class="mk-longrun">
+      {% for key in ed.long_run_charts %}
+        {% if key == "brent" %}
+          {% if scope != "" %}{% capture uid %}{{ scope }}-brent{% endcapture %}{% else %}{% assign uid = "mk-brent" %}{% endif %}
+          {% include chart.html series="brent" uid=uid caption="Brent spot (EIA Europe Brent spot assessment via FRED, USD/bbl). This is a spot series, not the futures price quoted in most news; it is published with a lag of several days." %}
+        {% elsif key == "gold" %}
+          {% if scope != "" %}{% capture uid %}{{ scope }}-gold{% endcapture %}{% else %}{% assign uid = "mk-gold" %}{% endif %}
+          {% include chart.html series="gold" uid=uid caption="Gold: COMEX futures (Yahoo GC=F, active contract, USD/oz) daily close. Futures, not the LBMA/spot price." %}
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  {% for pair in sec_names %}
+    {% assign sid = pair | split: ":" | first %}
+    {% assign sname = pair | split: ":" | last %}
+    {% assign sec = ed.sections | where: "id", sid | first %}
+    {% assign ncards = 0 %}{% if sec %}{% assign ncards = sec.cards.size %}{% endif %}
+    {% assign full_id = prefix | append: sid %}
+    <section class="topic-section mk-section" id="{{ full_id }}" data-section-id="{{ full_id }}" data-count="{{ ncards }}">
+      <h2 class="topic-section__title mk-section__title">{{ sname }}</h2>
+      {% if sec.note %}<p class="mk-section__note">{{ sec.note }}</p>{% endif %}
+      {% if sid == "rates-expectations" or sid == "rates-fx" %}{% include markets/rates.html rates=ed.rates %}{% endif %}
+      {% if ncards > 0 %}{% for card in sec.cards %}{% include markets/card.html card=card %}{% endfor %}{% elsif sid != "rates-expectations" and sid != "rates-fx" %}<p class="mk-unavail">No new verified items in this edition.</p>{% endif %}
+    </section>
+  {% endfor %}
+
+  <section class="topic-section mk-section" id="{{ prefix }}watchlist" data-section-id="{{ prefix }}watchlist" data-count="{{ site.data.watchlist.size }}">
+    <h2 class="topic-section__title mk-section__title">Your watchlist</h2>
+    <ul class="mk-watch">
+      {% for w in site.data.watchlist %}
+        {% assign wid = "wl_" | append: w.ticker | downcase %}
+        {% assign wq = quotes | where: "id", wid | first %}
+        {% assign wn = ed.watchlist | where: "ticker", w.ticker | first %}
+        <li class="mk-watch__row">
+          <div class="mk-watch__head">
+            <span class="mk-watch__ticker">{{ w.ticker }}</span>
+            <span class="mk-watch__name">{{ w.name }}</span>
+            {% if wq and wq.status == "ok" %}
+              <span class="mk-watch__px"><b>A${{ wq.display_value }}</b> <span class="mk-chg">{{ wq.display_change }}</span>{% if wq.display_week_change %} <span class="mk-chg mk-chg--wk">{{ wq.display_week_change }}</span>{% endif %}</span>
+            {% else %}
+              <span class="mk-watch__px mk-unavail">Price unavailable</span>
+            {% endif %}
+          </div>
+          {% if wq and wq.status == "ok" %}<p class="mk-micro">{{ wq.market_session_date | date: "%a %-d %b" }} close · {{ wq.provider }} · <span class="mk-flag">delayed, unofficial</span></p>{% endif %}
+          <p class="mk-watch__note">{% if wn %}{{ wn.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}{% else %}No new verified news.{% endif %}</p>
+          {% if wn.next_catalyst %}<p class="mk-watch__next"><b>Next:</b> {{ wn.next_catalyst }}</p>{% endif %}
+          {% if wn.sources %}<p class="mk-sources-inline">{% for s in wn.sources %}<a href="{{ s.url }}" rel="noopener">{{ s.label }}</a>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="topic-section mk-section" id="{{ prefix }}calendar" data-section-id="{{ prefix }}calendar" data-count="{{ ed.calendar.size | default: 0 }}">
+    <h2 class="topic-section__title mk-section__title">{% if scope == "close" %}Tonight &amp; overnight{% else %}What comes next{% endif %}</h2>
+    {% if ed.calendar and ed.calendar.size > 0 %}
+    <ul class="mk-cal">
+      {% for row in ed.calendar %}
+      <li class="mk-cal__row">
+        <span class="mk-cal__when">{{ row.when }}</span>
+        <span class="mk-cal__event">{% if row.importance == "high" %}<span class="mk-imp" title="High importance">▲ High</span> {% endif %}{{ row.event }}{% if row.country %} <span class="mk-cal__cty">{{ row.country }}</span>{% endif %}</span>
+        {% if row.actual or row.prior or row.consensus %}
+        <span class="mk-cal__nums">
+          {% if row.actual %}Actual <b>{{ row.actual }}</b>{% endif %}
+          {% if row.consensus %} · Consensus {{ row.consensus }} ({{ row.consensus_source }}){% endif %}
+          {% if row.prior %} · Prior {{ row.prior }}{% endif %}
+        </span>
+        {% endif %}
+        {% if row.source %}<a class="mk-cal__src" href="{{ row.source.url }}" rel="noopener">{{ row.source.label }}</a>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="mk-unavail">{% if scope == "close" %}Preview: overnight calendar will be written by the 4:30pm run.{% else %}No verified calendar items for this edition.{% endif %}</p>
+    {% endif %}
+  </section>
+
+  <footer class="mk-notes">
+    <details>
+      <summary>Data sources, licences and what was left out</summary>
+      <ul class="mk-notes__list">
+        {% for q in quotes %}{% if q.status == "ok" %}
+        <li><b>{{ q.display_name }}</b>: <a href="{{ q.provider_url }}" rel="noopener">{{ q.provider }}</a>, {{ q.quote_kind | replace: "_", " " }}, session {{ q.market_session_date }}. {{ q.licence_note }}</li>
+        {% endif %}{% endfor %}
+      </ul>
+      {% if ed.dropped and ed.dropped.size > 0 %}
+      <p class="mk-notes__h">Not shown in this edition</p>
+      <ul class="mk-notes__list">
+        {% for d in ed.dropped %}<li><b>{{ d.item }}</b>: {{ d.reason }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      {% if ed.snapshot.backfill %}<p class="mk-micro">Dashboard values for this archived issue were back-filled on {{ ed.snapshot.retrieved_at_utc }} UTC from the sources above, cut at the issue's data cutoff.</p>{% endif %}
+      <p class="mk-micro">This product uses data from FRED®, Federal Reserve Bank of St. Louis, but is not endorsed or certified by it. RBA data © Reserve Bank of Australia, CC BY 4.0.</p>
+    </details>
+    <p class="disclaimer">Information only, not financial advice.</p>
+  </footer>
+</div>

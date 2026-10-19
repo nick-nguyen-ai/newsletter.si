@@ -413,4 +413,30 @@
   if (window.matchMedia) {
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", mountAll);
   }
+
+  // Markets Morning/Close tabs: charts in a newly shown panel measured 0×0 while
+  // hidden — resize (or remount) when the tab becomes visible.
+  window.addEventListener("mk-tab-shown", function (ev) {
+    var panel = ev && ev.detail && ev.detail.panel;
+    if (!panel) return;
+    panel.querySelectorAll("figure.chart").forEach(function (figure) {
+      var canvas = figure.querySelector("canvas[data-chart]");
+      if (!canvas) return;
+      var existing = null;
+      try {
+        if (typeof Chart !== "undefined" && Chart.getChart) {
+          existing = Chart.getChart(canvas);
+        }
+      } catch (e) {
+        existing = null;
+      }
+      if (existing) {
+        existing.resize();
+        return;
+      }
+      var colors = theme();
+      var s = mountFigure(figure, colors);
+      if (s) mounted.push(s);
+    });
+  });
 })();

@@ -2,6 +2,85 @@
 
 .mk { --mk-mono: var(--font-mono); --mk-gap: 0.5rem; }
 .mk-session { margin: 0.25rem 0 0; font-family: var(--mk-mono); font-size: 0.72rem; letter-spacing: 0.02em; color: var(--text-muted); text-transform: uppercase; }
+.mk-session--panel { margin: 0.75rem 0 0.25rem; }
+
+/* Morning / Close tabs */
+.mk-tabbar {
+  display: flex;
+  gap: 0;
+  margin: 1rem 0 0.75rem;
+  border-bottom: 2px solid var(--ink, #0F1724);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--paper, #F3F2EE) 92%, var(--accent, #2F7A75)), transparent);
+}
+.mk-tab {
+  appearance: none;
+  position: relative;
+  flex: 1 1 0;
+  min-height: var(--tap-min, 44px);
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mk-tab::after {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: -2px;
+  height: 2px;
+  background: transparent;
+}
+.mk-tab--active,
+.mk-tab[aria-selected="true"] {
+  color: var(--ink, #0F1724);
+}
+.mk-tab--active::after,
+.mk-tab[aria-selected="true"]::after {
+  background: var(--accent, #2F7A75);
+}
+.mk-tab:focus-visible {
+  outline: 3px solid var(--accent, #2F7A75);
+  outline-offset: 2px;
+  z-index: 1;
+}
+.mk-tab__badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--accent, #2F7A75);
+  border-radius: 2px;
+  font-family: var(--mk-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent, #2F7A75);
+  vertical-align: middle;
+}
+.mk-panel[hidden] { display: none !important; }
+.section-nav--inline {
+  position: sticky;
+  top: var(--header-offset, 0);
+  z-index: 2;
+  margin: 0 0 0.75rem;
+  padding: 0.35rem 0;
+  background: color-mix(in srgb, var(--paper, #F3F2EE) 92%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.badge--preview {
+  border-color: var(--accent, #2F7A75);
+  color: var(--accent, #2F7A75);
+  background: var(--accent-soft);
+}
 .mk-body { font-family: var(--font-serif); }
 .mk-section { margin: 1.6rem 0 0; }
 .mk-section__title {

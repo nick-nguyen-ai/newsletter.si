@@ -1,0 +1,177 @@
+# Close editorial for 2026-10-19 — figures from fetch_markets.py --close.
+# Prose that cannot be verified says Preview: content will be written by the 4:30pm run.
+preview: true
+session_note: Weekday ASX edition · after the close (preview build)
+summary:
+- S&P/ASX 200 closed at 8,845.7, up 0.4% on the 19 Oct session ([Yahoo Finance ^AXJO](https://finance.yahoo.com/quote/%5EAXJO/)).
+- 'Watchlist closes on ASX: ZIP A$2.170 (unchanged), CSL A$194.05 (+1.0%), FLT A$10.84 (+3.6%), IEL A$2.25 (unchanged) ([Yahoo Finance](https://finance.yahoo.com/)).'
+- 'Preview: sector leaders/laggards and overnight US open colour will be written by the 4:30pm run.'
+long_run_charts:
+- brent
+- gold
+sections:
+- id: asx-close
+  cards:
+  - id: asx200-close
+    headline: ASX 200 closes higher
+    takeaway: Index finished 8,845.7, up 0.4% on the session.
+    tags:
+    - ASX
+    - close
+    key_figure: 8,845.7 · +0.4% (19 Oct)
+    what_happened: The S&P/ASX 200 closed at 8,845.7 on Monday 19 October, up 0.4% versus the prior session (Yahoo Finance ^AXJO, delayed).
+    why_it_matters: This is the cash-market close the morning note handed off to; sector movers and company-level colour are still pending the editorial close run.
+    market_reaction: 'Preview: content will be written by the 4:30pm run.'
+    what_to_watch: 'Preview: content will be written by the 4:30pm run.'
+    sources:
+    - label: Yahoo Finance (^AXJO)
+      url: https://finance.yahoo.com/quote/%5EAXJO/
+      claim_type: measurement
+      date: '2026-10-19'
+  - id: asx-sectors-movers
+    headline: Sectors and top movers
+    takeaway: 'Preview: content will be written by the 4:30pm run.'
+    tags:
+    - ASX
+    - sectors
+    what_happened: 'Preview: content will be written by the 4:30pm run. Best/worst sectors and named movers with reasons are not in the automated close snapshot.'
+    why_it_matters: 'Preview: content will be written by the 4:30pm run.'
+    sources:
+    - label: Yahoo Finance (^AXJO)
+      url: https://finance.yahoo.com/quote/%5EAXJO/
+      claim_type: measurement
+      date: '2026-10-19'
+- id: asia-close
+  note: At a 16:30 Sydney cutoff, same-day Tokyo/HK/Shanghai closes are not yet complete; figures below are the latest available sessions from Yahoo.
+  cards:
+  - id: asia-board
+    headline: Asia board (latest available sessions)
+    takeaway: Nikkei 65,324.3 (+1.4%), Hang Seng 24,186.8 (+0.5%), Shanghai 3,716.3 (+0.2%), KOSPI 5,668.0 (+2.0%) — session dates 16 Oct.
+    tags:
+    - Asia
+    key_figure: Nikkei 65,324.3 · +1.4% (16 Oct)
+    what_happened: 'Latest Yahoo closes ahead of tonight''s US session: Nikkei 225 65,324.3 (+1.4%), Hang Seng 24,186.8 (+0.5%), Shanghai Composite 3,716.3 (+0.2%), KOSPI 5,668.0 (+2.0%), each versus its prior session on 16 October.'
+    why_it_matters: These are the Asia prints the close note can cite without inventing a same-day Tokyo close before it finishes.
+    sources:
+    - label: Yahoo Finance (^N225)
+      url: https://finance.yahoo.com/quote/%5EN225/
+      claim_type: measurement
+      date: '2026-10-16'
+    - label: Yahoo Finance (^HSI)
+      url: https://finance.yahoo.com/quote/%5EHSI/
+      claim_type: measurement
+      date: '2026-10-16'
+    - label: Yahoo Finance (000001.SS)
+      url: https://finance.yahoo.com/quote/000001.SS/
+      claim_type: measurement
+      date: '2026-10-16'
+    - label: Yahoo Finance (^KS11)
+      url: https://finance.yahoo.com/quote/%5EKS11/
+      claim_type: measurement
+      date: '2026-10-16'
+- id: rates-fx
+  cards:
+  - id: au-yields-fx
+    headline: AU yields and AUD (latest official)
+    takeaway: AU 2Y 4.92% and 10Y 5.31% (RBA F2, 14 Oct); AUD/USD 0.6947 (RBA F11.1, 16 Oct).
+    tags:
+    - rates
+    - FX
+    key_figure: AU 10Y 5.31% · AUD 0.6947
+    what_happened: 'RBA interpolated yields for 14 October: 2-year 4.92% (+3 bp) and 10-year 5.31% (+3 bp). RBA 4pm AUD/USD for 16 October was 0.6947 (−0.12%).'
+    why_it_matters: Official RBA prints lag the cash close; treat them as the last verified levels, not a live 16:30 mark.
+    sources:
+    - label: RBA F2
+      url: https://www.rba.gov.au/statistics/tables/#interest-rates
+      claim_type: measurement
+      date: '2026-10-14'
+    - label: RBA F11.1
+      url: https://www.rba.gov.au/statistics/tables/#exchange-rates
+      claim_type: measurement
+      date: '2026-10-16'
+- id: commodities
+  cards:
+  - id: commodities-board
+    headline: Oil, gold, copper
+    takeaway: Brent futures US$109.86 (+3.7%, 16 Oct); gold COMEX US$4,181.1 (+0.3%); copper COMEX US$6.531/lb (+0.3%). Iron ore unavailable from free sources.
+    tags:
+    - commodities
+    key_figure: Brent fut US$109.86 · +3.7% (16 Oct)
+    what_happened: Yahoo BZ=F Brent front-month closed US$109.86 (+3.7%) on 16 October. COMEX gold (GC=F) US$4,181.1 (+0.3%) and copper (HG=F) US$6.531/lb (+0.3%) on the same session date. Iron ore has no free daily benchmark in the fetcher.
+    why_it_matters: Futures closes are delayed unofficial prints; EIA Brent spot via FRED remains a lagged assessment (latest 126.55 on 14 Oct).
+    sources:
+    - label: Yahoo Finance (BZ=F)
+      url: https://finance.yahoo.com/quote/BZ%3DF/
+      claim_type: measurement
+      date: '2026-10-16'
+    - label: Yahoo Finance (GC=F)
+      url: https://finance.yahoo.com/quote/GC%3DF/
+      claim_type: measurement
+      date: '2026-10-16'
+    - label: Yahoo Finance (HG=F)
+      url: https://finance.yahoo.com/quote/HG%3DF/
+      claim_type: measurement
+      date: '2026-10-16'
+- id: tonight
+  cards:
+  - id: overnight-setup
+    headline: Overnight setup
+    takeaway: 'Preview: content will be written by the 4:30pm run.'
+    tags:
+    - overnight
+    what_happened: 'Preview: content will be written by the 4:30pm run. Europe open levels, US futures, and the overnight calendar in Sydney time need the editorial close pass.'
+    why_it_matters: 'Preview: content will be written by the 4:30pm run.'
+    sources:
+    - label: Yahoo Finance (^AXJO)
+      url: https://finance.yahoo.com/quote/%5EAXJO/
+      claim_type: measurement
+      date: '2026-10-19'
+- id: still-open
+  cards:
+  - id: handoff
+    headline: Still open for the next morning
+    takeaway: 'Preview: content will be written by the 4:30pm run.'
+    tags:
+    - handoff
+    what_happened: 'Preview: content will be written by the 4:30pm run. Unresolved stories to hand to tomorrow''s morning note are editorial, not in the snapshot.'
+    why_it_matters: 'Preview: content will be written by the 4:30pm run.'
+    sources:
+    - label: Yahoo Finance (^AXJO)
+      url: https://finance.yahoo.com/quote/%5EAXJO/
+      claim_type: measurement
+      date: '2026-10-19'
+rates:
+  rba:
+    status: unavailable
+  fed:
+    status: unavailable
+watchlist:
+- ticker: ZIP
+  note: Closed A$2.170, unchanged on the 19 Oct session (Yahoo ZIP.AX).
+  sources:
+  - label: Yahoo Finance (ZIP.AX)
+    url: https://finance.yahoo.com/quote/ZIP.AX/
+    claim_type: measurement
+    date: '2026-10-19'
+- ticker: CSL
+  note: Closed A$194.05, up 1.0% on the 19 Oct session (Yahoo CSL.AX).
+  sources:
+  - label: Yahoo Finance (CSL.AX)
+    url: https://finance.yahoo.com/quote/CSL.AX/
+    claim_type: measurement
+    date: '2026-10-19'
+- ticker: FLT
+  note: Closed A$10.84, up 3.6% on the 19 Oct session (Yahoo FLT.AX).
+  sources:
+  - label: Yahoo Finance (FLT.AX)
+    url: https://finance.yahoo.com/quote/FLT.AX/
+    claim_type: measurement
+    date: '2026-10-19'
+- ticker: IEL
+  note: Closed A$2.25, unchanged on the 19 Oct session (Yahoo IEL.AX).
+  sources:
+  - label: Yahoo Finance (IEL.AX)
+    url: https://finance.yahoo.com/quote/IEL.AX/
+    claim_type: measurement
+    date: '2026-10-19'
+calendar: []

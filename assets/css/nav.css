@@ -411,6 +411,13 @@ body:not(.has-section-nav) .site-main {
   color: var(--text-muted);
 }
 
+.landing-card__status {
+  font-family: var(--font-mono, "IBM Plex Mono", ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
 .landing-card__cta {
   margin-top: 0.4rem;
   font-size: 0.8rem;
@@ -660,6 +667,11 @@ body:not(.has-section-nav) .site-main {
     padding-bottom: 2rem;
   }
 
+  /* Markets Morning/Close tabs hide the layout sidebar — drop the empty column. */
+  .site-shell--with-nav:has(> .section-nav[hidden]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .section-nav {
     position: sticky;
     top: calc(var(--header-offset) + 0.75rem);
@@ -704,6 +716,44 @@ body:not(.has-section-nav) .site-main {
   .section-nav__item--active {
     border-color: var(--border);
     background: var(--bg-elevated);
+  }
+
+  /* In-panel nav for Morning/Close tabs: keep horizontal chips on desktop. */
+  .section-nav--inline {
+    position: sticky;
+    top: calc(var(--header-offset) + 0.35rem);
+    margin: 0 0 0.75rem;
+    padding: 0.35rem 0 0.5rem;
+    background: color-mix(in srgb, var(--bg) 96%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-nav--inline .section-nav__label {
+    display: none;
+  }
+
+  .section-nav--inline .section-nav__list {
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    gap: 0.35rem;
+  }
+
+  .section-nav--inline .section-nav__item {
+    width: auto;
+    justify-content: center;
+    border-radius: 999px;
+    border-color: var(--border);
+    background: var(--bg-elevated);
+    white-space: nowrap;
+    min-height: var(--tap-min);
+    padding: 0 0.85rem;
+  }
+
+  .section-nav--inline .section-nav__item--active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
   }
 
   .topic-section {

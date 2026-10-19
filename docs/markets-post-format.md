@@ -118,3 +118,46 @@ probabilities ourselves from commentary.
 
 `consensus` is allowed only with `consensus_source` naming who published it; otherwise
 show `actual` vs `prior` only.
+
+## Title format
+
+Use **`Markets: Monday 19 October`** (weekday name + day + month). Weekend vs weekday is
+shown by the `edition` badge, not the title. `scripts/build_markets_post.py` sets this
+automatically when the title is missing or does not already start with `Markets:`.
+
+## Close edition (`close` block)
+
+Optional. When present, the Markets page shows **Morning** / **Close** tabs. Without it,
+the page renders exactly as a morning-only issue.
+
+```
+16:30  python3 scripts/fetch_markets.py --issue-date D --edition weekday --close \
+           --out assets/issues/D/close-snapshot.json
+       writer → close-content.yml
+       python3 scripts/build_markets_post.py --close close-content.yml \
+           --snapshot assets/issues/D/close-snapshot.json --out _posts/D-markets.md
+       python3 scripts/qa_markets.py --fix _posts/D-markets.md
+```
+
+`--close` on the fetcher sets cutoff **16:30 Sydney** and adds Asia (Nikkei, Hang Seng,
+Shanghai, KOSPI) plus COMEX copper. Same provenance rules as morning.
+
+### `close` keys
+
+| Key | Notes |
+|---|---|
+| `preview` | Optional boolean. Branch builds only — shows a **Preview** badge on the Close tab |
+| `cutoff_local` | From the close snapshot (16:30 Sydney) |
+| `session_note` | e.g. "Weekday ASX edition · after the close" |
+| `summary` | **Takeaway** — exactly 3 bullets |
+| `snapshot` | Close-time quotes (from `fetch_markets.py --close`) |
+| `long_run_charts` | Optional `brent` / `gold` |
+| `sections` | Cards under `asx-close`, `asia-close`, `rates-fx`, `commodities`, `tonight`, `still-open` |
+| `rates` | Same shape as morning (`rba` / `fed`); RBA odds need a named source |
+| `watchlist` | ZIP, CSL, FLT, IEL notes (prices come from the close snapshot) |
+| `calendar` | Overnight calendar in **Sydney time** (Europe open, US futures, prints) |
+| `dropped` | Same drop log as morning |
+
+Default tab (client-side, Australia/Sydney): **Close** if a close block exists and local
+time is after 16:30 on the post date, or the post is from an earlier day; otherwise
+**Morning**. URL hashes `#morning` / `#close` override and stay in sync when switching.

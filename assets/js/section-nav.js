@@ -309,6 +309,9 @@
       var target = document.getElementById(id);
       if (!target) return;
       var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // Only jump when this nav's body is in a visible panel (or no tabs).
+      var bodyRoot = target.closest("[data-topic-body]");
+      if (bodyRoot && bodyRoot.closest("[hidden]")) return;
       target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
       history.replaceState(null, "", "#" + id);
       setActive(listEl, id);
@@ -316,7 +319,10 @@
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
-          if (en.isIntersecting) setActive(listEl, en.target.id);
+          if (!en.isIntersecting) return;
+          // Ignore observations from a hidden Close/Morning panel.
+          if (en.target.closest("[hidden]")) return;
+          setActive(listEl, en.target.id);
         });
       }, { rootMargin: "-30% 0px -60% 0px" });
       sections.forEach(function (s) { io.observe(s.el); });
@@ -325,9 +331,7 @@
     setActive(listEl, hash && document.getElementById(hash) ? hash : sections[0].id);
   }
 
-  function init() {
-    var nav = document.querySelector("[data-section-nav]");
-    var body = document.querySelector("[data-topic-body]");
+  function initBody(nav, body) {
     if (!nav || !body) return;
 
     var listEl = nav.querySelector("[data-section-nav-list]");
@@ -335,7 +339,6 @@
 
     var topic = body.getAttribute("data-topic-section");
 
-    // Wait a tick so ai-skim can transform AI bodies first
     function run() {
       var jumpMode = body.getAttribute("data-nav-mode") === "jump";
       if (topic === "markets" && !jumpMode) wrapMarketsSections(body);
@@ -358,7 +361,11 @@
           var target = sections.filter(function (s) {
             return s.id === filterId;
           })[0];
-          if (target) target.el.scrollIntoView({ behavior: "smooth", block: "start" });
+          // Jump within the visible panel only — never force the page when a
+          // hidden tab's section nav fires.
+          if (target && !body.closest("[hidden]")) {
+            target.el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         }
       }
 
@@ -377,13 +384,13 @@
 
       window.addEventListener("hashchange", function () {
         var h = (window.location.hash || "").replace(/^#/, "") || "all";
+        if (h === "morning" || h === "close") return; // handled by markets-tabs.js
         if (h === "all" || sections.some(function (s) { return s.id === h; })) {
           select(h, false);
         }
       });
     }
 
-    // AI skim runs on DOMContentLoaded; give it a frame
     if (topic === "ai" && !body.querySelector(".ai-section")) {
       var tries = 0;
       var timer = setInterval(function () {
@@ -396,6 +403,25 @@
     } else {
       run();
     }
+  }
+
+  function init() {
+    var tabbed = document.querySelector("[data-mk-tabs]");
+    if (tabbed) {
+      // Hide the layout-level sidebar; each tab panel has its own inline nav.
+      var outer = document.querySelector(".site-shell > [data-section-nav]");
+      if (outer) outer.hidden = true;
+      tabbed.querySelectorAll("[data-mk-panel]").forEach(function (panel) {
+        var body = panel.querySelector("[data-topic-body]");
+        var nav = panel.querySelector("[data-section-nav]");
+        initBody(nav, body);
+      });
+      return;
+    }
+
+    var nav = document.querySelector("[data-section-nav]");
+    var body = document.querySelector("[data-topic-body]");
+    initBody(nav, body);
   }
 
   if (document.readyState === "loading") {
