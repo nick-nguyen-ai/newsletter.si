@@ -2,16 +2,19 @@
 <div class="mk-tile{% if q.status != 'ok' %} mk-tile--na{% endif %}" data-metric="{{ q.id }}">
   <p class="mk-tile__name">{{ q.display_name }}</p>
   {% if q.status == "ok" %}
-    <p class="mk-tile__value">{% if q.unit == "USD/bbl" or q.unit == "USD/oz" %}US${% endif %}{{ q.display_value }}</p>
+    <p class="mk-tile__value">{% if q.unit == "USD/bbl" or q.unit == "USD/oz" or q.unit == "USD/t" or q.unit == "USD/lb" %}US${% endif %}{{ q.display_value }}</p>
     <p class="mk-tile__chg"><span class="mk-chg">{{ q.display_change }}</span>{% if q.display_week_change %} <span class="mk-chg mk-chg--wk">{{ q.display_week_change }}</span>{% endif %}</p>
     <p class="mk-micro">
-      {{ q.market_session_date | date: "%a %-d %b" }}{% case q.quote_kind %}{% when "spot" %} spot{% when "futures_last" %} futures close{% when "yield" %} close{% else %} close{% endcase %}
+      {% if q.as_of_sydney %}As of {{ q.as_of_sydney }}{% else %}{{ q.market_session_date | date: "%a %-d %b" }}{% endif %}
       · {{ q.provider | split: " (" | first }}
     </p>
     <p class="mk-tile__flags">
+      {% if q.freshness_state == "live_or_delayed" %}<span class="mk-flag mk-flag--live">live/intraday</span>
+      {% elsif q.freshness_state == "latest_official_close" %}<span class="mk-flag mk-flag--close">close</span>
+      {% elsif q.freshness_state == "scheduled_lag" %}<span class="mk-flag mk-flag--lag">lagged</span>
+      {% elsif q.freshness_state == "stale" %}<span class="mk-flag mk-flag--stale">stale</span>
+      {% endif %}
       {% if q.official == false %}<span class="mk-flag">delayed, unofficial</span>{% endif %}
-      {% if q.freshness_state == "scheduled_lag" %}<span class="mk-flag mk-flag--lag" title="Published with a lag; latest available observation">lagged source</span>{% endif %}
-      {% if q.freshness_state == "stale" %}<span class="mk-flag mk-flag--stale">stale</span>{% endif %}
     </p>
   {% else %}
     <p class="mk-tile__value mk-unavail">Unavailable</p>

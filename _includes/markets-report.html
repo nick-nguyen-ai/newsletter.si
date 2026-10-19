@@ -11,6 +11,16 @@
 {% assign morning_secs = "market-drivers:What Moved & Why|australia-asx:Australia & ASX|rates-expectations:Rates & Expectations|global-risk:Global Macro & Risk" %}
 {% assign close_secs = "asx-close:ASX close|asia-close:Asia close|rates-fx:Rates & FX|commodities:Commodities|tonight:Tonight|still-open:Still open" %}
 
+{%- comment -%} AEDT (+11) vs AEST (+10) from the ISO offset — never print "AEDT/AEST". {%- endcomment -%}
+{% assign morning_off = post.cutoff_local | slice: -6, 6 %}
+{% if morning_off == "+10:00" %}{% assign morning_tz = "AEST" %}{% else %}{% assign morning_tz = "AEDT" %}{% endif %}
+{% assign morning_hm = post.cutoff_local | date: "%H:%M" %}
+{% if has_close %}
+  {% assign close_off = post.close.cutoff_local | slice: -6, 6 %}
+  {% if close_off == "+10:00" %}{% assign close_tz = "AEST" %}{% else %}{% assign close_tz = "AEDT" %}{% endif %}
+  {% assign close_hm = post.close.cutoff_local | date: "%H:%M" %}
+{% endif %}
+
 <article
   class="topic-issue mk{% if has_close %} mk--tabs{% endif %}"
   data-topic="markets"
@@ -19,15 +29,11 @@
 >
   <header class="issue-header mk-header">
     <div class="issue-meta">
-      <time class="issue-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%A %-d %B %Y" }}</time>
       <span class="badge badge--markets">markets</span>
       <span class="badge badge--{{ post.edition }}">{{ post.edition }}</span>
-      {% if has_close and post.close.preview %}<span class="badge badge--preview">preview</span>{% endif %}
     </div>
     <h1 class="issue-title">{{ post.title }}</h1>
-    <p class="mk-session">
-      {% if post.session_note %}{{ post.session_note }} · {% endif %}Data cutoff {{ post.cutoff_local | date: "%-d %b, %H:%M" }} AEDT/AEST{% if has_close %} · Close {{ post.close.cutoff_local | date: "%-d %b, %H:%M" }}{% endif %}
-    </p>
+    <p class="mk-session">{{ post.date | date: "%A %-d %B %Y" }} · {% if post.edition == "weekend" %}Weekend{% else %}Weekday{% endif %} edition</p>
   </header>
 
   {% if has_close %}
@@ -64,6 +70,7 @@
     aria-labelledby="mk-tab-morning"
     data-mk-panel="morning"
   >
+    <p class="mk-asof">Data as of {{ morning_hm }} {{ morning_tz }}</p>
     {% include markets/edition-body.html edition=post scope="morning" sec_names=morning_secs inline_nav=true %}
   </div>
 
@@ -75,12 +82,12 @@
     data-mk-panel="close"
     hidden
   >
-    {% if post.close.session_note %}<p class="mk-session mk-session--panel">{{ post.close.session_note }}</p>{% endif %}
+    <p class="mk-asof">Data as of {{ close_hm }} {{ close_tz }}</p>
     {% include markets/edition-body.html edition=post.close scope="close" sec_names=close_secs inline_nav=true %}
   </div>
 
   {% else %}
-    {% comment %}No close block: identical section ids to pre-tabs Markets v2.{% endcomment %}
+    <p class="mk-asof">Data as of {{ morning_hm }} {{ morning_tz }}</p>
     {% include markets/edition-body.html edition=post scope="" sec_names=morning_secs %}
   {% endif %}
 </article>

@@ -153,7 +153,14 @@ def check_quote(q, cutoff, rep: Report):
     # time
     obs = iso(q["observation_timestamp_utc"])
     if cutoff and obs > cutoff:
-        return f"time: {q['id']} observed {obs} after cutoff {cutoff}"
+        # Close-mode live/intraday quotes (and Yahoo daily bars finalized shortly after
+        # the local close) are often stamped after the nominal 16:30 edition cutoff.
+        fresh = q.get("freshness_state")
+        same_session = q.get("market_session_date") and q.get("market_session_date") == q.get("expected_session_date")
+        if fresh in ("live_or_delayed", "latest_official_close") and same_session and (obs - cutoff).total_seconds() <= 6 * 3600:
+            rep.warn("time", f"{q['id']} observed {obs} after cutoff {cutoff} (allowed for same-session live/close stamp)")
+        else:
+            return f"time: {q['id']} observed {obs} after cutoff {cutoff}"
     sess = dt.date.fromisoformat(q["market_session_date"])
     if dt.date.fromisoformat(q["comparison_date"]) >= sess:
         return f"time: {q['id']} comparison_date not before session date"
@@ -163,9 +170,14 @@ def check_quote(q, cutoff, rep: Report):
         if sess > exp:
             return f"time: {q['id']} session {sess} later than expected {exp}"
         if sess < exp and q["freshness_state"] == "latest_official_close":
-            return f"freshness: {q['id']} labelled latest close but session {sess} < expected {exp}"
+            note = q.get("note") or ""
+            if "No Yahoo session" not in note:
+                return f"freshness: {q['id']} labelled latest close but session {sess} < expected {exp}"
         if sess == exp and q["freshness_state"] in ("stale", "scheduled_lag"):
             rep.warn("freshness", f"{q['id']} labelled {q['freshness_state']} but has the expected session")
+        # live/intraday is only valid for the expected session (still open at cutoff)
+        if q["freshness_state"] == "live_or_delayed" and sess != exp:
+            return f"freshness: {q['id']} labelled live/intraday but session {sess} != expected {exp}"
     # licence/provenance
     if not q.get("licence_note") or not q.get("provider_url", "").startswith("http"):
         return f"provenance: {q['id']} missing licence note or provider URL"

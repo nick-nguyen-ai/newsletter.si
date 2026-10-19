@@ -295,6 +295,7 @@
         "expected_session_date": {"type": "string", "format": "date"},
         "market_session_date": {"type": "string", "format": "date"},
         "observation_timestamp_utc": {"type": "string", "format": "date-time"},
+        "as_of_sydney": {"type": "string", "description": "Exact as-of stamp in Australia/Sydney with AEDT or AEST"},
         "comparison_date": {"type": "string", "format": "date"},
         "comparison_value": {"type": "number"},
         "change_abs": {"type": "number"},

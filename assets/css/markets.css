@@ -1,8 +1,16 @@
 /* signaletter.si — Markets v2 (Direction C: Signal over noise). Mobile-first. */
 
 .mk { --mk-mono: var(--font-mono); --mk-gap: 0.5rem; }
-.mk-session { margin: 0.25rem 0 0; font-family: var(--mk-mono); font-size: 0.72rem; letter-spacing: 0.02em; color: var(--text-muted); text-transform: uppercase; }
-.mk-session--panel { margin: 0.75rem 0 0.25rem; }
+.mk-session { margin: 0.25rem 0 0; font-family: var(--mk-mono); font-size: 0.78rem; letter-spacing: 0.01em; color: var(--text-muted); }
+.mk-asof {
+  margin: 0.65rem 0 0.35rem;
+  font-family: var(--mk-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+.mk-flag--live { border-color: var(--accent, #2F7A75); color: var(--accent, #2F7A75); }
+.mk-flag--close { border-color: var(--ink, #0F1724); color: var(--ink, #0F1724); }
 
 /* Morning / Close tabs */
 .mk-tabbar {
