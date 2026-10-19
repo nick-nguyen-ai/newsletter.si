@@ -2,142 +2,89 @@
   Markets v2 report, rendered from front matter (format: markets-v2).
   Schema: docs/markets-post-format.md + docs/schemas/markets-post.schema.json
   Expects: include.post
+  Optional post.close → Morning / Close tabs (no page reload).
 {%- endcomment -%}
 {% assign post = include.post %}
-{% assign quotes = post.snapshot.quotes %}
-{% assign primary = quotes | where: "tier", "primary" %}
-{% assign expanded = quotes | where: "tier", "expanded" %}
-{% assign n_metrics = primary.size | plus: expanded.size %}
-{% assign sec_names = "market-drivers:What Moved & Why|australia-asx:Australia & ASX|rates-expectations:Rates & Expectations|global-risk:Global Macro & Risk" | split: "|" %}
+{% assign has_close = false %}
+{% if post.close %}{% assign has_close = true %}{% endif %}
 
-<article class="topic-issue mk" data-topic="markets" data-day="{{ post.date | date: '%Y-%m-%d' }}">
+{% assign morning_secs = "market-drivers:What Moved & Why|australia-asx:Australia & ASX|rates-expectations:Rates & Expectations|global-risk:Global Macro & Risk" %}
+{% assign close_secs = "asx-close:ASX close|asia-close:Asia close|rates-fx:Rates & FX|commodities:Commodities|tonight:Tonight|still-open:Still open" %}
+
+{%- comment -%} AEDT (+11) vs AEST (+10) from the ISO offset — never print "AEDT/AEST". {%- endcomment -%}
+{% assign morning_off = post.cutoff_local | slice: -6, 6 %}
+{% if morning_off == "+10:00" %}{% assign morning_tz = "AEST" %}{% else %}{% assign morning_tz = "AEDT" %}{% endif %}
+{% assign morning_hm = post.cutoff_local | date: "%H:%M" %}
+{% if has_close %}
+  {% assign close_off = post.close.cutoff_local | slice: -6, 6 %}
+  {% if close_off == "+10:00" %}{% assign close_tz = "AEST" %}{% else %}{% assign close_tz = "AEDT" %}{% endif %}
+  {% assign close_hm = post.close.cutoff_local | date: "%H:%M" %}
+{% endif %}
+
+<article
+  class="topic-issue mk{% if has_close %} mk--tabs{% endif %}"
+  data-topic="markets"
+  data-day="{{ post.date | date: '%Y-%m-%d' }}"
+  {% if has_close %}data-mk-tabs data-post-date="{{ post.date | date: '%Y-%m-%d' }}"{% endif %}
+>
   <header class="issue-header mk-header">
     <div class="issue-meta">
-      <time class="issue-date" datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%A %-d %B %Y" }}</time>
       <span class="badge badge--markets">markets</span>
       <span class="badge badge--{{ post.edition }}">{{ post.edition }}</span>
     </div>
     <h1 class="issue-title">{{ post.title }}</h1>
-    <p class="mk-session">
-      {% if post.session_note %}{{ post.session_note }} · {% endif %}Data cutoff {{ post.cutoff_local | date: "%-d %b, %H:%M" }} AEDT/AEST
-    </p>
+    <p class="mk-session">{{ post.date | date: "%A %-d %B %Y" }} · {% if post.edition == "weekend" %}Weekend{% else %}Weekday{% endif %} edition</p>
   </header>
 
-  <div class="issue-body topic-body mk-body" data-topic-body data-topic-section="markets" data-nav-mode="jump">
-
-    <section class="topic-section mk-section" id="top-stories" data-section-id="top-stories" data-count="3">
-      <h2 class="topic-section__title mk-section__title">If you read nothing else</h2>
-      <ol class="mk-summary">
-        {% for s in post.summary %}<li>{{ s | markdownify | remove: '<p>' | remove: '</p>' | strip }}</li>{% endfor %}
-      </ol>
-    </section>
-
-    <section class="topic-section mk-section" id="market-snapshot" data-section-id="market-snapshot" data-count="{{ n_metrics }}">
-      <h2 class="topic-section__title mk-section__title">Markets at a glance</h2>
-      <p class="mk-section__note">Each figure shows its own session. Changes are versus the prior session{% if post.edition == "weekend" %}, and the week{% endif %}. Yields in basis points.</p>
-      <div class="mk-tiles">
-        {% for q in primary %}{% include markets/tile.html q=q %}{% endfor %}
-      </div>
-      <details class="mk-more">
-        <summary class="mk-more__toggle">All {{ n_metrics }} metrics</summary>
-        <div class="mk-tiles mk-tiles--expanded">
-          {% for q in expanded %}{% include markets/tile.html q=q %}{% endfor %}
-        </div>
-      </details>
-      {% if post.long_run_charts %}
-      <div class="mk-longrun">
-        {% for key in post.long_run_charts %}
-          {% if key == "brent" %}
-            {% include chart.html series="brent" uid="mk-brent" caption="Brent spot (EIA Europe Brent spot assessment via FRED, USD/bbl). This is a spot series, not the futures price quoted in most news; it is published with a lag of several days." %}
-          {% elsif key == "gold" %}
-            {% include chart.html series="gold" uid="mk-gold" caption="Gold: COMEX futures (Yahoo GC=F, active contract, USD/oz) daily close. Futures, not the LBMA/spot price." %}
-          {% endif %}
-        {% endfor %}
-      </div>
-      {% endif %}
-    </section>
-
-    {% for pair in sec_names %}
-      {% assign sid = pair | split: ":" | first %}
-      {% assign sname = pair | split: ":" | last %}
-      {% assign sec = post.sections | where: "id", sid | first %}
-      {% assign ncards = 0 %}{% if sec %}{% assign ncards = sec.cards.size %}{% endif %}
-      <section class="topic-section mk-section" id="{{ sid }}" data-section-id="{{ sid }}" data-count="{{ ncards }}">
-        <h2 class="topic-section__title mk-section__title">{{ sname }}</h2>
-        {% if sec.note %}<p class="mk-section__note">{{ sec.note }}</p>{% endif %}
-        {% if sid == "rates-expectations" %}{% include markets/rates.html rates=post.rates %}{% endif %}
-        {% if ncards > 0 %}{% for card in sec.cards %}{% include markets/card.html card=card %}{% endfor %}{% elsif sid != "rates-expectations" %}<p class="mk-unavail">No new verified items in this edition.</p>{% endif %}
-      </section>
-    {% endfor %}
-
-    <section class="topic-section mk-section" id="watchlist" data-section-id="watchlist" data-count="{{ site.data.watchlist.size }}">
-      <h2 class="topic-section__title mk-section__title">Your watchlist</h2>
-      <ul class="mk-watch">
-        {% for w in site.data.watchlist %}
-          {% assign wid = "wl_" | append: w.ticker | downcase %}
-          {% assign wq = quotes | where: "id", wid | first %}
-          {% assign wn = post.watchlist | where: "ticker", w.ticker | first %}
-          <li class="mk-watch__row">
-            <div class="mk-watch__head">
-              <span class="mk-watch__ticker">{{ w.ticker }}</span>
-              <span class="mk-watch__name">{{ w.name }}</span>
-              {% if wq and wq.status == "ok" %}
-                <span class="mk-watch__px"><b>A${{ wq.display_value }}</b> <span class="mk-chg">{{ wq.display_change }}</span>{% if wq.display_week_change %} <span class="mk-chg mk-chg--wk">{{ wq.display_week_change }}</span>{% endif %}</span>
-              {% else %}
-                <span class="mk-watch__px mk-unavail">Price unavailable</span>
-              {% endif %}
-            </div>
-            {% if wq and wq.status == "ok" %}<p class="mk-micro">{{ wq.market_session_date | date: "%a %-d %b" }} close · {{ wq.provider }} · <span class="mk-flag">delayed, unofficial</span></p>{% endif %}
-            <p class="mk-watch__note">{% if wn %}{{ wn.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}{% else %}No new verified news.{% endif %}</p>
-            {% if wn.next_catalyst %}<p class="mk-watch__next"><b>Next:</b> {{ wn.next_catalyst }}</p>{% endif %}
-            {% if wn.sources %}<p class="mk-sources-inline">{% for s in wn.sources %}<a href="{{ s.url }}" rel="noopener">{{ s.label }}</a>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>{% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-
-    <section class="topic-section mk-section" id="calendar" data-section-id="calendar" data-count="{{ post.calendar.size | default: 0 }}">
-      <h2 class="topic-section__title mk-section__title">What comes next</h2>
-      {% if post.calendar and post.calendar.size > 0 %}
-      <ul class="mk-cal">
-        {% for row in post.calendar %}
-        <li class="mk-cal__row">
-          <span class="mk-cal__when">{{ row.when }}</span>
-          <span class="mk-cal__event">{% if row.importance == "high" %}<span class="mk-imp" title="High importance">▲ High</span> {% endif %}{{ row.event }}{% if row.country %} <span class="mk-cal__cty">{{ row.country }}</span>{% endif %}</span>
-          {% if row.actual or row.prior or row.consensus %}
-          <span class="mk-cal__nums">
-            {% if row.actual %}Actual <b>{{ row.actual }}</b>{% endif %}
-            {% if row.consensus %} · Consensus {{ row.consensus }} ({{ row.consensus_source }}){% endif %}
-            {% if row.prior %} · Prior {{ row.prior }}{% endif %}
-          </span>
-          {% endif %}
-          {% if row.source %}<a class="mk-cal__src" href="{{ row.source.url }}" rel="noopener">{{ row.source.label }}</a>{% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p class="mk-unavail">No verified calendar items for this edition.</p>
-      {% endif %}
-    </section>
-
-    <footer class="mk-notes">
-      <details>
-        <summary>Data sources, licences and what was left out</summary>
-        <ul class="mk-notes__list">
-          {% for q in quotes %}{% if q.status == "ok" %}
-          <li><b>{{ q.display_name }}</b>: <a href="{{ q.provider_url }}" rel="noopener">{{ q.provider }}</a>, {{ q.quote_kind | replace: "_", " " }}, session {{ q.market_session_date }}. {{ q.licence_note }}</li>
-          {% endif %}{% endfor %}
-        </ul>
-        {% if post.dropped and post.dropped.size > 0 %}
-        <p class="mk-notes__h">Not shown in this edition</p>
-        <ul class="mk-notes__list">
-          {% for d in post.dropped %}<li><b>{{ d.item }}</b>: {{ d.reason }}</li>{% endfor %}
-        </ul>
-        {% endif %}
-        {% if post.snapshot.backfill %}<p class="mk-micro">Dashboard values for this archived issue were back-filled on {{ post.snapshot.retrieved_at_utc }} UTC from the sources above, cut at the issue's data cutoff.</p>{% endif %}
-        <p class="mk-micro">This product uses data from FRED®, Federal Reserve Bank of St. Louis, but is not endorsed or certified by it. RBA data © Reserve Bank of Australia, CC BY 4.0.</p>
-      </details>
-      <p class="disclaimer">Information only, not financial advice.</p>
-    </footer>
+  {% if has_close %}
+  <div class="mk-tabbar" role="tablist" aria-label="Markets edition">
+    <button
+      type="button"
+      class="mk-tab"
+      role="tab"
+      id="mk-tab-morning"
+      aria-controls="mk-panel-morning"
+      aria-selected="true"
+      data-mk-tab="morning"
+      tabindex="0"
+    >Morning</button>
+    <button
+      type="button"
+      class="mk-tab"
+      role="tab"
+      id="mk-tab-close"
+      aria-controls="mk-panel-close"
+      aria-selected="false"
+      data-mk-tab="close"
+      tabindex="-1"
+    >Close</button>
   </div>
+
+  <div
+    class="mk-panel"
+    role="tabpanel"
+    id="mk-panel-morning"
+    aria-labelledby="mk-tab-morning"
+    data-mk-panel="morning"
+  >
+    <p class="mk-asof">Data as of {{ morning_hm }} {{ morning_tz }}</p>
+    {% include markets/edition-body.html edition=post scope="morning" sec_names=morning_secs inline_nav=true %}
+  </div>
+
+  <div
+    class="mk-panel"
+    role="tabpanel"
+    id="mk-panel-close"
+    aria-labelledby="mk-tab-close"
+    data-mk-panel="close"
+    hidden
+  >
+    <p class="mk-asof">Data as of {{ close_hm }} {{ close_tz }}</p>
+    {% include markets/edition-body.html edition=post.close scope="close" sec_names=close_secs inline_nav=true %}
+  </div>
+
+  {% else %}
+    <p class="mk-asof">Data as of {{ morning_hm }} {{ morning_tz }}</p>
+    {% include markets/edition-body.html edition=post scope="" sec_names=morning_secs %}
+  {% endif %}
 </article>

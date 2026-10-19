@@ -84,9 +84,92 @@
     "dropped": {
       "type": "array",
       "items": {"type": "object", "required": ["item", "reason"], "properties": {"item": {"type": "string"}, "reason": {"type": "string"}}}
-    }
+    },
+    "close": {"$ref": "#/$defs/closeEdition"}
   },
   "$defs": {
+    "closeEdition": {
+      "type": "object",
+      "required": ["cutoff_local", "summary", "snapshot", "sections"],
+      "properties": {
+        "cutoff_local": {"type": "string", "format": "date-time"},
+        "session_note": {"type": "string"},
+        "summary": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 10}},
+        "snapshot": {
+          "type": "object",
+          "required": ["retrieved_at_utc", "cutoff_utc", "quotes"],
+          "properties": {
+            "generated_by": {"type": "string"},
+            "retrieved_at_utc": {"type": "string"},
+            "cutoff_utc": {"type": "string", "format": "date-time"},
+            "backfill": {"type": "boolean"},
+            "mode": {"enum": ["morning", "close"]},
+            "quotes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/quote"}}
+          }
+        },
+        "long_run_charts": {"type": "array", "items": {"enum": ["brent", "gold"]}},
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "cards"],
+            "properties": {
+              "id": {"enum": ["asx-close", "asia-close", "rates-fx", "commodities", "tonight", "still-open"]},
+              "note": {"type": "string"},
+              "cards": {"type": "array", "items": {"$ref": "#/$defs/card"}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "rates": {
+          "type": "object",
+          "properties": {
+            "rba": {"$ref": "#/$defs/pricing"},
+            "fed": {"$ref": "#/$defs/pricing"}
+          },
+          "additionalProperties": false
+        },
+        "watchlist": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ticker", "note"],
+            "properties": {
+              "ticker": {"type": "string", "pattern": "^[A-Z0-9]{2,5}$"},
+              "note": {"type": "string"},
+              "next_catalyst": {"type": "string"},
+              "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "calendar": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["when", "event"],
+            "properties": {
+              "when": {"type": "string"},
+              "event": {"type": "string"},
+              "country": {"type": "string"},
+              "importance": {"enum": ["high", "medium", "low"]},
+              "actual": {"type": "string"},
+              "prior": {"type": "string"},
+              "consensus": {"type": "string"},
+              "consensus_source": {"type": "string"},
+              "source": {"$ref": "#/$defs/source"}
+            },
+            "dependentRequired": {"consensus": ["consensus_source"]},
+            "additionalProperties": false
+          }
+        },
+        "dropped": {
+          "type": "array",
+          "items": {"type": "object", "required": ["item", "reason"], "properties": {"item": {"type": "string"}, "reason": {"type": "string"}}}
+        }
+      },
+      "additionalProperties": false
+    },
     "source": {
       "type": "object",
       "required": ["label", "url"],
@@ -211,6 +294,7 @@
         "expected_session_date": {"type": "string", "format": "date"},
         "market_session_date": {"type": "string", "format": "date"},
         "observation_timestamp_utc": {"type": "string", "format": "date-time"},
+        "as_of_sydney": {"type": "string", "description": "Exact as-of stamp in Australia/Sydney with AEDT or AEST"},
         "comparison_date": {"type": "string", "format": "date"},
         "comparison_value": {"type": "number"},
         "change_abs": {"type": "number"},

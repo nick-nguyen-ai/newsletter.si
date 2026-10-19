@@ -11,7 +11,11 @@ Source policy (Nick, 18 Oct 2026):
 
 Usage:
   python3 scripts/fetch_markets.py --issue-date 2026-10-19 --edition weekday \
-      [--cutoff 07:30] [--out snapshot.json] [--yaml]
+      [--cutoff 07:30] [--out snapshot.json]
+
+  # After the ASX close (~16:30 Sydney): same quotes plus Asia / copper, cutoff 16:30
+  python3 scripts/fetch_markets.py --issue-date 2026-10-19 --edition weekday \
+      --close --out close-snapshot.json
 
 Historical (backfill) mode is the same command with a past --issue-date: every
 series is cut at the cutoff, so nothing published after the session is used for
@@ -129,6 +133,39 @@ def yahoo(symbol: str):
     return _cache[key][0]
 
 
+def yahoo_meta(symbol: str) -> dict:
+    """Yahoo chart meta for a symbol (cached alongside daily bars)."""
+    yahoo(symbol)
+    return _cache[("yahoo", symbol)][1]
+
+
+def resolve_yahoo_obs_ts(
+    symbol: str,
+    obs_d: dt.date,
+    bar_ts: dt.datetime,
+    tz: ZoneInfo,
+    session_close: dt.datetime,
+) -> dt.datetime:
+    """Stamp Yahoo quotes with quote/close time, not the daily-bar session OPEN.
+
+    Yahoo's 1d chart timestamps are often the session open (e.g. 09:00 Tokyo for
+    Nikkei, midnight ET for futures). Prefer:
+      1. meta.regularMarketTime when it falls on the same local session date
+      2. otherwise the exchange session close when the bar looks like an open stamp
+      3. otherwise the bar timestamp as returned
+    """
+    meta = yahoo_meta(symbol)
+    rmt = meta.get("regularMarketTime")
+    if rmt:
+        rmt_dt = dt.datetime.fromtimestamp(int(rmt), UTC)
+        if rmt_dt.astimezone(tz).date() == obs_d:
+            return rmt_dt
+    local = bar_ts.astimezone(tz)
+    if local.date() == obs_d and local.replace(tzinfo=None) < session_close.replace(tzinfo=None):
+        return session_close.astimezone(UTC)
+    return bar_ts
+
+
 def cboe_vix(_ref: str = "VIX"):
     """Cboe free daily VIX history CSV (CLOSE column). Dates are US session dates."""
     key = ("cboe", "VIX")
@@ -169,6 +206,10 @@ MARKETS = {
     "COMEX": (NY, (13, 30)),
     "NYMEX": (NY, (14, 30)),
     "EIA": (NY, (14, 30)),
+    "JP": (ZoneInfo("Asia/Tokyo"), (15, 0)),
+    "HK": (ZoneInfo("Asia/Hong_Kong"), (16, 0)),
+    "CN": (ZoneInfo("Asia/Shanghai"), (15, 0)),
+    "KR": (ZoneInfo("Asia/Seoul"), (15, 30)),
 }
 
 # metric specs: candidates are tried in order; first candidate that has the
@@ -230,12 +271,34 @@ METRICS = [
          unit="pts", currency="AUD", decimals=0, change="pct", market="ASX", lag_days=0, candidates=[],
          unavailable_reason="No free, permitted feed for ASX 24 SPI 200 futures (licensed exchange data)."),
     dict(id="iron_ore", display_name="Iron ore 62% Fe", tier="expanded", instrument_type="commodity", quote_kind="futures_last",
-         unit="USD/t", currency="USD", decimals=2, change="pct", market="US", lag_days=0, candidates=[],
+         unit="USD/t", currency="USD", decimals=2, change="pct", market="COMEX", lag_days=0, candidates=[],
          unavailable_reason="No free, permitted daily benchmark (SGX/Platts are licensed); the only free series (IMF via FRED) is monthly."),
+]
+
+# Extra metrics only pulled in --close mode (Asia session + copper).
+CLOSE_METRICS = [
+    dict(id="nikkei", display_name="Nikkei 225", tier="primary", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="JPY", decimals=1, change="pct", market="JP", lag_days=0,
+         candidates=[("yahoo", "^N225", "Yahoo Finance (^N225)", "https://finance.yahoo.com/quote/%5EN225/", "yahoo")]),
+    dict(id="hang_seng", display_name="Hang Seng", tier="primary", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="HKD", decimals=1, change="pct", market="HK", lag_days=0,
+         candidates=[("yahoo", "^HSI", "Yahoo Finance (^HSI)", "https://finance.yahoo.com/quote/%5EHSI/", "yahoo")]),
+    dict(id="shanghai", display_name="Shanghai Composite", tier="expanded", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="CNY", decimals=1, change="pct", market="CN", lag_days=0,
+         candidates=[("yahoo", "000001.SS", "Yahoo Finance (000001.SS)", "https://finance.yahoo.com/quote/000001.SS/", "yahoo")]),
+    dict(id="kospi", display_name="KOSPI", tier="expanded", instrument_type="equity_index", quote_kind="index_close",
+         unit="pts", currency="KRW", decimals=1, change="pct", market="KR", lag_days=0,
+         candidates=[("yahoo", "^KS11", "Yahoo Finance (^KS11)", "https://finance.yahoo.com/quote/%5EKS11/", "yahoo")]),
+    dict(id="copper_fut", display_name="Copper (COMEX futures)", tier="expanded", instrument_type="commodity", quote_kind="futures_last",
+         unit="USD/lb", currency="USD", decimals=3, change="pct", market="COMEX", lag_days=0,
+         note="Yahoo HG=F: active COMEX copper futures contract.",
+         candidates=[("yahoo", "HG=F", "Yahoo Finance (HG=F)", "https://finance.yahoo.com/quote/HG%3DF/", "yahoo")]),
 ]
 
 WEEKLY = False
 BACKFILL = False
+CLOSE_MODE = False
+ISSUE_DATE: dt.date | None = None
 
 WATCHLIST_DEFAULT = [("ZIP", "Zip Co"), ("CSL", "CSL"), ("FLT", "Flight Centre"), ("IEL", "IDP Education")]
 
@@ -263,9 +326,49 @@ def signed(v: float, decimals: int) -> str:
     return ("+" if v > 0 else "−" if v < 0 else "±") + s
 
 
+def as_of_sydney(obs_ts: dt.datetime) -> str:
+    """Exact as-of stamp in Sydney local time with correct AEDT/AEST abbreviation."""
+    local = obs_ts.astimezone(SYD)
+    try:
+        day = local.strftime("%-d")
+    except ValueError:
+        day = str(local.day)
+    return f"{day} {local.strftime('%b %Y, %H:%M')} {local.strftime('%Z')}"
+
+
+def filter_rows(rows: list, cutoff_utc: dt.datetime, tz: ZoneInfo, close_hm: tuple[int, int]) -> list:
+    """Morning mode: only bars whose *session close* is at or before the cutoff.
+
+    Close mode bugfix: the old close-time filter dropped same-day Asia/futures
+    bars because Tokyo/HK/NY closes are *after* 16:30 Sydney, even when Yahoo
+    already published an updating daily bar / last price for the issue date.
+    In close mode we keep every bar on or before ISSUE_DATE.
+    """
+    if CLOSE_MODE and ISSUE_DATE is not None:
+        return [r for r in rows if r[0] <= ISSUE_DATE]
+    return [
+        r for r in rows
+        if dt.datetime(r[0].year, r[0].month, r[0].day, *close_hm, tzinfo=tz) <= cutoff_utc
+    ]
+
+
+def expected_session_for(cutoff_utc: dt.datetime, tz: ZoneInfo, close_hm: tuple[int, int]) -> dt.date:
+    """Close mode: expect the issue date for Asia (once open) and for nearly-24h futures/FX."""
+    if CLOSE_MODE and ISSUE_DATE is not None and ISSUE_DATE.weekday() < 5:
+        asia = {"Asia/Tokyo", "Asia/Hong_Kong", "Asia/Shanghai", "Asia/Seoul", "Australia/Sydney"}
+        if str(tz) in asia:
+            opened = dt.datetime(ISSUE_DATE.year, ISSUE_DATE.month, ISSUE_DATE.day, 9, 0, tzinfo=tz)
+            if opened <= cutoff_utc:
+                return ISSUE_DATE
+        else:
+            # US futures / global FX trade into the Sydney afternoon — expect today.
+            return ISSUE_DATE
+    return expected_session(cutoff_utc, tz, close_hm)
+
+
 def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
     tz, close_hm = MARKETS[spec["market"]]
-    exp = expected_session(cutoff_utc, tz, close_hm)
+    exp = expected_session_for(cutoff_utc, tz, close_hm)
     base = {k: spec.get(k) for k in ("id", "display_name", "tier", "instrument_type", "quote_kind", "unit", "currency", "decimals")}
     base.update(change_unit=spec["change"], expected_session_date=exp.isoformat(), observation_timezone=str(tz))
     if spec.get("note"):
@@ -277,15 +380,14 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
     errors, best = [], None
     for kind, ref, provider, url, lic in spec["candidates"]:
         try:
-            rows = [r for r in load_series(kind, ref)
-                    if dt.datetime(r[0].year, r[0].month, r[0].day, *close_hm, tzinfo=tz) <= cutoff_utc]
+            rows = filter_rows(load_series(kind, ref), cutoff_utc, tz, close_hm)
         except Exception as e:  # noqa: BLE001
             errors.append(f"{provider}: {e}")
             continue
         if len(rows) < 2:
             errors.append(f"{provider}: not enough observations before cutoff")
             continue
-        cand = (rows, kind, provider, url, lic)
+        cand = (rows, kind, ref, provider, url, lic)
         if rows[-1][0] >= exp:
             best = cand
             break
@@ -295,7 +397,7 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
         base.update(status="unavailable", freshness_state="unavailable", provider=None, provider_url=None, licence_note=None,
                     official=None, unavailable_reason="; ".join(errors) or "no data")
         return base
-    rows, kind, provider, url, lic = best
+    rows, kind, ref, provider, url, lic = best
     obs_d, val, obs_ts = rows[-1]
     if spec.get("change_vs") == "last_change":
         prev = next((r for r in reversed(rows) if r[1] != val), rows[-2])
@@ -303,14 +405,35 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
         prev = rows[-2]
     cmp_d, cmp_v, _ = prev
     lag = (exp - obs_d).days
-    if obs_d >= exp:
-        fresh = "latest_official_close"
+    session_close = dt.datetime(obs_d.year, obs_d.month, obs_d.day, *close_hm, tzinfo=tz)
+    if obs_d > exp:
+        fresh = "stale"
+    elif obs_d == exp:
+        # Same expected session: official close if that market's close has passed; else live/intraday.
+        # Yahoo FX and futures last prints are always treated as live/intraday in close mode
+        # (they are not the RBA 4pm fix or an exchange settlement).
+        if CLOSE_MODE and kind == "yahoo" and spec.get("instrument_type") in ("fx", "commodity"):
+            fresh = "live_or_delayed"
+        elif session_close <= cutoff_utc:
+            fresh = "latest_official_close"
+        else:
+            fresh = "live_or_delayed"
+            if spec["id"] == "hang_seng":
+                base["note"] = (base.get("note") + " " if base.get("note") else "") + \
+                    "Live: HK still trading at the Sydney 16:30 cutoff (closes 16:00 HKT / 19:00 AEDT)."
     elif lag <= spec.get("lag_days", 0) + 2 and spec.get("lag_days", 0) > 0:
         fresh = "scheduled_lag"
+    elif CLOSE_MODE and obs_d < exp and kind == "yahoo":
+        # Expected today but Yahoo has no same-day bar (holiday / feed gap).
+        fresh = "latest_official_close"
+        base["note"] = (base.get("note") + " " if base.get("note") else "") + \
+            f"No Yahoo session for {exp.isoformat()}; showing last available close {obs_d.isoformat()}."
     else:
         fresh = "stale"
     if obs_ts is None:
-        obs_ts = dt.datetime(obs_d.year, obs_d.month, obs_d.day, *close_hm, tzinfo=tz).astimezone(UTC)
+        obs_ts = session_close.astimezone(UTC)
+    elif kind == "yahoo":
+        obs_ts = resolve_yahoo_obs_ts(ref, obs_d, obs_ts, tz, session_close)
     d = spec["decimals"]
     q = dict(base)
     q.update(
@@ -318,6 +441,7 @@ def build_quote(spec: dict, cutoff_utc: dt.datetime, retrieved: str) -> dict:
         source_label=("delayed, unofficial" if kind == "yahoo" else "official"),
         value=round(val, 6), display_value=fmt(val, d) + ("%" if spec["unit"] == "%" else ""),
         market_session_date=obs_d.isoformat(), observation_timestamp_utc=obs_ts.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        as_of_sydney=as_of_sydney(obs_ts),
         comparison_date=cmp_d.isoformat(), comparison_value=round(cmp_v, 6),
         freshness_state=fresh,
         source_vintage=f"retrieved {retrieved}" + (" (historical backfill: value cut at the issue cutoff, retrieved later)" if BACKFILL else ""),
@@ -388,20 +512,50 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--issue-date", required=True)
     ap.add_argument("--edition", choices=["weekday", "weekend"], required=True)
-    ap.add_argument("--cutoff", default="07:30", help="local Sydney HH:MM")
+    ap.add_argument("--cutoff", default="07:30", help="local Sydney HH:MM (ignored when --close)")
+    ap.add_argument("--close", action="store_true",
+                    help="after-the-close snapshot: cutoff 16:30 Sydney + Asia/copper metrics")
     ap.add_argument("--watchlist", default="_data/watchlist.csv")
     ap.add_argument("--out")
     ap.add_argument("--backfill", action="store_true", help="re-rendering a past issue")
     args = ap.parse_args(argv)
-    global WEEKLY, BACKFILL
+    global WEEKLY, BACKFILL, CLOSE_MODE, ISSUE_DATE
     WEEKLY = args.edition == "weekend"
     BACKFILL = args.backfill
+    CLOSE_MODE = bool(args.close)
     d = dt.date.fromisoformat(args.issue_date)
-    hh, mm = map(int, args.cutoff.split(":"))
+    ISSUE_DATE = d
+    if args.close:
+        hh, mm = 16, 30
+    else:
+        hh, mm = map(int, args.cutoff.split(":"))
     cutoff = dt.datetime(d.year, d.month, d.day, hh, mm, tzinfo=SYD).astimezone(UTC)
     retrieved = dt.datetime.now(UTC).strftime("%Y-%m-%d %H:%MZ")
     quotes, dropped = [], []
-    for spec in METRICS:
+    specs = [dict(s) for s in METRICS] + ([dict(s) for s in CLOSE_METRICS] if args.close else [])
+    if args.close:
+        # Prefer live Yahoo FX at 16:30; keep RBA F11.1 as lagged fallback.
+        for spec in specs:
+            if spec["id"] == "audusd":
+                spec["lag_days"] = 0
+                spec["note"] = "Yahoo AUDUSD=X last (intraday). RBA F11.1 4pm is the lagged official fallback."
+                spec["candidates"] = [
+                    ("yahoo", "AUDUSD=X", "Yahoo Finance (AUDUSD=X)", "https://finance.yahoo.com/quote/AUDUSD%3DX/", "yahoo"),
+                    ("rba", ("f11.1", "FXRUSD"), "RBA F11.1 (4pm)", "https://www.rba.gov.au/statistics/tables/#exchange-rates", "rba"),
+                ]
+            if spec["id"] in ("au2y", "au10y"):
+                spec["note"] = (
+                    "RBA interpolated yield (F2); published with a lag of about two business days. "
+                    "No reliable free same-day ASX bond-futures yield (YT=F/XT=F unavailable)."
+                )
+            if spec["id"] in ("brent_fut", "gold_fut", "copper_fut"):
+                spec["note"] = (spec.get("note") or "") + " Close-mode uses the Yahoo same-day last/daily bar with an as-of timestamp."
+            if spec["id"] == "iron_ore":
+                spec["note"] = "Yahoo TIO=F SGX/TSI 62% Fe CFR China proxy; dropped if the print looks broken."
+                spec["candidates"] = [
+                    ("yahoo", "TIO=F", "Yahoo Finance (TIO=F)", "https://finance.yahoo.com/quote/TIO%3DF/", "yahoo"),
+                ]
+    for spec in specs:
         q = build_quote(spec, cutoff, retrieved)
         quotes.append(q)
         if q["status"] != "ok":
@@ -424,17 +578,33 @@ def main(argv=None):
         curve.update(status="ok", provider="Derived from RBA F2 (10Y minus 2Y)", provider_url=a10["provider_url"],
                      licence_note=LIC["rba"], official=True, source_label="official", value=v, display_value=f"{v:+.0f} bp",
                      market_session_date=a10["market_session_date"], observation_timestamp_utc=a10["observation_timestamp_utc"],
+                     as_of_sydney=a10.get("as_of_sydney"),
                      comparison_date=a10["comparison_date"], comparison_value=pv, change_bp=round(v - pv, 1),
                      display_change=signed(round(v - pv), 0) + " bp", freshness_state=a10["freshness_state"],
-                     source_vintage=a10["source_vintage"])
+                     source_vintage=a10["source_vintage"],
+                     note="Derived from lagged RBA F2 legs; not a live curve mark.")
     else:
         curve.update(status="unavailable", freshness_state="unavailable", unavailable_reason="AU 2Y and 10Y not available for the same session.")
     quotes.insert([q["id"] for q in quotes].index("au2y") + 1, curve)
+    # Drop iron-ore prints that look broken (Yahoo TIO=F sometimes returns a wild last).
+    for i, q in enumerate(quotes):
+        if q.get("id") == "iron_ore" and q.get("status") == "ok":
+            prev = q.get("comparison_value") or 0
+            if prev and (q["value"] > prev * 1.5 or q["value"] < prev * 0.5):
+                quotes[i] = dict(
+                    id="iron_ore", display_name="Iron ore 62% Fe", tier="expanded",
+                    instrument_type="commodity", quote_kind="futures_last", unit="USD/t", currency="USD",
+                    decimals=2, change_unit="pct", status="unavailable", freshness_state="unavailable",
+                    unavailable_reason="Yahoo TIO=F last print looked inconsistent with the prior close; treated as unavailable.",
+                    provider=None, provider_url=None, licence_note=None, official=None,
+                )
+                dropped.append({"item": "snapshot:iron_ore", "reason": quotes[i]["unavailable_reason"]})
     snap = {
         "generated_by": "scripts/fetch_markets.py",
         "retrieved_at_utc": retrieved,
         "issue_date": d.isoformat(),
         "edition": args.edition,
+        "mode": "close" if args.close else "morning",
         "backfill": BACKFILL,
         "cutoff_utc": cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "cutoff_local": dt.datetime(d.year, d.month, d.day, hh, mm, tzinfo=SYD).isoformat(),

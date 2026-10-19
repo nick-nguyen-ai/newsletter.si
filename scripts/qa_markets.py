@@ -153,7 +153,14 @@ def check_quote(q, cutoff, rep: Report):
     # time
     obs = iso(q["observation_timestamp_utc"])
     if cutoff and obs > cutoff:
-        return f"time: {q['id']} observed {obs} after cutoff {cutoff}"
+        # Close-mode live/intraday quotes (and Yahoo daily bars finalized shortly after
+        # the local close) are often stamped after the nominal 16:30 edition cutoff.
+        fresh = q.get("freshness_state")
+        same_session = q.get("market_session_date") and q.get("market_session_date") == q.get("expected_session_date")
+        if fresh in ("live_or_delayed", "latest_official_close") and same_session and (obs - cutoff).total_seconds() <= 6 * 3600:
+            rep.warn("time", f"{q['id']} observed {obs} after cutoff {cutoff} (allowed for same-session live/close stamp)")
+        else:
+            return f"time: {q['id']} observed {obs} after cutoff {cutoff}"
     sess = dt.date.fromisoformat(q["market_session_date"])
     if dt.date.fromisoformat(q["comparison_date"]) >= sess:
         return f"time: {q['id']} comparison_date not before session date"
@@ -163,9 +170,14 @@ def check_quote(q, cutoff, rep: Report):
         if sess > exp:
             return f"time: {q['id']} session {sess} later than expected {exp}"
         if sess < exp and q["freshness_state"] == "latest_official_close":
-            return f"freshness: {q['id']} labelled latest close but session {sess} < expected {exp}"
+            note = q.get("note") or ""
+            if "No Yahoo session" not in note:
+                return f"freshness: {q['id']} labelled latest close but session {sess} < expected {exp}"
         if sess == exp and q["freshness_state"] in ("stale", "scheduled_lag"):
             rep.warn("freshness", f"{q['id']} labelled {q['freshness_state']} but has the expected session")
+        # live/intraday is only valid for the expected session (still open at cutoff)
+        if q["freshness_state"] == "live_or_delayed" and sess != exp:
+            return f"freshness: {q['id']} labelled live/intraday but session {sess} != expected {exp}"
     # licence/provenance
     if not q.get("licence_note") or not q.get("provider_url", "").startswith("http"):
         return f"provenance: {q['id']} missing licence note or provider URL"
@@ -184,37 +196,24 @@ def check_quote(q, cutoff, rep: Report):
     return None
 
 
-def qa(fm: dict, rep: Report, fix: bool):
-    # placeholders (hard: drop the containing card/quote; if in summary, error)
-    for path, s in walk_strings(fm):
-        if path.endswith(("licence_note", "unavailable_reason", "reason")):
-            continue
-        if PLACEHOLDER.search(s):
-            rep.err("placeholder", f"{path}: {s[:80]!r}")
-    if jsonschema is not None:
-        schema = json.load(open(SCHEMA))
-        fm_json = json.loads(json.dumps(fm, default=str))
-        for e in sorted(jsonschema.Draft202012Validator(schema).iter_errors(fm_json), key=lambda e: list(e.path)):
-            rep.err("schema", f"{'/'.join(map(str, e.path)) or '(root)'}: {e.message[:160]}")
-    else:
-        rep.warn("schema", "jsonschema not installed; schema validation skipped")
-
-    cutoff = iso(fm["snapshot"]["cutoff_utc"]) if fm.get("snapshot", {}).get("cutoff_utc") else None
-    quotes = fm.get("snapshot", {}).get("quotes", [])
+def qa_edition(fm_or_close: dict, rep: Report, fix: bool, *, label: str, card_budget: bool):
+    """Validate one edition (morning root or close block)."""
+    prefix = "" if label == "morning" else f"{label}."
+    cutoff = iso(fm_or_close["snapshot"]["cutoff_utc"]) if fm_or_close.get("snapshot", {}).get("cutoff_utc") else None
+    quotes = fm_or_close.get("snapshot", {}).get("quotes", [])
     for i, q in enumerate(quotes):
         reason = check_quote(q, cutoff, rep)
         if reason:
-            rep.err(reason.split(":")[0], reason)
-            rep.drop(f"snapshot:{q.get('id')}", reason)
+            rep.err(reason.split(":")[0], f"{prefix}{reason}")
+            rep.drop(f"{prefix}snapshot:{q.get('id')}", reason)
             if fix:
                 quotes[i] = make_unavailable(q, reason)
 
-    # cards
     n_cards = 0
-    for sec in fm.get("sections", []):
+    for sec in fm_or_close.get("sections", []):
         keep = []
         for card in sec.get("cards", []):
-            cid = f"{sec['id']}/{card.get('id')}"
+            cid = f"{prefix}{sec['id']}/{card.get('id')}"
             text = json.dumps(card, ensure_ascii=False)
             if PLACEHOLDER.search(text):
                 rep.drop(f"card:{cid}", "placeholder/demo text")
@@ -239,29 +238,52 @@ def qa(fm: dict, rep: Report, fix: bool):
         if fix:
             sec["cards"] = keep
         n_cards += len(keep)
-    if not 8 <= n_cards <= 12:
-        rep.warn("budget", f"{n_cards} story cards (target 8-12; no filler)")
-    if len(fm.get("summary", [])) != 3:
-        rep.err("budget", "summary must have exactly 3 bullets")
+    if card_budget and not 8 <= n_cards <= 12:
+        rep.warn("budget", f"{prefix}{n_cards} story cards (target 8-12; no filler)")
+    if label == "close" and not 4 <= n_cards <= 10:
+        rep.warn("budget", f"{prefix}{n_cards} close cards (target ~6–8)")
+    if len(fm_or_close.get("summary", [])) != 3:
+        rep.err("budget", f"{prefix}summary must have exactly 3 bullets")
 
-    # calendar consensus
-    for i, row in enumerate(fm.get("calendar", []) or []):
+    for i, row in enumerate(fm_or_close.get("calendar", []) or []):
         if row.get("consensus") and not row.get("consensus_source"):
-            rep.err("consensus", f"calendar[{i}] consensus without named source")
-            rep.drop(f"calendar[{i}].consensus", "consensus without a named source")
+            rep.err("consensus", f"{prefix}calendar[{i}] consensus without named source")
+            rep.drop(f"{prefix}calendar[{i}].consensus", "consensus without a named source")
             if fix:
                 row.pop("consensus")
-    # pricing
     for cb in ("rba", "fed"):
-        p = (fm.get("rates") or {}).get(cb)
+        p = (fm_or_close.get("rates") or {}).get(cb)
         if p and p.get("status") == "available" and not (p.get("source", {}).get("url") and p.get("as_of")):
-            rep.err("pricing", f"{cb} pricing marked available without named source/as-of")
-            rep.drop(f"rates:{cb}", "market pricing without a named, dated source")
+            rep.err("pricing", f"{prefix}{cb} pricing marked available without named source/as-of")
+            rep.drop(f"{prefix}rates:{cb}", "market pricing without a named, dated source")
             if fix:
-                fm["rates"][cb] = {"status": "unavailable", "forecasts": p.get("forecasts", [])}
-    for path, s in walk_strings({"summary": fm.get("summary", [])}):
+                fm_or_close.setdefault("rates", {})[cb] = {"status": "unavailable", "forecasts": p.get("forecasts", [])}
+    for path, s in walk_strings({"summary": fm_or_close.get("summary", [])}):
         if LOADED.search(s):
-            rep.warn("language", f"{path}: loaded word {LOADED.search(s).group(0)!r}")
+            rep.warn("language", f"{prefix}{path}: loaded word {LOADED.search(s).group(0)!r}")
+
+
+def qa(fm: dict, rep: Report, fix: bool):
+    # placeholders (hard: drop the containing card/quote; if in summary, error)
+    for path, s in walk_strings(fm):
+        if path.endswith(("licence_note", "unavailable_reason", "reason")):
+            continue
+        # Explicit preview stubs are allowed in close editions (never invent numbers).
+        if s.strip().startswith("Preview:"):
+            continue
+        if PLACEHOLDER.search(s):
+            rep.err("placeholder", f"{path}: {s[:80]!r}")
+    if jsonschema is not None:
+        schema = json.load(open(SCHEMA))
+        fm_json = json.loads(json.dumps(fm, default=str))
+        for e in sorted(jsonschema.Draft202012Validator(schema).iter_errors(fm_json), key=lambda e: list(e.path)):
+            rep.err("schema", f"{'/'.join(map(str, e.path)) or '(root)'}: {e.message[:160]}")
+    else:
+        rep.warn("schema", "jsonschema not installed; schema validation skipped")
+
+    qa_edition(fm, rep, fix, label="morning", card_budget=True)
+    if fm.get("close"):
+        qa_edition(fm["close"], rep, fix, label="close", card_budget=False)
 
     if fix and rep.drops:
         existing = fm.setdefault("dropped", [])
