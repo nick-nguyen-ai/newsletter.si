@@ -1,0 +1,2 @@
+# Local testing only: jekyll serve --config _config.yml,_config.local.yml
+watchlist_api: http://localhost:8787

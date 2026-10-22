@@ -1,0 +1,38 @@
+/* "My shares": watchlist bar on Markets pages + /watchlist/ page. Loaded only when site.watchlist_api is set. */
+.mk-wl-bar { font-family: var(--font-sans); font-size: 0.75rem; color: var(--text-muted); margin: -0.2rem 0 0.4rem; }
+.mk-wl-bar a, .mk-wl-bar button { color: var(--accent); }
+.mk-wl-bar button { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }
+.mk-wl-tag { font-family: var(--mk-mono); font-size: 0.6rem; color: var(--text-muted); border: 1px solid var(--border); border-radius: 2px; padding: 0 0.3rem; margin-left: 0.3rem; white-space: nowrap; }
+[data-wl-section][data-wl-loading] .mk-watch { opacity: 0.35; }
+
+.wl-page { max-width: 40rem; }
+.wl-lead { color: var(--text-muted); }
+.wl-card { border: 1px solid var(--border); border-radius: 6px; background: var(--bg-elevated); padding: 1rem 1.1rem; margin: 1rem 0; }
+.wl-card[hidden] { display: none; }
+.wl-h { font-size: 1.1rem; margin: 0 0 0.5rem; }
+.wl-label { display: block; font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600; margin: 0.8rem 0 0.25rem; }
+.wl-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.wl-row--actions { margin-top: 1rem; }
+.wl-input { flex: 1 1 14rem; font: inherit; font-size: 1rem; padding: 0.55rem 0.65rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg, #fff); color: inherit; }
+.wl-input--full { width: 100%; box-sizing: border-box; }
+.wl-btn { font-family: var(--font-sans); font-size: 0.9rem; font-weight: 600; padding: 0.55rem 1rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; text-decoration: none; display: inline-block; }
+.wl-btn--ghost { background: transparent; color: var(--accent); }
+.wl-btn[disabled] { opacity: 0.6; cursor: default; }
+.wl-link { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
+.wl-msg { font-family: var(--font-sans); font-size: 0.85rem; min-height: 1.2em; margin: 0.4rem 0 0; }
+.wl-msg--err { color: #a14b3a; }
+.wl-fine { font-family: var(--font-sans); font-size: 0.72rem; color: var(--text-muted); margin-top: 0.8rem; }
+.wl-who { font-family: var(--font-sans); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+.wl-count { font-family: var(--mk-mono); font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+.wl-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 2rem; }
+.wl-chip { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--accent); border-radius: 999px; padding: 0.2rem 0.3rem 0.2rem 0.65rem; font-family: var(--mk-mono); font-size: 0.85rem; }
+.wl-chip button { border: 0; background: var(--accent-soft, #e4f1ef); color: inherit; border-radius: 999px; width: 1.5rem; height: 1.5rem; cursor: pointer; font-size: 0.9rem; line-height: 1; }
+.wl-empty { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); }
+.wl-results { list-style: none; margin: 0.3rem 0 0; padding: 0; max-height: 15rem; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; }
+.wl-results:empty { display: none; }
+.wl-results li button { display: flex; width: 100%; gap: 0.6rem; align-items: baseline; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--border); padding: 0.5rem 0.65rem; font: inherit; color: inherit; cursor: pointer; }
+.wl-results li button:hover, .wl-results li button:focus { background: var(--accent-soft, #e4f1ef); }
+.wl-results li button[disabled] { opacity: 0.5; cursor: default; }
+.wl-results b { font-family: var(--mk-mono); min-width: 3rem; }
+.wl-results span { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); }
+@media (prefers-color-scheme: dark) { .wl-chip button, .wl-results li button:hover { background: #1d2b3d; } }

@@ -1,0 +1,1010 @@
+{
+ "generated_by": "scripts/build_asx_list.py",
+ "generated_at_utc": "2026-10-22T10:29Z",
+ "max_per_reader": 10,
+ "sources": [
+  {
+   "label": "Wikipedia: S&P/ASX 200 constituents (revision 1362716004, approximate)",
+   "url": "https://en.wikipedia.org/wiki/S%26P/ASX_200"
+  },
+  {
+   "label": "ASX listed companies as at Thu Oct 22 21:12:28 AEDT 2026",
+   "url": "https://www.asx.com.au/asx/research/ASXListedCompanies.csv"
+  }
+ ],
+ "dropped_not_listed": [
+  "ASK",
+  "IFL",
+  "NSR",
+  "QUB",
+  "XYX"
+ ],
+ "default_watchlist": [
+  "ZIP",
+  "CSL",
+  "FLT",
+  "IEL"
+ ],
+ "tickers": [
+  {
+   "code": "360",
+   "name": "Life360 Inc",
+   "official_name": "LIFE360 INC."
+  },
+  {
+   "code": "4DX",
+   "name": "4dmedical",
+   "official_name": "4DMEDICAL LIMITED"
+  },
+  {
+   "code": "A2M",
+   "name": "THE A2 Milk Company",
+   "official_name": "THE A2 MILK COMPANY LIMITED"
+  },
+  {
+   "code": "AAI",
+   "name": "Alcoa Corporation",
+   "official_name": "ALCOA CORPORATION"
+  },
+  {
+   "code": "AFI",
+   "name": "Australian Foundation Investment Company",
+   "official_name": "AUSTRALIAN FOUNDATION INVESTMENT COMPANY LIMITED"
+  },
+  {
+   "code": "AGL",
+   "name": "AGL Energy",
+   "official_name": "AGL ENERGY LIMITED."
+  },
+  {
+   "code": "AIA",
+   "name": "Auckland International Airport",
+   "official_name": "AUCKLAND INTERNATIONAL AIRPORT LIMITED"
+  },
+  {
+   "code": "ALD",
+   "name": "Ampol",
+   "official_name": "AMPOL LIMITED"
+  },
+  {
+   "code": "ALK",
+   "name": "Alkane Resources",
+   "official_name": "ALKANE RESOURCES LIMITED"
+  },
+  {
+   "code": "ALL",
+   "name": "Aristocrat Leisure",
+   "official_name": "ARISTOCRAT LEISURE LIMITED"
+  },
+  {
+   "code": "ALQ",
+   "name": "ALS",
+   "official_name": "ALS LIMITED"
+  },
+  {
+   "code": "ALX",
+   "name": "Atlas Arteria",
+   "official_name": "ATLAS ARTERIA"
+  },
+  {
+   "code": "AMC",
+   "name": "Amcor PLC",
+   "official_name": "AMCOR PLC"
+  },
+  {
+   "code": "AMP",
+   "name": "AMP",
+   "official_name": "AMP LIMITED"
+  },
+  {
+   "code": "ANN",
+   "name": "Ansell",
+   "official_name": "ANSELL LIMITED"
+  },
+  {
+   "code": "ANZ",
+   "name": "ANZ Group Holdings",
+   "official_name": "ANZ GROUP HOLDINGS LIMITED"
+  },
+  {
+   "code": "APA",
+   "name": "APA Group",
+   "official_name": "APA GROUP"
+  },
+  {
+   "code": "APE",
+   "name": "Eagers Automotive",
+   "official_name": "EAGERS AUTOMOTIVE LIMITED"
+  },
+  {
+   "code": "ARB",
+   "name": "ARB Corporation",
+   "official_name": "ARB CORPORATION LIMITED."
+  },
+  {
+   "code": "ARG",
+   "name": "Argo Investments",
+   "official_name": "ARGO INVESTMENTS LIMITED"
+  },
+  {
+   "code": "ASB",
+   "name": "Austal",
+   "official_name": "AUSTAL LIMITED"
+  },
+  {
+   "code": "ASX",
+   "name": "ASX",
+   "official_name": "ASX LIMITED"
+  },
+  {
+   "code": "AUB",
+   "name": "AUB Group",
+   "official_name": "AUB GROUP LIMITED"
+  },
+  {
+   "code": "AZJ",
+   "name": "Aurizon Holdings",
+   "official_name": "AURIZON HOLDINGS LIMITED"
+  },
+  {
+   "code": "BEN",
+   "name": "Bendigo and Adelaide Bank",
+   "official_name": "BENDIGO AND ADELAIDE BANK LIMITED"
+  },
+  {
+   "code": "BFL",
+   "name": "BSP Financial Group",
+   "official_name": "BSP FINANCIAL GROUP LIMITED"
+  },
+  {
+   "code": "BGA",
+   "name": "Bega Cheese",
+   "official_name": "BEGA CHEESE LIMITED"
+  },
+  {
+   "code": "BGL",
+   "name": "Bellevue Gold",
+   "official_name": "BELLEVUE GOLD LIMITED"
+  },
+  {
+   "code": "BHP",
+   "name": "BHP Group",
+   "official_name": "BHP GROUP LIMITED"
+  },
+  {
+   "code": "BOQ",
+   "name": "Bank of Queensland",
+   "official_name": "BANK OF QUEENSLAND LIMITED."
+  },
+  {
+   "code": "BPT",
+   "name": "Beach Energy",
+   "official_name": "BEACH ENERGY LIMITED"
+  },
+  {
+   "code": "BRG",
+   "name": "Breville Group",
+   "official_name": "BREVILLE GROUP LIMITED"
+  },
+  {
+   "code": "BSL",
+   "name": "Bluescope Steel",
+   "official_name": "BLUESCOPE STEEL LIMITED"
+  },
+  {
+   "code": "BWP",
+   "name": "BWP Group",
+   "official_name": "BWP GROUP"
+  },
+  {
+   "code": "BXB",
+   "name": "Brambles",
+   "official_name": "BRAMBLES LIMITED"
+  },
+  {
+   "code": "CAR",
+   "name": "CAR Group",
+   "official_name": "CAR GROUP LIMITED"
+  },
+  {
+   "code": "CBA",
+   "name": "Commonwealth Bank of Australia",
+   "official_name": "COMMONWEALTH BANK OF AUSTRALIA."
+  },
+  {
+   "code": "CDA",
+   "name": "Codan",
+   "official_name": "CODAN LIMITED"
+  },
+  {
+   "code": "CEN",
+   "name": "Contact Energy",
+   "official_name": "CONTACT ENERGY LIMITED"
+  },
+  {
+   "code": "CGF",
+   "name": "Challenger",
+   "official_name": "CHALLENGER LIMITED"
+  },
+  {
+   "code": "CHC",
+   "name": "Charter Hall Group",
+   "official_name": "CHARTER HALL GROUP"
+  },
+  {
+   "code": "CIA",
+   "name": "Champion Iron",
+   "official_name": "CHAMPION IRON LIMITED"
+  },
+  {
+   "code": "CIP",
+   "name": "Centuria Industrial Reit",
+   "official_name": "CENTURIA INDUSTRIAL REIT"
+  },
+  {
+   "code": "CLW",
+   "name": "Charter Hall Long Wale Reit",
+   "official_name": "CHARTER HALL LONG WALE REIT"
+  },
+  {
+   "code": "CMM",
+   "name": "Capricorn Metals",
+   "official_name": "CAPRICORN METALS LTD"
+  },
+  {
+   "code": "CNU",
+   "name": "Chorus",
+   "official_name": "CHORUS LIMITED"
+  },
+  {
+   "code": "COH",
+   "name": "Cochlear",
+   "official_name": "COCHLEAR LIMITED"
+  },
+  {
+   "code": "COL",
+   "name": "Coles Group",
+   "official_name": "COLES GROUP LIMITED."
+  },
+  {
+   "code": "CPU",
+   "name": "Computershare",
+   "official_name": "COMPUTERSHARE LIMITED."
+  },
+  {
+   "code": "CQR",
+   "name": "Charter Hall Retail Reit",
+   "official_name": "CHARTER HALL RETAIL REIT"
+  },
+  {
+   "code": "CSC",
+   "name": "Capstone Copper Corp",
+   "official_name": "CAPSTONE COPPER CORP."
+  },
+  {
+   "code": "CSL",
+   "name": "CSL",
+   "official_name": "CSL LIMITED"
+  },
+  {
+   "code": "CTD",
+   "name": "Corporate Travel Management",
+   "official_name": "CORPORATE TRAVEL MANAGEMENT LIMITED"
+  },
+  {
+   "code": "CWY",
+   "name": "Cleanaway Waste Management",
+   "official_name": "CLEANAWAY WASTE MANAGEMENT LIMITED"
+  },
+  {
+   "code": "CYL",
+   "name": "Catalyst Metals",
+   "official_name": "CATALYST METALS LIMITED"
+  },
+  {
+   "code": "DBI",
+   "name": "Dalrymple BAY Infrastructure",
+   "official_name": "DALRYMPLE BAY INFRASTRUCTURE LIMITED"
+  },
+  {
+   "code": "DNL",
+   "name": "Dyno Nobel",
+   "official_name": "DYNO NOBEL LIMITED."
+  },
+  {
+   "code": "DOW",
+   "name": "Downer EDI",
+   "official_name": "DOWNER EDI LIMITED"
+  },
+  {
+   "code": "DRO",
+   "name": "Droneshield",
+   "official_name": "DRONESHIELD LIMITED"
+  },
+  {
+   "code": "DRR",
+   "name": "Deterra Royalties",
+   "official_name": "DETERRA ROYALTIES LIMITED"
+  },
+  {
+   "code": "DXS",
+   "name": "Dexus",
+   "official_name": "DEXUS"
+  },
+  {
+   "code": "DYL",
+   "name": "Deep Yellow",
+   "official_name": "DEEP YELLOW LIMITED"
+  },
+  {
+   "code": "EBO",
+   "name": "Ebos Group",
+   "official_name": "EBOS GROUP LIMITED"
+  },
+  {
+   "code": "EDV",
+   "name": "Endeavour Group",
+   "official_name": "ENDEAVOUR GROUP LIMITED"
+  },
+  {
+   "code": "EMR",
+   "name": "Emerald Resources NL",
+   "official_name": "EMERALD RESOURCES NL"
+  },
+  {
+   "code": "EOS",
+   "name": "Electro Optic Systems Holdings",
+   "official_name": "ELECTRO OPTIC SYSTEMS HOLDINGS LIMITED"
+  },
+  {
+   "code": "EVN",
+   "name": "Evolution Mining",
+   "official_name": "EVOLUTION MINING LIMITED"
+  },
+  {
+   "code": "EVT",
+   "name": "EVT",
+   "official_name": "EVT LIMITED"
+  },
+  {
+   "code": "FBU",
+   "name": "Fletcher Building",
+   "official_name": "FLETCHER BUILDING LIMITED"
+  },
+  {
+   "code": "FLT",
+   "name": "Flight Centre Travel Group",
+   "official_name": "FLIGHT CENTRE TRAVEL GROUP LIMITED"
+  },
+  {
+   "code": "FMG",
+   "name": "Fortescue",
+   "official_name": "FORTESCUE LTD"
+  },
+  {
+   "code": "FPH",
+   "name": "Fisher & Paykel Healthcare Corporation",
+   "official_name": "FISHER & PAYKEL HEALTHCARE CORPORATION LIMITED"
+  },
+  {
+   "code": "FRW",
+   "name": "Freightways Group",
+   "official_name": "FREIGHTWAYS GROUP LIMITED"
+  },
+  {
+   "code": "GDG",
+   "name": "Generation Development Group",
+   "official_name": "GENERATION DEVELOPMENT GROUP LIMITED"
+  },
+  {
+   "code": "GGP",
+   "name": "Greatland Resources",
+   "official_name": "GREATLAND RESOURCES LIMITED"
+  },
+  {
+   "code": "GMD",
+   "name": "Genesis Minerals",
+   "official_name": "GENESIS MINERALS LIMITED"
+  },
+  {
+   "code": "GMG",
+   "name": "Goodman Group",
+   "official_name": "GOODMAN GROUP"
+  },
+  {
+   "code": "GNE",
+   "name": "Genesis Energy",
+   "official_name": "GENESIS ENERGY LIMITED"
+  },
+  {
+   "code": "GPT",
+   "name": "GPT Group",
+   "official_name": "GPT GROUP"
+  },
+  {
+   "code": "GQG",
+   "name": "GQG Partners Inc",
+   "official_name": "GQG PARTNERS INC."
+  },
+  {
+   "code": "HDN",
+   "name": "Homeco Daily Needs Reit",
+   "official_name": "HOMECO DAILY NEEDS REIT"
+  },
+  {
+   "code": "HUB",
+   "name": "Hub24",
+   "official_name": "HUB24 LIMITED"
+  },
+  {
+   "code": "HVN",
+   "name": "Harvey Norman Holdings",
+   "official_name": "HARVEY NORMAN HOLDINGS LIMITED"
+  },
+  {
+   "code": "IAG",
+   "name": "Insurance Australia Group",
+   "official_name": "INSURANCE AUSTRALIA GROUP LIMITED"
+  },
+  {
+   "code": "IEL",
+   "name": "IDP Education",
+   "official_name": "IDP EDUCATION LIMITED"
+  },
+  {
+   "code": "IFT",
+   "name": "Infratil",
+   "official_name": "INFRATIL LIMITED."
+  },
+  {
+   "code": "IGO",
+   "name": "IGO",
+   "official_name": "IGO LIMITED"
+  },
+  {
+   "code": "ILU",
+   "name": "Iluka Resources",
+   "official_name": "ILUKA RESOURCES LIMITED"
+  },
+  {
+   "code": "IMD",
+   "name": "Imdex",
+   "official_name": "IMDEX LIMITED"
+  },
+  {
+   "code": "JBH",
+   "name": "JB Hi-fi",
+   "official_name": "JB HI-FI LIMITED"
+  },
+  {
+   "code": "JHX",
+   "name": "James Hardie Industries PLC",
+   "official_name": "JAMES HARDIE INDUSTRIES PLC"
+  },
+  {
+   "code": "L1G",
+   "name": "L1 Group",
+   "official_name": "L1 GROUP LIMITED"
+  },
+  {
+   "code": "LLC",
+   "name": "Lendlease Group",
+   "official_name": "LENDLEASE GROUP"
+  },
+  {
+   "code": "LNW",
+   "name": "Light & Wonder Inc",
+   "official_name": "LIGHT & WONDER INC."
+  },
+  {
+   "code": "LOV",
+   "name": "Lovisa Holdings",
+   "official_name": "LOVISA HOLDINGS LIMITED"
+  },
+  {
+   "code": "LSF",
+   "name": "L1 Long Short Fund",
+   "official_name": "L1 LONG SHORT FUND LIMITED"
+  },
+  {
+   "code": "LTR",
+   "name": "Liontown",
+   "official_name": "LIONTOWN LIMITED"
+  },
+  {
+   "code": "LYC",
+   "name": "Lynas Rare Earths",
+   "official_name": "LYNAS RARE EARTHS LIMITED"
+  },
+  {
+   "code": "MCY",
+   "name": "Mercury NZ",
+   "official_name": "MERCURY NZ LIMITED"
+  },
+  {
+   "code": "MEZ",
+   "name": "Meridian Energy",
+   "official_name": "MERIDIAN ENERGY LIMITED"
+  },
+  {
+   "code": "MFF",
+   "name": "MFF Capital Investments",
+   "official_name": "MFF CAPITAL INVESTMENTS LIMITED"
+  },
+  {
+   "code": "MFG",
+   "name": "Magellan Financial Group",
+   "official_name": "MAGELLAN FINANCIAL GROUP LIMITED"
+  },
+  {
+   "code": "MGR",
+   "name": "Mirvac Group",
+   "official_name": "MIRVAC GROUP"
+  },
+  {
+   "code": "MIN",
+   "name": "Mineral Resources",
+   "official_name": "MINERAL RESOURCES LIMITED"
+  },
+  {
+   "code": "MND",
+   "name": "Monadelphous Group",
+   "official_name": "MONADELPHOUS GROUP LIMITED"
+  },
+  {
+   "code": "MPL",
+   "name": "Medibank Private",
+   "official_name": "MEDIBANK PRIVATE LIMITED"
+  },
+  {
+   "code": "MQG",
+   "name": "Macquarie Group",
+   "official_name": "MACQUARIE GROUP LIMITED"
+  },
+  {
+   "code": "MSB",
+   "name": "Mesoblast",
+   "official_name": "MESOBLAST LIMITED"
+  },
+  {
+   "code": "MTS",
+   "name": "Metcash",
+   "official_name": "METCASH LIMITED"
+  },
+  {
+   "code": "MXT",
+   "name": "Metrics Master Income Trust",
+   "official_name": "METRICS MASTER INCOME TRUST"
+  },
+  {
+   "code": "NAB",
+   "name": "National Australia Bank",
+   "official_name": "NATIONAL AUSTRALIA BANK LIMITED"
+  },
+  {
+   "code": "NEM",
+   "name": "Newmont Corporation",
+   "official_name": "NEWMONT CORPORATION"
+  },
+  {
+   "code": "NHC",
+   "name": "NEW Hope Corporation",
+   "official_name": "NEW HOPE CORPORATION LIMITED"
+  },
+  {
+   "code": "NHF",
+   "name": "NIB Holdings",
+   "official_name": "NIB HOLDINGS LIMITED"
+  },
+  {
+   "code": "NIC",
+   "name": "Nickel Industries",
+   "official_name": "NICKEL INDUSTRIES LIMITED"
+  },
+  {
+   "code": "NST",
+   "name": "Northern Star Resources",
+   "official_name": "NORTHERN STAR RESOURCES LTD"
+  },
+  {
+   "code": "NWH",
+   "name": "NRW Holdings",
+   "official_name": "NRW HOLDINGS LIMITED"
+  },
+  {
+   "code": "NWL",
+   "name": "Netwealth Group",
+   "official_name": "NETWEALTH GROUP LIMITED"
+  },
+  {
+   "code": "NWS",
+   "name": "News Corporation",
+   "official_name": "NEWS CORPORATION.."
+  },
+  {
+   "code": "NXG",
+   "name": "Nexgen Energy (canada)",
+   "official_name": "NEXGEN ENERGY (CANADA) LTD"
+  },
+  {
+   "code": "NXT",
+   "name": "Nextdc",
+   "official_name": "NEXTDC LIMITED"
+  },
+  {
+   "code": "OBM",
+   "name": "ORA Banda Mining",
+   "official_name": "ORA BANDA MINING LTD"
+  },
+  {
+   "code": "ORA",
+   "name": "Orora",
+   "official_name": "ORORA LIMITED"
+  },
+  {
+   "code": "ORG",
+   "name": "Origin Energy",
+   "official_name": "ORIGIN ENERGY LIMITED"
+  },
+  {
+   "code": "ORI",
+   "name": "Orica",
+   "official_name": "ORICA LIMITED"
+  },
+  {
+   "code": "PDI",
+   "name": "PDI Gold",
+   "official_name": "PDI GOLD LIMITED"
+  },
+  {
+   "code": "PDN",
+   "name": "Paladin Energy",
+   "official_name": "PALADIN ENERGY LTD"
+  },
+  {
+   "code": "PLS",
+   "name": "PLS Group",
+   "official_name": "PLS GROUP LIMITED"
+  },
+  {
+   "code": "PME",
+   "name": "PRO Medicus",
+   "official_name": "PRO MEDICUS LIMITED"
+  },
+  {
+   "code": "PMV",
+   "name": "Premier Investments",
+   "official_name": "PREMIER INVESTMENTS LIMITED"
+  },
+  {
+   "code": "PNI",
+   "name": "Pinnacle Investment Management Group",
+   "official_name": "PINNACLE INVESTMENT MANAGEMENT GROUP LIMITED"
+  },
+  {
+   "code": "PPT",
+   "name": "Perpetual",
+   "official_name": "PERPETUAL LIMITED"
+  },
+  {
+   "code": "PRN",
+   "name": "Perenti",
+   "official_name": "PERENTI LIMITED"
+  },
+  {
+   "code": "PRU",
+   "name": "Perseus Mining",
+   "official_name": "PERSEUS MINING LIMITED"
+  },
+  {
+   "code": "PXA",
+   "name": "Pexa Group",
+   "official_name": "PEXA GROUP LIMITED"
+  },
+  {
+   "code": "QAN",
+   "name": "Qantas Airways",
+   "official_name": "QANTAS AIRWAYS LIMITED"
+  },
+  {
+   "code": "QBE",
+   "name": "QBE Insurance Group",
+   "official_name": "QBE INSURANCE GROUP LIMITED"
+  },
+  {
+   "code": "RDX",
+   "name": "Redox",
+   "official_name": "REDOX LIMITED"
+  },
+  {
+   "code": "REA",
+   "name": "REA Group",
+   "official_name": "REA GROUP LTD"
+  },
+  {
+   "code": "REG",
+   "name": "Regis Healthcare",
+   "official_name": "REGIS HEALTHCARE LIMITED"
+  },
+  {
+   "code": "REH",
+   "name": "Reece",
+   "official_name": "REECE LIMITED"
+  },
+  {
+   "code": "RGN",
+   "name": "Region Group",
+   "official_name": "REGION GROUP"
+  },
+  {
+   "code": "RHC",
+   "name": "Ramsay Health Care",
+   "official_name": "RAMSAY HEALTH CARE LIMITED"
+  },
+  {
+   "code": "RIO",
+   "name": "RIO Tinto",
+   "official_name": "RIO TINTO LIMITED"
+  },
+  {
+   "code": "RMD",
+   "name": "Resmed Inc",
+   "official_name": "RESMED INC"
+  },
+  {
+   "code": "RMS",
+   "name": "Ramelius Resources",
+   "official_name": "RAMELIUS RESOURCES LIMITED"
+  },
+  {
+   "code": "RRL",
+   "name": "Regis Resources",
+   "official_name": "REGIS RESOURCES LIMITED"
+  },
+  {
+   "code": "RSG",
+   "name": "Resolute Mining",
+   "official_name": "RESOLUTE MINING LIMITED"
+  },
+  {
+   "code": "RWC",
+   "name": "Reliance Worldwide Corporation",
+   "official_name": "RELIANCE WORLDWIDE CORPORATION LIMITED"
+  },
+  {
+   "code": "RYM",
+   "name": "Ryman Healthcare",
+   "official_name": "RYMAN HEALTHCARE LIMITED"
+  },
+  {
+   "code": "S32",
+   "name": "South32",
+   "official_name": "SOUTH32 LIMITED"
+  },
+  {
+   "code": "SCG",
+   "name": "Scentre Group",
+   "official_name": "SCENTRE GROUP"
+  },
+  {
+   "code": "SDF",
+   "name": "Steadfast Group",
+   "official_name": "STEADFAST GROUP LIMITED"
+  },
+  {
+   "code": "SEK",
+   "name": "Seek",
+   "official_name": "SEEK LIMITED"
+  },
+  {
+   "code": "SFR",
+   "name": "Sandfire Resources",
+   "official_name": "SANDFIRE RESOURCES LIMITED"
+  },
+  {
+   "code": "SGH",
+   "name": "SGH",
+   "official_name": "SGH LIMITED"
+  },
+  {
+   "code": "SGM",
+   "name": "Sims",
+   "official_name": "SIMS LIMITED"
+  },
+  {
+   "code": "SGP",
+   "name": "Stockland",
+   "official_name": "STOCKLAND"
+  },
+  {
+   "code": "SHL",
+   "name": "Sonic Healthcare",
+   "official_name": "SONIC HEALTHCARE LIMITED"
+  },
+  {
+   "code": "SIG",
+   "name": "Sigma Healthcare",
+   "official_name": "SIGMA HEALTHCARE LIMITED"
+  },
+  {
+   "code": "SMR",
+   "name": "Stanmore Resources",
+   "official_name": "STANMORE RESOURCES LIMITED"
+  },
+  {
+   "code": "SNZ",
+   "name": "Summerset Group Holdings",
+   "official_name": "SUMMERSET GROUP HOLDINGS LIMITED"
+  },
+  {
+   "code": "SOL",
+   "name": "Washington H. Soul Pattinson and Company",
+   "official_name": "WASHINGTON H. SOUL PATTINSON AND COMPANY LIMITED"
+  },
+  {
+   "code": "SPK",
+   "name": "Spark NEW Zealand",
+   "official_name": "SPARK NEW ZEALAND LIMITED"
+  },
+  {
+   "code": "STO",
+   "name": "Santos",
+   "official_name": "SANTOS LIMITED"
+  },
+  {
+   "code": "SUL",
+   "name": "Super Retail Group",
+   "official_name": "SUPER RETAIL GROUP LIMITED"
+  },
+  {
+   "code": "SUN",
+   "name": "Suncorp Group",
+   "official_name": "SUNCORP GROUP LIMITED"
+  },
+  {
+   "code": "TAH",
+   "name": "Tabcorp Holdings",
+   "official_name": "TABCORP HOLDINGS LIMITED"
+  },
+  {
+   "code": "TCL",
+   "name": "Transurban Group",
+   "official_name": "TRANSURBAN GROUP"
+  },
+  {
+   "code": "TLC",
+   "name": "THE Lottery Corporation",
+   "official_name": "THE LOTTERY CORPORATION LIMITED"
+  },
+  {
+   "code": "TLS",
+   "name": "Telstra Group",
+   "official_name": "TELSTRA GROUP LIMITED"
+  },
+  {
+   "code": "TLX",
+   "name": "Telix Pharmaceuticals",
+   "official_name": "TELIX PHARMACEUTICALS LIMITED"
+  },
+  {
+   "code": "TNE",
+   "name": "Technology ONE",
+   "official_name": "TECHNOLOGY ONE LIMITED"
+  },
+  {
+   "code": "TPG",
+   "name": "TPG Telecom",
+   "official_name": "TPG TELECOM LIMITED."
+  },
+  {
+   "code": "TUA",
+   "name": "Tuas",
+   "official_name": "TUAS LIMITED"
+  },
+  {
+   "code": "TWE",
+   "name": "Treasury Wine Estates",
+   "official_name": "TREASURY WINE ESTATES LIMITED"
+  },
+  {
+   "code": "VAU",
+   "name": "Vault Minerals",
+   "official_name": "VAULT MINERALS LIMITED"
+  },
+  {
+   "code": "VCX",
+   "name": "Vicinity Centres",
+   "official_name": "VICINITY CENTRES"
+  },
+  {
+   "code": "VEA",
+   "name": "Viva Energy Group",
+   "official_name": "VIVA ENERGY GROUP LIMITED"
+  },
+  {
+   "code": "VGN",
+   "name": "Virgin Australia Holdings",
+   "official_name": "VIRGIN AUSTRALIA HOLDINGS LIMITED."
+  },
+  {
+   "code": "VNT",
+   "name": "Ventia Services Group",
+   "official_name": "VENTIA SERVICES GROUP LIMITED"
+  },
+  {
+   "code": "WAF",
+   "name": "West African Resources",
+   "official_name": "WEST AFRICAN RESOURCES LIMITED"
+  },
+  {
+   "code": "WAM",
+   "name": "WAM Capital",
+   "official_name": "WAM CAPITAL LIMITED"
+  },
+  {
+   "code": "WBC",
+   "name": "Westpac Banking Corporation",
+   "official_name": "WESTPAC BANKING CORPORATION"
+  },
+  {
+   "code": "WDS",
+   "name": "Woodside Energy Group",
+   "official_name": "WOODSIDE ENERGY GROUP LTD"
+  },
+  {
+   "code": "WES",
+   "name": "Wesfarmers",
+   "official_name": "WESFARMERS LIMITED"
+  },
+  {
+   "code": "WGX",
+   "name": "Westgold Resources",
+   "official_name": "WESTGOLD RESOURCES LIMITED."
+  },
+  {
+   "code": "WHC",
+   "name": "Whitehaven Coal",
+   "official_name": "WHITEHAVEN COAL LIMITED"
+  },
+  {
+   "code": "WLE",
+   "name": "WAM Leaders",
+   "official_name": "WAM LEADERS LIMITED"
+  },
+  {
+   "code": "WOR",
+   "name": "Worley",
+   "official_name": "WORLEY LIMITED"
+  },
+  {
+   "code": "WOW",
+   "name": "Woolworths Group",
+   "official_name": "WOOLWORTHS GROUP LIMITED"
+  },
+  {
+   "code": "WTC",
+   "name": "Wisetech Global",
+   "official_name": "WISETECH GLOBAL LIMITED"
+  },
+  {
+   "code": "XRO",
+   "name": "Xero",
+   "official_name": "XERO LIMITED"
+  },
+  {
+   "code": "YAL",
+   "name": "Yancoal Australia",
+   "official_name": "YANCOAL AUSTRALIA LIMITED"
+  },
+  {
+   "code": "ZIM",
+   "name": "Zimplats Holdings",
+   "official_name": "ZIMPLATS HOLDINGS LIMITED"
+  },
+  {
+   "code": "ZIP",
+   "name": "ZIP Co",
+   "official_name": "ZIP CO LIMITED.."
+  }
+ ]
+}

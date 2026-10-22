@@ -80,8 +80,11 @@
     </section>
   {% endfor %}
 
-  <section class="topic-section mk-section" id="{{ prefix }}watchlist" data-section-id="{{ prefix }}watchlist" data-count="{{ site.data.watchlist.size }}">
+  <section class="topic-section mk-section" id="{{ prefix }}watchlist" data-section-id="{{ prefix }}watchlist" data-count="{{ site.data.watchlist.size }}"{% if site.watchlist_api %} data-wl-section data-wl-scope="{% if scope == 'close' %}close{% else %}morning{% endif %}"{% endif %}>
     <h2 class="topic-section__title mk-section__title">Your watchlist</h2>
+    {%- if site.watchlist_api %}
+    <p class="mk-wl-bar" data-wl-bar>Showing SignaLetter's default watchlist. <a href="{{ '/watchlist/' | relative_url }}?next={{ page.url | url_encode }}" data-wl-signin>Sign in to track your own shares</a></p>
+    {%- endif %}
     <ul class="mk-watch">
       {% for w in site.data.watchlist %}
         {% assign wid = "wl_" | append: w.ticker | downcase %}

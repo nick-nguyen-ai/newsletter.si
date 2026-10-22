@@ -14,6 +14,10 @@ highlighter: rouge
 # Per-section URL from filename slug, e.g. .../markets/ or .../ai/
 permalink: /:year/:month/:day/:slug/
 
+# "My shares" (per-reader watchlist). Leave unset until the Cloudflare Worker is deployed:
+# while unset, no sign-in link, script or styles are added and pages render as before.
+# watchlist_api: https://signaletter-api.<your-subdomain>.workers.dev
+
 # GitHub Pages–supported plugins only
 plugins:
   - jekyll-feed
@@ -32,6 +36,8 @@ exclude:
   - vendor
   - .gitignore
   - scripts
+  - worker
+  - node_modules
 
 defaults:
   - scope:

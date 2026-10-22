@@ -1,0 +1,21 @@
+# SignaLetter "My shares" + email signup API (Cloudflare Worker).
+# Setup: see worker/README.md. Nothing here is secret.
+name = "signaletter-api"
+main = "src/index.js"
+compatibility_date = "2026-05-01"
+workers_dev = true
+
+# Public config. Secrets (RESEND_API_KEY, AUTH_SECRET) are set with `wrangler secret put`.
+[vars]
+SITE_ORIGIN = "https://signaletter.si"
+ALLOWED_ORIGINS = "https://signaletter.si,https://www.signaletter.si"
+FROM_EMAIL = "SignaLetter <briefing@signaletter.si>"
+MAX_TICKERS = "10"
+# Local only: when RESEND_API_KEY is absent the magic link is logged; set to "1" in .dev.vars
+# to also return it in the API response for automated tests. Never set in production.
+DEV_RETURN_LINK = "0"
+
+# Create with: npx wrangler kv namespace create WATCHLIST  (paste the id below)
+[[kv_namespaces]]
+binding = "WATCHLIST"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
