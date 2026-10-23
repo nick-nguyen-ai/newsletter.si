@@ -215,7 +215,7 @@
               b.addEventListener("click", function () { picked.push(t.code); search.value = ""; drawChips(); drawResults(); search.focus(); });
               li.appendChild(b); results.appendChild(li);
             });
-          if (!results.children.length) results.appendChild(el("li", "wl-empty", "No ASX 200 match."));
+          if (!results.children.length) results.appendChild(el("li", "wl-empty", "No ASX 300 match."));
         }
         search.addEventListener("input", drawResults);
         root.querySelector("[data-wl-save]").addEventListener("click", function () {

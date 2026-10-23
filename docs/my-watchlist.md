@@ -9,8 +9,8 @@ Only the watchlist section of a Markets page changes per reader. Everything else
   Days with no file keep the default list and say so.
 
 ## Daily file: `assets/issues/YYYY-MM-DD/watchlist.json`
-Built by `scripts/build_watchlist_json.py --date YYYY-MM-DD --tickers-file tickers.txt` after the Markets
-post (and again after the close wrap). Schema `signaletter.watchlist/v1`:
+Built by `scripts/build_watchlist_json.py --date YYYY-MM-DD` after the Markets post (and again after the
+close wrap). Schema `signaletter.watchlist/v1`:
 `editions.{morning,close}.items.<TICKER> = {ticker, name, price{status, display_value, display_change,
 session_date, provider, provider_url, …}, note, next_catalyst?, sources[], reviewed}`.
 
@@ -20,14 +20,27 @@ vs the prior close (delayed, unofficial). Notes reuse the post's reviewed watchl
 announcements feed (`reviewed: false`, labelled "auto: price + ASX feed" on the page). The feed only returns
 the latest 5 items, so a busy ticker says "include:" or "not fully in our data" rather than "no announcement".
 
-## Changes the daily routines would need (not made yet)
-1. **Ticker set:** before building, fetch the union of all readers' tickers. Needs a small authenticated
-   Worker endpoint (e.g. `GET /admin/tickers` with an `ADMIN_TOKEN` secret) or `wrangler kv key list`.
-   Add the default four so the file always covers them.
-2. **Morning publish (~08:25):** after `build_markets_post.py`, run
-   `build_watchlist_json.py --date <today> --tickers-file <set>` and commit the JSON in the same `cursor/issue-*` PR.
-3. **Close wrap (~16:15):** rerun the same command after `build_markets_post.py --close`, so the file gains
-   the `close` edition, and commit it in the `cursor/issue-<date>-close` PR.
-4. **QA:** extend the review step to check the file exists, every ticker in the set has a price or an explicit
-   "unavailable", and auto notes contain no claims beyond price + announcement headlines.
-5. **Universe refresh:** rerun `scripts/build_asx_list.py` after each quarterly S&P/ASX 200 rebalance.
+## Daily step (Morning and Close routines)
+Ticker set = the 30 defaults in `assets/data/watchlist-default-tickers.txt` + every reader's picks, fetched
+from the Worker's `GET /admin/tickers` (codes only, never emails; bearer `ADMIN_TOKEN`, read from
+`$SIGNALETTER_ADMIN_TOKEN` or `~/.config/signaletter/admin_token`, chmod 600).
+
+1. **Morning (~08:25):** after `build_markets_post.py` writes the post, run from the repo root
+   `python3 scripts/build_watchlist_json.py --date <YYYY-MM-DD>` and commit
+   `assets/issues/<date>/watchlist.json` in the same `cursor/issue-*` PR.
+2. **Close (~16:15):** after `build_markets_post.py --close`, rerun the same command (the file gains the
+   `close` edition) and commit it in the `cursor/issue-<date>-close` PR.
+3. Check the last output line: `reader picks N; added beyond defaults: [...]`. `reader picks unavailable`
+   means the token or Worker failed; the file then covers only the defaults, so fix and rerun.
+
+A reader who picks a share mid-day sees it from the next Morning or Close run. Picks outside the allowed list
+are skipped with a warning.
+
+## Ticker universe
+`assets/data/asx-tickers.json` = S&P/ASX 300 constituents from Vanguard VAS holdings (VAS fully replicates the
+index; holdings updated monthly), filtered to ASX's listed-companies file, plus the default watchlist. Rerun
+`python3 scripts/build_asx_list.py` monthly or after each S&P rebalance (March/September), then redeploy the
+Worker (`cd worker && npx wrangler deploy`), since it bundles the list for validation.
+
+## Still to do
+- QA step: check the file exists and every ticker has a price or an explicit "unavailable".

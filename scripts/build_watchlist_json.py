@@ -14,7 +14,15 @@ post has (morning; close when the post has a close block). Facts only:
   window, or says there were none. If a source fails, the entry says the data
   is not available rather than guessing.
 
-Usage:
+Ticker set = the default list (assets/data/watchlist-default-tickers.txt, or
+--tickers/--tickers-file when given) plus the union of every reader's picks from
+the Worker's GET /admin/tickers (codes only), authenticated with the token in
+$SIGNALETTER_ADMIN_TOKEN or ~/.config/signaletter/admin_token. Use --no-readers
+to skip. If the Worker can't be reached the build continues with a warning.
+
+Usage (daily):
+  python3 scripts/build_watchlist_json.py --date 2026-10-23
+Other:
   python3 scripts/build_watchlist_json.py --date 2026-10-22 --tickers ZIP,CSL,BHP,CBA
   python3 scripts/build_watchlist_json.py --date 2026-10-22 --tickers-file subscribers_tickers.txt
 """
@@ -36,6 +44,9 @@ UA = {"User-Agent": "Mozilla/5.0 (SignaLetter watchlist builder)"}
 YAHOO = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}.AX?range=1mo&interval=1d"
 ANN = "https://asx.api.markitdigital.com/asx-research/1.0/companies/{t}/announcements"
 ASX_PAGE = "https://www.asx.com.au/markets/trade-our-cash-market/announcements.{t}"
+DEFAULT_TICKERS = ROOT / "assets" / "data" / "watchlist-default-tickers.txt"
+API = "https://signaletter-watchlist.signaletter.workers.dev"
+TOKEN_FILE = Path.home() / ".config" / "signaletter" / "admin_token"
 YAHOO_LICENCE = "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only."
 
 
@@ -137,16 +148,43 @@ def note_from_announcements(t: str, anns: list[dict] | None, start: dt.datetime,
                                        "claim_type": "official_statement"}]}
 
 
+def reader_tickers(api: str) -> list[str] | None:
+    """Union of all readers' picked codes from the Worker, or None if unavailable."""
+    import os
+    tok = os.environ.get("SIGNALETTER_ADMIN_TOKEN") or (TOKEN_FILE.read_text().strip() if TOKEN_FILE.exists() else "")
+    if not tok:
+        print(f"warning: no admin token ({TOKEN_FILE}); reader picks not included", file=sys.stderr)
+        return None
+    req = urllib.request.Request(api.rstrip("/") + "/admin/tickers", headers={**UA, "Authorization": f"Bearer {tok}"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            data = json.loads(r.read())
+        return [str(t).upper() for t in data.get("tickers", [])]
+    except Exception as e:  # noqa: BLE001
+        print(f"warning: reader tickers unavailable ({e}); reader picks not included", file=sys.stderr)
+        return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True)
     ap.add_argument("--tickers", default="")
     ap.add_argument("--tickers-file")
+    ap.add_argument("--no-readers", action="store_true", help="don't add readers' picks from the Worker")
+    ap.add_argument("--api", default=API)
     args = ap.parse_args()
     tickers = [x.strip().upper() for x in args.tickers.split(",") if x.strip()]
     if args.tickers_file:
         tickers += [x.strip().upper() for x in Path(args.tickers_file).read_text().split() if x.strip()]
+    if not tickers:
+        tickers = DEFAULT_TICKERS.read_text().split()
+    readers = None if args.no_readers else reader_tickers(args.api)
     allowed = {r["code"]: r["name"] for r in json.loads((ROOT / "assets/data/asx-tickers.json").read_text())["tickers"]}
+    if readers:
+        skipped = [t for t in readers if t not in allowed]
+        if skipped:
+            print(f"warning: reader picks not in allowed list, skipped: {skipped}", file=sys.stderr)
+        tickers += [t for t in readers if t in allowed]
     bad = [t for t in tickers if t not in allowed]
     if bad:
         sys.exit(f"not in allowed list: {bad}")
@@ -213,7 +251,9 @@ def main() -> None:
     dest = ROOT / "assets" / "issues" / args.date / "watchlist.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n")
-    print(f"wrote {dest}: {len(tickers)} tickers x {list(out['editions'])}")
+    extra = sorted(set(readers or []) - set(DEFAULT_TICKERS.read_text().split()))
+    print(f"wrote {dest}: {len(tickers)} tickers x {list(out['editions'])}; reader picks "
+          f"{'unavailable' if readers is None else len(readers)}; added beyond defaults: {extra}")
 
 
 if __name__ == "__main__":

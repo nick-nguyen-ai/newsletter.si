@@ -200,7 +200,10 @@ async function putTickers(env, req) {
   const key = `user:${s.e}`;
   const u = JSON.parse((await env.WATCHLIST.get(key)) || "{}");
   const t = new Date().toISOString();
-  await env.WATCHLIST.put(key, JSON.stringify({ created: u.created || t, ...u, tickers: r.tickers, updated: t }));
+  // Tickers are mirrored into key metadata so GET /admin/tickers can build the union from one KV list call.
+  await env.WATCHLIST.put(key, JSON.stringify({ created: u.created || t, ...u, tickers: r.tickers, updated: t }), {
+    metadata: { t: r.tickers },
+  });
   return json(env, req, { ok: true, tickers: r.tickers });
 }
 
@@ -210,6 +213,35 @@ async function deleteMe(env, req) {
   await env.WATCHLIST.delete(`user:${s.e}`);
   await env.WATCHLIST.delete(`sub:${s.e}`);
   return json(env, req, { ok: true });
+}
+
+// Union of every reader's tickers, for the daily watchlist.json build. Codes only, never emails.
+async function timingSafeEqual(a, b) {
+  const k = await crypto.subtle.importKey("raw", crypto.getRandomValues(new Uint8Array(32)), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const [x, y] = await Promise.all([crypto.subtle.sign("HMAC", k, enc.encode(a)), crypto.subtle.sign("HMAC", k, enc.encode(b))]);
+  const ua = new Uint8Array(x), ub = new Uint8Array(y);
+  let d = 0;
+  for (let i = 0; i < ua.length; i++) d |= ua[i] ^ ub[i];
+  return d === 0;
+}
+async function adminTickers(env, req) {
+  const m = (req.headers.get("Authorization") || "").match(/^Bearer (.+)$/);
+  if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 32 || !m || !(await timingSafeEqual(m[1], env.ADMIN_TOKEN)))
+    return json(env, req, { ok: false, error: "unauthorized" }, 401);
+  const set = new Set();
+  let cursor, readers = 0;
+  do {
+    const page = await env.WATCHLIST.list({ prefix: "user:", cursor });
+    for (const k of page.keys) {
+      let t = k.metadata && Array.isArray(k.metadata.t) ? k.metadata.t : null;
+      if (!t) t = (JSON.parse((await env.WATCHLIST.get(k.name)) || "{}").tickers) || []; // pre-metadata records
+      if (t.length) readers++;
+      for (const x of t) if (ALLOWED.has(x)) set.add(x);
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  const tickers = [...set].sort();
+  return json(env, req, { ok: true, tickers, count: tickers.length, readers });
 }
 
 // Email-only subscription (stub): double opt-in, stored in KV. Sending the daily notice
@@ -292,6 +324,8 @@ export default {
           return await putTickers(env, req);
         case "DELETE /me":
           return await deleteMe(env, req);
+        case "GET /admin/tickers":
+          return await adminTickers(env, req);
         case "POST /subscribe":
           return await subscribe(env, req);
         case "GET /subscribe/confirm":

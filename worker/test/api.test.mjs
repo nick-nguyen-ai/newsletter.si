@@ -44,6 +44,17 @@ test("tickers: validate, cap, dedupe, persist", async () => {
   assert.deepEqual(ok.body.tickers, ["BHP", "CBA"]);
   assert.deepEqual((await call("GET", "/me", null, session)).body.tickers, ["BHP", "CBA"]);
 });
+const ADMIN = process.env.WL_ADMIN_TOKEN || "test-admin-token-0123456789abcdef0123456789";
+test("admin tickers: auth required, codes only, includes picks", async () => {
+  assert.equal((await call("GET", "/admin/tickers")).status, 401);
+  assert.equal((await call("GET", "/admin/tickers", null, "wrong-token-wrong-token-wrong-token-xx")).status, 401);
+  assert.equal((await call("GET", "/admin/tickers", null, session)).status, 401, "reader session is not admin");
+  const r = await call("GET", "/admin/tickers", null, ADMIN);
+  assert.equal(r.status, 200);
+  assert.ok(r.body.tickers.includes("BHP") && r.body.tickers.includes("CBA"));
+  assert.equal(r.body.count, r.body.tickers.length);
+  assert.ok(!JSON.stringify(r.body).includes("@"), "no emails");
+});
 test("subscribe stub: double opt-in link", async () => {
   const r = await call("POST", "/subscribe", { email, lists: ["markets", "ai"] });
   assert.equal(r.status, 200);
@@ -54,4 +65,6 @@ test("subscribe stub: double opt-in link", async () => {
 test("delete my data", async () => {
   assert.equal((await call("DELETE", "/me", null, session)).status, 200);
   assert.deepEqual((await call("GET", "/me", null, session)).body.tickers, []);
+  const r = await call("GET", "/admin/tickers", null, ADMIN);
+  assert.ok(!r.body.tickers.includes("CBA") || r.body.readers >= 1);
 });
