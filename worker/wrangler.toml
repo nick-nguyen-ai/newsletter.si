@@ -1,6 +1,6 @@
 # SignaLetter "My shares" + email signup API (Cloudflare Worker).
 # Setup: see worker/README.md. Nothing here is secret.
-name = "signaletter-api"
+name = "signaletter-watchlist"
 main = "src/index.js"
 compatibility_date = "2026-05-01"
 workers_dev = true
@@ -18,4 +18,4 @@ DEV_RETURN_LINK = "0"
 # Create with: npx wrangler kv namespace create WATCHLIST  (paste the id below)
 [[kv_namespaces]]
 binding = "WATCHLIST"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "876368f5ce534736bcbc18e05721842f"
