@@ -877,6 +877,180 @@
      "reviewed": false,
      "quick": true,
      "added_at_utc": "2026-10-23T12:05Z"
+    },
+    "AIA": {
+     "ticker": "AIA",
+     "name": "Auckland International Airport",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 6.74,
+      "display_value": "6.74",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 6.64,
+      "change_pct": 1.51,
+      "display_change": "+1.5%",
+      "provider": "Yahoo Finance (AIA.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/AIA.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 1.5% to A$6.74 on Thursday. ASX announcements: “AIA - 2026 Annual Meeting Addresses”, 22 Oct 8:03am AEDT; “AIA - Shareholder Poll 2026 Annual Meeting”, 22 Oct 11:33am AEDT.",
+     "sources": [
+      {
+       "label": "ASX announcements (AIA)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.aia",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "AMC": {
+     "ticker": "AMC",
+     "name": "Amcor PLC",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 64.1,
+      "display_value": "64.10",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 63.97,
+      "change_pct": 0.2,
+      "display_change": "+0.2%",
+      "provider": "Yahoo Finance (AMC.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/AMC.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 0.2% to A$64.10 on Thursday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (AMC)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.amc",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "IPH": {
+     "ticker": "IPH",
+     "name": "IPH",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 3.64,
+      "display_value": "3.64",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 3.5,
+      "change_pct": 4.0,
+      "display_change": "+4.0%",
+      "provider": "Yahoo Finance (IPH.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/IPH.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 4.0% to A$3.64 on Thursday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (IPH)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.iph",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "SPK": {
+     "ticker": "SPK",
+     "name": "Spark NEW Zealand",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 1.535,
+      "display_value": "1.53",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 1.53,
+      "change_pct": 0.33,
+      "display_change": "+0.3%",
+      "provider": "Yahoo Finance (SPK.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/SPK.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 0.3% to A$1.53 on Thursday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (SPK)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.spk",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "SUN": {
+     "ticker": "SUN",
+     "name": "Suncorp Group",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 20.42,
+      "display_value": "20.42",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 19.93,
+      "change_pct": 2.46,
+      "display_change": "+2.5%",
+      "provider": "Yahoo Finance (SUN.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/SUN.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 2.5% to A$20.42 on Thursday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (SUN)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.sun",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "WEB": {
+     "ticker": "WEB",
+     "name": "Webbeds Group",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 3.46,
+      "display_value": "3.46",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 3.48,
+      "change_pct": -0.57,
+      "display_change": "−0.6%",
+      "provider": "Yahoo Finance (WEB.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/WEB.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Fell 0.6% to A$3.46 on Thursday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (WEB)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.web",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
     }
    }
   },
@@ -1763,6 +1937,180 @@
      "reviewed": false,
      "quick": true,
      "added_at_utc": "2026-10-23T12:05Z"
+    },
+    "AIA": {
+     "ticker": "AIA",
+     "name": "Auckland International Airport",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 6.74,
+      "display_value": "6.74",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 6.74,
+      "change_pct": 0.0,
+      "display_change": "±0.0%",
+      "provider": "Yahoo Finance (AIA.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/AIA.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Little changed at A$6.74 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (AIA)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.aia",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "AMC": {
+     "ticker": "AMC",
+     "name": "Amcor PLC",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 65.99,
+      "display_value": "65.99",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 64.1,
+      "change_pct": 2.95,
+      "display_change": "+2.9%",
+      "provider": "Yahoo Finance (AMC.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/AMC.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 2.9% to A$65.99 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (AMC)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.amc",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "IPH": {
+     "ticker": "IPH",
+     "name": "IPH",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 3.67,
+      "display_value": "3.67",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 3.64,
+      "change_pct": 0.82,
+      "display_change": "+0.8%",
+      "provider": "Yahoo Finance (IPH.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/IPH.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 0.8% to A$3.67 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (IPH)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.iph",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "SPK": {
+     "ticker": "SPK",
+     "name": "Spark NEW Zealand",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 1.545,
+      "display_value": "1.54",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 1.535,
+      "change_pct": 0.65,
+      "display_change": "+0.7%",
+      "provider": "Yahoo Finance (SPK.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/SPK.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 0.7% to A$1.54 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (SPK)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.spk",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "SUN": {
+     "ticker": "SUN",
+     "name": "Suncorp Group",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 20.39,
+      "display_value": "20.39",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 20.42,
+      "change_pct": -0.15,
+      "display_change": "−0.1%",
+      "provider": "Yahoo Finance (SUN.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/SUN.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Fell 0.1% to A$20.39 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (SUN)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.sun",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
+    },
+    "WEB": {
+     "ticker": "WEB",
+     "name": "Webbeds Group",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 3.47,
+      "display_value": "3.47",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 3.46,
+      "change_pct": 0.29,
+      "display_change": "+0.3%",
+      "provider": "Yahoo Finance (WEB.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/WEB.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Rose 0.3% to A$3.47 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (WEB)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.web",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T20:59Z"
     }
    }
   }
