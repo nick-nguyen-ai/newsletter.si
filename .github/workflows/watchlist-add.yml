@@ -1,0 +1,66 @@
+# Instant "My shares" update: the Worker dispatches this when a reader saves a ticker
+# missing from the day's watchlist.json. Additive only: existing entries are never changed.
+name: Watchlist quick add
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Issue date YYYY-MM-DD"
+        required: true
+      tickers:
+        description: "Comma-separated ASX codes"
+        required: true
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: watchlist-add
+  cancel-in-progress: false
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate inputs
+        env:
+          D: ${{ inputs.date }}
+          T: ${{ inputs.tickers }}
+        run: |
+          [[ "$D" =~ ^20[0-9]{2}-[0-9]{2}-[0-9]{2}$ ]] || { echo "bad date"; exit 1; }
+          [[ "$T" =~ ^[A-Z0-9]{3}(,[A-Z0-9]{3}){0,9}$ ]] || { echo "bad tickers"; exit 1; }
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install --quiet pyyaml
+      - name: Add tickers and push (rebase-retry)
+        env:
+          D: ${{ inputs.date }}
+          T: ${{ inputs.tickers }}
+        run: |
+          set -euo pipefail
+          F="assets/issues/$D/watchlist.json"
+          [ -f "$F" ] || { echo "no $F; nothing to add to"; exit 0; }
+          git config user.name "signaletter-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python3 scripts/build_watchlist_json.py --date "$D" --add "$T"
+            if git diff --quiet -- "$F"; then echo "nothing new"; echo "PUSHED=0" >> "$GITHUB_ENV"; exit 0; fi
+            git add "$F"
+            git commit -qm "watchlist: quick add $T for $D"
+            if git push -q origin HEAD:main; then echo "PUSHED=1" >> "$GITHUB_ENV"; exit 0; fi
+            echo "push raced, retry $i"; sleep $((i * 3))
+          done
+          exit 1
+      - name: Request Pages build
+        if: env.PUSHED == '1'
+        env:
+          GH_TOKEN: ${{ secrets.PAGES_BUILD_TOKEN || github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "::warning::Pages build request failed"

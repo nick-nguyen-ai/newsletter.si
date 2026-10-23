@@ -25,6 +25,15 @@
     localStorage.setItem(KEY, JSON.stringify({ token: token, email: email, exp: Math.floor(Date.now() / 1000) + expiresIn }));
   }
   function clearSession() { localStorage.removeItem(KEY); }
+  var PKEY = "sl_wl_pending";
+  function savePending(date, list) {
+    if (!date || !list || !list.length) return;
+    localStorage.setItem(PKEY, JSON.stringify({ date: date, tickers: list, at: Date.now() }));
+  }
+  function getPending() { // tickers a quick-add run is building, for 5 minutes after saving
+    try { var p = JSON.parse(localStorage.getItem(PKEY) || "null"); return p && Date.now() - p.at < 5 * 60000 ? p : null; }
+    catch (e) { return null; }
+  }
 
   function api(method, path, body, token) {
     var opts = { method: method, headers: {} };
@@ -49,7 +58,7 @@
   }
 
   // ---------- Markets page: watchlist section ----------
-  function renderRow(code, name, item) {
+  function renderRow(code, name, item, updating) {
     var li = el("li", "mk-watch__row");
     var head = el("div", "mk-watch__head");
     head.appendChild(el("span", "mk-watch__ticker", code));
@@ -61,6 +70,8 @@
       s.appendChild(document.createTextNode(" "));
       s.appendChild(el("span", "mk-chg", px.display_change));
       head.appendChild(s);
+    } else if (!item && updating) {
+      head.appendChild(el("span", "mk-watch__px mk-unavail", "Updating…"));
     } else {
       head.appendChild(el("span", "mk-watch__px mk-unavail", "Price unavailable"));
     }
@@ -70,7 +81,7 @@
       m.appendChild(el("span", "mk-flag", "delayed, unofficial"));
       li.appendChild(m);
     }
-    var note = el("p", "mk-watch__note", item ? item.note : "Not in our data for this edition.");
+    var note = el("p", "mk-watch__note", item ? item.note : updating ? "Updating your shares, check back in a minute." : "Not in our data for this edition.");
     if (item && item.reviewed === false) note.appendChild(el("span", "mk-wl-tag", "auto: price + ASX feed"));
     li.appendChild(note);
     if (item && item.next_catalyst) {
@@ -107,6 +118,28 @@
     return b;
   }
 
+  // Re-check the day's file every 20 s for up to 3 minutes and swap rows in as they arrive.
+  function pollUpdates(sec, day, scope, waiting, names) {
+    var tries = 0;
+    sec._wlPoll = setInterval(function () {
+      tries++;
+      getJson("/assets/issues/" + day + "/watchlist.json?t=" + Date.now()).then(function (d) {
+        var items = (d && d.editions && d.editions[scope] && d.editions[scope].items) || {};
+        sec.querySelectorAll(".mk-watch__row").forEach(function (row) {
+          var code = row.querySelector(".mk-watch__ticker").textContent, i = waiting.indexOf(code);
+          if (i >= 0 && items[code]) { row.replaceWith(renderRow(code, names[code], items[code])); waiting.splice(i, 1); }
+        });
+        if (!waiting.length || tries >= 9) {
+          clearInterval(sec._wlPoll);
+          sec.querySelectorAll(".mk-watch__row").forEach(function (row) {
+            var code = row.querySelector(".mk-watch__ticker").textContent;
+            if (waiting.indexOf(code) >= 0) row.replaceWith(renderRow(code, names[code], null, false));
+          });
+        }
+      }).catch(function () {});
+    }, 20000);
+  }
+
   function initMarkets(sections) {
     var s = getSession();
     if (!s) return;
@@ -140,7 +173,13 @@
         }
         var ul = sec.querySelector(".mk-watch");
         ul.textContent = "";
-        me.tickers.forEach(function (code) { ul.appendChild(renderRow(code, names[code], ed.items[code])); });
+        var pend = getPending(), waiting = [];
+        me.tickers.forEach(function (code) {
+          var upd = !ed.items[code] && pend && pend.date === day && pend.tickers.indexOf(code) >= 0;
+          if (upd) waiting.push(code);
+          ul.appendChild(renderRow(code, names[code], ed.items[code], upd));
+        });
+        if (waiting.length && !sec._wlPoll) pollUpdates(sec, day, scope, waiting, names);
         sec.setAttribute("data-count", String(me.tickers.length));
         sec.setAttribute("data-wl-personal", "");
         setBar(sec, ["Your shares (" + who + "). ", link("Edit", editHref), " · ", signOutBtn()]);
@@ -223,6 +262,10 @@
           api("PUT", "/me/tickers", { tickers: picked }, sess.token).then(function (r) {
             if (!r.ok) { saveMsg.className = "wl-msg wl-msg--err"; saveMsg.textContent = r.error || "Couldn't save."; return; }
             saveMsg.textContent = "Saved. Your Markets pages now show " + (r.tickers.join(", ") || "the default list") + ".";
+            if (r.pending && r.pending.length) {
+              savePending(r.issue_date, r.pending);
+              saveMsg.textContent += " Updating " + r.pending.join(", ") + " for the " + r.issue_date + " issue, check back in a minute.";
+            }
           });
         });
         root.querySelector("[data-wl-signout]").addEventListener("click", function () { clearSession(); show("signin"); });

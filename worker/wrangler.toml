@@ -11,6 +11,8 @@ SITE_ORIGIN = "https://signaletter.si"
 ALLOWED_ORIGINS = "https://signaletter.si,https://www.signaletter.si"
 FROM_EMAIL = "SignaLetter <briefing@signaletter.si>"
 MAX_TICKERS = "10"
+# Repo whose watchlist-add.yml workflow the Worker dispatches (secret GITHUB_DISPATCH_TOKEN: fine-grained, Actions write).
+GITHUB_REPO = "nick-nguyen-ai/signaletter.si"
 # Local only: when RESEND_API_KEY is absent the magic link is logged; set to "1" in .dev.vars
 # to also return it in the API response for automated tests. Never set in production.
 DEV_RETURN_LINK = "0"

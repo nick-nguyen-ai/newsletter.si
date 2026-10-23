@@ -55,6 +55,19 @@ test("admin tickers: auth required, codes only, includes picks", async () => {
   assert.equal(r.body.count, r.body.tickers.length);
   assert.ok(!JSON.stringify(r.body).includes("@"), "no emails");
 });
+test("instant add: picks missing from latest issue come back pending, deduped", async () => {
+  // needs DEV_DISPATCH_MOCK=1 in .dev.vars; reads the live site's latest watchlist.json
+  const r = await call("PUT", "/me/tickers", { tickers: ["BHP", "DRO"] }, session);
+  assert.equal(r.status, 200);
+  assert.ok(Array.isArray(r.body.pending));
+  if (r.body.issue_date) {
+    assert.ok(!r.body.pending.includes("BHP"), "BHP is a default, never pending");
+    assert.ok(r.body.pending.includes("DRO"));
+    const again = await call("PUT", "/me/tickers", { tickers: ["BHP", "DRO"] }, session);
+    assert.deepEqual(again.body.pending, r.body.pending, "repeat save stays pending (deduped)");
+  }
+  await call("PUT", "/me/tickers", { tickers: ["BHP", "CBA"] }, session);
+});
 test("subscribe stub: double opt-in link", async () => {
   const r = await call("POST", "/subscribe", { email, lists: ["markets", "ai"] });
   assert.equal(r.status, 200);
