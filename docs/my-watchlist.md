@@ -44,3 +44,17 @@ Worker (`cd worker && npx wrangler deploy`), since it bundles the list for valid
 
 ## Still to do
 - QA step: check the file exists and every ticker has a price or an explicit "unavailable".
+
+## Instant add (picks missing from today's file)
+On `PUT /me/tickers` the Worker loads today's (Sydney) `assets/issues/<date>/watchlist.json` from the live
+site (else the latest issue in the last 7 days). Picks missing from any edition trigger
+`.github/workflows/watchlist-add.yml` (workflow_dispatch, inputs `date`, `tickers`), deduped per date+ticker
+for 10 minutes (KV `qa:<date>:<T>`). The response carries `pending` and `issue_date`; the page shows
+"Updating your shares…" and re-checks the file every 20 s for 3 minutes.
+
+The workflow runs `python3 scripts/build_watchlist_json.py --date <date> --add <T1,T2>`: additive only (existing
+entries are never changed or removed), same price + ASX headline sources, new entries marked `quick: true`.
+It commits to `main` with rebase-retry (concurrency group `watchlist-add`) and requests a Pages build.
+
+Needs Worker secret `GITHUB_DISPATCH_TOKEN`: a fine-grained PAT for this repo only, permission
+Actions: Read and write. Without it, saves work as before and nothing is dispatched (`pending: []`).

@@ -204,7 +204,65 @@ async function putTickers(env, req) {
   await env.WATCHLIST.put(key, JSON.stringify({ created: u.created || t, ...u, tickers: r.tickers, updated: t }), {
     metadata: { t: r.tickers },
   });
-  return json(env, req, { ok: true, tickers: r.tickers });
+  const q = await queueMissing(env, r.tickers);
+  return json(env, req, { ok: true, tickers: r.tickers, pending: q.pending, issue_date: q.date });
+}
+
+// ---------- instant add: picks missing from the day's watchlist.json ----------
+const sydneyDate = (d = new Date()) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+
+async function latestIssue(env) {
+  // today's Sydney date, else the most recent issue in the last 7 days
+  for (let i = 0; i < 7; i++) {
+    const d = sydneyDate(new Date(Date.now() - i * 86400000));
+    const r = await fetch(`${env.SITE_ORIGIN}/assets/issues/${d}/watchlist.json`, { cf: { cacheTtl: 0 }, headers: { "Cache-Control": "no-cache" } });
+    if (r.ok) return { date: d, data: await r.json() };
+  }
+  return null;
+}
+
+async function dispatchAdd(env, date, tickers) {
+  if (env.DEV_DISPATCH_MOCK === "1") return true;
+  if (!env.GITHUB_DISPATCH_TOKEN) return false;
+  const r = await fetch(`https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/watchlist-add.yml/dispatches`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.GITHUB_DISPATCH_TOKEN}`,
+      Accept: "application/vnd.github+json",
+      "User-Agent": "signaletter-watchlist",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    body: JSON.stringify({ ref: "main", inputs: { date, tickers: tickers.join(",") } }),
+  });
+  if (!r.ok) console.log(`dispatch error ${r.status}: ${await r.text()}`);
+  return r.ok;
+}
+
+// Returns {date, pending}: tickers missing from the latest issue file that a quick-add run is
+// building (dispatched now, or within the last 10 minutes). Never throws: saving picks must not fail.
+async function queueMissing(env, tickers) {
+  try {
+    if (!tickers.length || (!env.GITHUB_DISPATCH_TOKEN && env.DEV_DISPATCH_MOCK !== "1")) return { date: null, pending: [] };
+    const issue = await latestIssue(env);
+    if (!issue) return { date: null, pending: [] };
+    const eds = Object.values((issue.data && issue.data.editions) || {});
+    if (!eds.length) return { date: issue.date, pending: [] };
+    const missing = tickers.filter((t) => eds.some((e) => !(e.items && e.items[t])));
+    const fresh = [], pending = [];
+    for (const t of missing) {
+      if (await env.WATCHLIST.get(`qa:${issue.date}:${t}`)) pending.push(t);
+      else fresh.push(t);
+    }
+    if (fresh.length && (await dispatchAdd(env, issue.date, fresh))) {
+      for (const t of fresh) await env.WATCHLIST.put(`qa:${issue.date}:${t}`, "1", { expirationTtl: 600 });
+      pending.push(...fresh);
+    }
+    return { date: issue.date, pending: pending.sort() };
+  } catch (e) {
+    console.log(`queueMissing: ${e && e.stack}`);
+    return { date: null, pending: [] };
+  }
 }
 
 async function deleteMe(env, req) {

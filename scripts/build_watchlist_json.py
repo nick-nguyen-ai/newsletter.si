@@ -172,10 +172,16 @@ def main() -> None:
     ap.add_argument("--tickers-file")
     ap.add_argument("--no-readers", action="store_true", help="don't add readers' picks from the Worker")
     ap.add_argument("--api", default=API)
+    ap.add_argument("--add", default="", help="additive mode: comma list of tickers to add to the existing "
+                    "file; existing entries are never changed or removed; new entries get quick: true")
     args = ap.parse_args()
     tickers = [x.strip().upper() for x in args.tickers.split(",") if x.strip()]
     if args.tickers_file:
         tickers += [x.strip().upper() for x in Path(args.tickers_file).read_text().split() if x.strip()]
+    add_mode = bool(args.add.strip())
+    if add_mode:
+        tickers = [x.strip().upper() for x in args.add.split(",") if x.strip()]
+        args.no_readers = True
     if not tickers:
         tickers = DEFAULT_TICKERS.read_text().split()
     readers = None if args.no_readers else reader_tickers(args.api)
@@ -250,6 +256,18 @@ def main() -> None:
         }
     dest = ROOT / "assets" / "issues" / args.date / "watchlist.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
+    if add_mode and dest.exists():
+        cur = json.loads(dest.read_text())
+        added = []
+        for scope, ed in out["editions"].items():
+            tgt = cur.setdefault("editions", {}).setdefault(scope, {k: v for k, v in ed.items() if k != "items"} | {"items": {}})
+            for t, item in ed["items"].items():
+                if t not in tgt["items"]:
+                    tgt["items"][t] = {**item, "quick": True, "added_at_utc": out["retrieved_at_utc"]}
+                    added.append(f"{scope}:{t}")
+        dest.write_text(json.dumps(cur, indent=1, ensure_ascii=False) + "\n")
+        print(f"added to {dest}: {added or 'nothing (already present)'}")
+        return
     dest.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n")
     extra = sorted(set(readers or []) - set(DEFAULT_TICKERS.read_text().split()))
     print(f"wrote {dest}: {len(tickers)} tickers x {list(out['editions'])}; reader picks "
