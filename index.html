@@ -38,6 +38,22 @@ nav_active: home
     {% endfor %}
   </div>
 
+  {%- if site.watchlist_api %}
+  <aside class="wl-promo" data-wl-promo aria-labelledby="wl-promo-h">
+    <h2 class="wl-promo__h" id="wl-promo-h">Track your own shares</h2>
+    <p class="wl-promo__p">Sign in with your email and we'll send you a link. Pick up to 10 ASX shares for the watchlist on each Markets page. Everything else stays the same for everyone.</p>
+    <form class="wl-form" data-wl-quick-form novalidate>
+      <label class="wl-label" for="wl-promo-email">Email</label>
+      <div class="wl-row">
+        <input class="wl-input" id="wl-promo-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@example.com">
+        <button class="wl-btn" type="submit">Email me a link</button>
+      </div>
+      <p class="wl-msg" data-wl-msg role="status" aria-live="polite"></p>
+    </form>
+    <p class="wl-promo__in" data-wl-promo-in hidden>You're signed in. <a href="{{ '/watchlist/' | relative_url }}">Edit my shares</a></p>
+  </aside>
+  {%- endif %}
+
   <p class="landing__archive">
     <a href="{{ '/archive/' | relative_url }}">Browse the archive</a>
   </p>
