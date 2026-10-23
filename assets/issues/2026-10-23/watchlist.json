@@ -848,6 +848,35 @@
      ],
      "reviewed": true,
      "next_catalyst": "1Q FY27 results update today; AGM on 19 November."
+    },
+    "DRO": {
+     "ticker": "DRO",
+     "name": "Droneshield",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-22",
+      "value": 1.51,
+      "display_value": "1.51",
+      "comparison_date": "2026-10-21",
+      "comparison_value": 1.52,
+      "change_pct": -0.66,
+      "display_change": "−0.7%",
+      "provider": "Yahoo Finance (DRO.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/DRO.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Fell 0.7% to A$1.51 on Thursday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (DRO)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.dro",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T12:05Z"
     }
    }
   },
@@ -1705,6 +1734,35 @@
      ],
      "reviewed": true,
      "next_catalyst": "Detail on the fraud event and second-quarter US bad debts."
+    },
+    "DRO": {
+     "ticker": "DRO",
+     "name": "Droneshield",
+     "price": {
+      "status": "ok",
+      "session_date": "2026-10-23",
+      "value": 1.435,
+      "display_value": "1.43",
+      "comparison_date": "2026-10-22",
+      "comparison_value": 1.51,
+      "change_pct": -4.97,
+      "display_change": "−5.0%",
+      "provider": "Yahoo Finance (DRO.AX)",
+      "provider_url": "https://finance.yahoo.com/quote/DRO.AX/",
+      "licence_note": "Yahoo Finance chart data: delayed, unofficial; Yahoo terms restrict redistribution. Shown as a cited single quote only.",
+      "from": "yahoo chart api"
+     },
+     "note": "Fell 5.0% to A$1.43 on Friday. No new ASX announcement.",
+     "sources": [
+      {
+       "label": "ASX announcements (DRO)",
+       "url": "https://www.asx.com.au/markets/trade-our-cash-market/announcements.dro",
+       "claim_type": "official_statement"
+      }
+     ],
+     "reviewed": false,
+     "quick": true,
+     "added_at_utc": "2026-10-23T12:05Z"
     }
    }
   }
