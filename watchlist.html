@@ -1,0 +1,57 @@
+---
+layout: default
+title: My shares
+permalink: /watchlist/
+sitemap: false
+description: Sign in to choose the ASX shares shown in your SignaLetter watchlist.
+---
+<article class="wl-page" data-wl-page>
+  <header class="issue-header">
+    <h1 class="issue-title">My shares</h1>
+    <p class="wl-lead">Pick up to 10 ASX shares. The watchlist section of each Markets page then shows yours instead of the default list. Everything else on the page stays the same.</p>
+  </header>
+
+  {% unless site.watchlist_api %}
+  <p class="mk-unavail">Personal watchlists are not switched on yet.</p>
+  {% endunless %}
+
+  <section class="wl-card" data-wl-state="loading">
+    <p class="mk-unavail">Loading…</p>
+  </section>
+
+  <section class="wl-card" data-wl-state="signin" hidden>
+    <h2 class="wl-h">Sign in with your email</h2>
+    <p>We'll email you a sign-in link. No password needed.</p>
+    <form class="wl-form" data-wl-signin-form novalidate>
+      <label class="wl-label" for="wl-email">Email</label>
+      <div class="wl-row">
+        <input class="wl-input" id="wl-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@example.com">
+        <button class="wl-btn" type="submit">Email me a link</button>
+      </div>
+      <p class="wl-msg" data-wl-msg role="status" aria-live="polite"></p>
+    </form>
+    <p class="wl-fine">We only use your email to sign you in and to store your share list. Information only, not financial advice.</p>
+  </section>
+
+  <section class="wl-card" data-wl-state="sent" hidden>
+    <h2 class="wl-h">Check your email</h2>
+    <p>We sent a sign-in link to <b data-wl-sent-to></b>. It works once and expires in 15 minutes.</p>
+    <p class="wl-dev" data-wl-dev hidden>Local test: <a data-wl-dev-link href="#">open the sign-in link</a></p>
+    <p><button class="wl-link" type="button" data-wl-restart>Use a different email</button></p>
+  </section>
+
+  <section class="wl-card" data-wl-state="picker" hidden>
+    <div class="wl-who">Signed in as <b data-wl-email></b> · <button class="wl-link" type="button" data-wl-signout>Sign out</button></div>
+    <h2 class="wl-h">Your shares <span class="wl-count" data-wl-count></span></h2>
+    <ul class="wl-chips" data-wl-chips aria-label="Selected shares"></ul>
+    <label class="wl-label" for="wl-search">Add an ASX 200 share</label>
+    <input class="wl-input wl-input--full" id="wl-search" type="search" autocomplete="off" placeholder="Search ticker or company, e.g. BHP or bank" data-wl-search>
+    <ul class="wl-results" data-wl-results role="listbox" aria-label="Matching shares"></ul>
+    <div class="wl-row wl-row--actions">
+      <button class="wl-btn" type="button" data-wl-save>Save</button>
+      <a class="wl-btn wl-btn--ghost" href="{{ '/markets/' | relative_url }}" data-wl-back>Back to Markets</a>
+    </div>
+    <p class="wl-msg" data-wl-save-msg role="status" aria-live="polite"></p>
+    <p class="wl-fine">Shares available: S&amp;P/ASX 200 constituents (approximate list) plus the default watchlist. Prices are delayed and unofficial.</p>
+  </section>
+</article>
