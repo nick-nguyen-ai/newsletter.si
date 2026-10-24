@@ -77,7 +77,7 @@ test("subscribe stub: double opt-in link", async () => {
 });
 test("delete my data", async () => {
   assert.equal((await call("DELETE", "/me", null, session)).status, 200);
-  assert.deepEqual((await call("GET", "/me", null, session)).body.tickers, []);
+  assert.equal((await call("GET", "/me", null, session)).status, 401, "deleted account's session is revoked");
   const r = await call("GET", "/admin/tickers", null, ADMIN);
   assert.ok(!r.body.tickers.includes("CBA") || r.body.readers >= 1);
 });

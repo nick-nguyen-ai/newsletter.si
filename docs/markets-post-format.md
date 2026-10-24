@@ -26,6 +26,19 @@ Never block the whole issue: failing claims or modules are dropped or shown as
 **unavailable**, the rest publishes, and every drop is listed in `dropped` (rendered
 at the bottom under "Data sources, licences and what was left out").
 
+`--fix` must run before the PR is opened: it applies the drops, rewrites the post and
+re-checks it. The auto-merge gate (`.github/workflows/auto-merge-issues.yml`) runs
+`qa_markets.py` report-only and **does not merge** if anything is still an error
+(exit 1) or the post can't be parsed (exit 2). Errors the fixer can't remove (wrong
+summary bullet count, a placeholder in the summary, schema violations) must be fixed
+by the reviewer.
+
+Warnings never block. They are editorial guidance only:
+`budget` (card count outside target), `language` (loaded words, outlet-led sentences),
+`time` (same-session live/close quote stamped up to 6h after the nominal cutoff) and
+`freshness` (labelled stale/scheduled_lag despite having the expected session).
+Everything else is an error.
+
 ## Top-level keys
 
 | Key | Type | Notes |

@@ -1,0 +1,64 @@
+# Tests on every PR to main: Worker (workerd via vitest), Python QA + path-gate tests, Jekyll build.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths: ["worker/**", "scripts/**", ".github/workflows/**", "docs/schemas/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - name: Worker tests (vitest in workerd, local KV + Durable Objects)
+        run: npm test
+      - name: Bundle check (wrangler deploy --dry-run, no credentials)
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker-dry"
+
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install --quiet pyyaml jsonschema
+      - name: Markets QA tests
+        run: python3 scripts/tests/test_qa_markets.py
+      - name: Auto-merge path gate tests
+        run: python3 scripts/tests/test_check_pr_paths.py
+      - name: QA every Markets v2 post in the repo
+        run: python3 scripts/qa_markets.py _posts/*-markets.md
+
+  jekyll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Jekyll production build (github-pages gem)
+        run: JEKYLL_ENV=production bundle exec jekyll build --strict_front_matter
