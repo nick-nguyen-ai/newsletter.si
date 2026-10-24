@@ -189,6 +189,45 @@
     });
   }
 
+  // ---------- Shared: "email me a link" form (watchlist page + landing box) ----------
+  function bindSigninForm(form, next, onSent) {
+    if (!form) return;
+    var msg = form.querySelector("[data-wl-msg]");
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var email = form.email.value.trim();
+      if (!email || !form.email.checkValidity()) { msg.className = "wl-msg wl-msg--err"; msg.textContent = "Enter a valid email address."; return; }
+      msg.className = "wl-msg"; msg.textContent = "Sending…";
+      var btn = form.querySelector("button"); btn.disabled = true;
+      api("POST", "/auth/request", { email: email, next: next || "" }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { msg.className = "wl-msg wl-msg--err"; msg.textContent = r.error || "Something went wrong."; return; }
+        msg.textContent = "";
+        onSent(email, r);
+      }).catch(function () { btn.disabled = false; msg.className = "wl-msg wl-msg--err"; msg.textContent = "Couldn't reach the server. Try again."; });
+    });
+  }
+
+  // ---------- Header (every page) + landing box ----------
+  function initHeader() {
+    var signedIn = !!getSession();
+    document.querySelectorAll("[data-wl-auth-out]").forEach(function (n) { n.hidden = signedIn; });
+    document.querySelectorAll("[data-wl-auth-in]").forEach(function (n) { n.hidden = !signedIn; });
+    document.querySelectorAll("[data-wl-auth-signout]").forEach(function (b) {
+      b.addEventListener("click", function () { clearSession(); location.reload(); });
+    });
+    var promo = document.querySelector("[data-wl-promo]");
+    if (!promo) return;
+    var form = promo.querySelector("[data-wl-quick-form]");
+    if (signedIn) { form.hidden = true; promo.querySelector("[data-wl-promo-in]").hidden = false; return; }
+    bindSigninForm(form, "", function () {
+      var msg = form.querySelector("[data-wl-msg]");
+      msg.className = "wl-msg wl-msg--ok";
+      msg.textContent = "Check your inbox (and Junk) for a sign-in link.";
+      form.email.value = "";
+    });
+  }
+
   // ---------- /watchlist/ page ----------
   function initPage(root) {
     var states = {};
@@ -199,22 +238,12 @@
     if (!/^\/(?!\/)/.test(next)) next = "";
     if (next) root.querySelector("[data-wl-back]").href = next;
 
-    var form = root.querySelector("[data-wl-signin-form]");
     var msg = root.querySelector("[data-wl-msg]");
-    form.addEventListener("submit", function (ev) {
-      ev.preventDefault();
-      var email = form.email.value.trim();
-      msg.className = "wl-msg"; msg.textContent = "Sending…";
-      var btn = form.querySelector("button"); btn.disabled = true;
-      api("POST", "/auth/request", { email: email, next: next }).then(function (r) {
-        btn.disabled = false;
-        if (!r.ok) { msg.className = "wl-msg wl-msg--err"; msg.textContent = r.error || "Something went wrong."; return; }
-        msg.textContent = "";
-        root.querySelector("[data-wl-sent-to]").textContent = email;
-        var dev = root.querySelector("[data-wl-dev]");
-        if (r.dev_link) { dev.hidden = false; dev.querySelector("a").href = r.dev_link; }
-        show("sent");
-      }).catch(function () { btn.disabled = false; msg.className = "wl-msg wl-msg--err"; msg.textContent = "Couldn't reach the server. Try again."; });
+    bindSigninForm(root.querySelector("[data-wl-signin-form]"), next, function (email, r) {
+      root.querySelector("[data-wl-sent-to]").textContent = email;
+      var dev = root.querySelector("[data-wl-dev]");
+      if (r.dev_link) { dev.hidden = false; dev.querySelector("a").href = r.dev_link; }
+      show("sent");
     });
     root.querySelector("[data-wl-restart]").addEventListener("click", function () { show("signin"); });
 
@@ -291,6 +320,7 @@
   }
 
   function boot() {
+    initHeader();
     var page = document.querySelector("[data-wl-page]");
     if (page) initPage(page);
     var secs = Array.prototype.slice.call(document.querySelectorAll("[data-wl-section]"));

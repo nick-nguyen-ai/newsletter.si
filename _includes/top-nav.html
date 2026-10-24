@@ -36,6 +36,13 @@
         href="{{ '/archive/' | relative_url }}"
       >Archive</a>
     </nav>
+    {%- if site.watchlist_api %}
+    <div class="site-auth" data-wl-auth>
+      <a class="site-auth__btn" href="{{ '/watchlist/' | relative_url }}" data-wl-auth-out>Sign in</a>
+      <a class="site-auth__link" href="{{ '/watchlist/' | relative_url }}" data-wl-auth-in hidden>My shares</a>
+      <button class="site-auth__link" type="button" data-wl-auth-in data-wl-auth-signout hidden>Sign out</button>
+    </div>
+    {%- endif %}
     <div class="site-header__actions">
       {% include share-button.html class="share-btn--header" %}
     </div>
