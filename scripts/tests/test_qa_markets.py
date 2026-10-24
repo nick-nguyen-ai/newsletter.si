@@ -109,6 +109,105 @@ def test_loaded_language_flagged():
     assert sum(w.startswith("[language]") for w in rep.warnings) >= 2, rep.warnings
 
 
+# ---------- CLI exit codes: the auto-merge gate relies on these ----------
+import subprocess  # noqa: E402
+import tempfile  # noqa: E402
+
+SCRIPT = os.path.join(HERE, "..", "qa_markets.py")
+RECENT = [p for p in sorted(glob.glob(os.path.join(HERE, "..", "..", "_posts", "*-markets.md")))
+          if os.path.basename(p) >= "2026-10-22"]
+
+
+def cli(fm, *flags, raw=None):
+    with tempfile.NamedTemporaryFile("w", suffix="-markets.md", delete=False, encoding="utf-8") as f:
+        f.write(raw if raw is not None else qa.dump(fm, "\n"))
+        path = f.name
+    res = subprocess.run([sys.executable, SCRIPT, *flags, path], capture_output=True, text=True)
+    return res, path
+
+
+def test_recent_issues_pass_report_only():
+    assert RECENT, "no recent posts found"
+    for p in RECENT:
+        res = subprocess.run([sys.executable, SCRIPT, p], capture_output=True, text=True)
+        assert res.returncode == 0, (p, res.stdout)
+
+
+def test_cli_invalid_number_exits_nonzero():
+    fm = copy.deepcopy(BASE)
+    quote(fm, "asx200")["display_value"] = "9,999.9"
+    res, _ = cli(fm)
+    assert res.returncode == 1 and "FAIL" in res.stdout, res.stdout
+
+
+def test_cli_missing_source_exits_nonzero():
+    fm = copy.deepcopy(BASE)
+    fm["sections"][-1]["cards"][0]["sources"] = []
+    res, _ = cli(fm)
+    assert res.returncode == 1, res.stdout
+
+
+def test_cli_bad_date_exits_nonzero():
+    fm = copy.deepcopy(BASE)
+    q = quote(fm, "us10y")
+    q["comparison_date"] = q["market_session_date"]
+    res, _ = cli(fm)
+    assert res.returncode == 1, res.stdout
+
+
+def test_cli_invalid_schema_exits_nonzero():
+    fm = copy.deepcopy(BASE)
+    fm["snapshot"]["quotes"][0]["status"] = "maybe"
+    res, _ = cli(fm)
+    assert res.returncode == 1 and "[schema]" in res.stdout, res.stdout
+
+
+def test_cli_unsupported_probability_exits_nonzero():
+    fm = copy.deepcopy(BASE)
+    fm["rates"]["rba"] = {"status": "available", "summary": "62% chance of a hike"}
+    res, _ = cli(fm)
+    assert res.returncode == 1, res.stdout
+
+
+def test_cli_malformed_front_matter_is_fatal():
+    res, _ = cli(None, raw="---\nformat: markets-v2\n  bad: [unclosed\n---\nbody\n")
+    assert res.returncode == 2 and "FATAL" in res.stdout, res.stdout
+    res, _ = cli(None, raw="no front matter here\n")
+    assert res.returncode == 2, res.stdout
+
+
+def test_cli_fix_removes_fixable_errors_then_passes():
+    fm = copy.deepcopy(BASE)
+    quote(fm, "asx200")["display_value"] = "9,999.9"
+    fm["calendar"][0]["consensus"] = "4.6%"
+    fm["calendar"][0].pop("consensus_source", None)
+    res, path = cli(fm, "--fix")
+    assert res.returncode == 0 and "PASS_WITH_DROPS" in res.stdout, res.stdout
+    again = subprocess.run([sys.executable, SCRIPT, path], capture_output=True, text=True)
+    assert again.returncode == 0, again.stdout  # the fixed file is clean for the gate
+    fixed, _ = qa.split_front_matter(open(path, encoding="utf-8").read())
+    assert quote(fixed, "asx200")["status"] == "unavailable"
+    assert any(d["item"] == "snapshot:asx200" for d in fixed["dropped"])
+
+
+def test_cli_fix_cannot_hide_unfixable_errors():
+    fm = copy.deepcopy(BASE)
+    fm["summary"] = fm["summary"][:2]  # wrong bullet count: nothing to drop
+    res, _ = cli(fm, "--fix")
+    assert res.returncode == 1 and "UNRESOLVED" in res.stdout, res.stdout
+    fm = copy.deepcopy(BASE)
+    fm["summary"][0] = "TODO write this"
+    res, _ = cli(fm, "--fix")
+    assert res.returncode == 1, res.stdout
+
+
+def test_warnings_alone_do_not_block():
+    fm = copy.deepcopy(BASE)
+    fm["sections"][-1]["cards"][0]["what_happened"] += " Critics slammed the move."
+    res, _ = cli(fm)
+    assert res.returncode == 0 and "[language]" in res.stdout, res.stdout
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):

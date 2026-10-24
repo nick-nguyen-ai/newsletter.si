@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
-    "test": "node --test test/api.test.mjs"
+    "test": "vitest run",
+    "test:smoke": "node --test test/api.test.mjs"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.7",
+    "vitest": "^4.1.12",
     "wrangler": "^4"
   }
 }

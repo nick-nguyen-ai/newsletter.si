@@ -23,4 +23,14 @@ python3 scripts/fetch_markets.py --issue-date 2026-10-19 --edition weekday --clo
 python3 scripts/build_markets_post.py --close close-content.yml --snapshot assets/issues/2026-10-19/close-snapshot.json --out _posts/2026-10-19-markets.md
 python3 scripts/qa_markets.py --fix _posts/2026-10-19-markets.md
 ```
+`qa_markets.py` exits 0 = no unresolved errors (warnings OK), 1 = errors remain (after `--fix`, errors it
+cannot drop), 2 = unparseable. The auto-merge gate runs it report-only and blocks on 1 or 2, so always run
+`--fix` before committing and fix anything it reports as UNRESOLVED.
+
+# Auto-merge path gate
+
+```bash
+python3 scripts/check_pr_paths.py origin/main HEAD      # deletions + renames included; _posts/**, assets/issues/**, _data/*.csv only
+python3 scripts/tests/test_check_pr_paths.py
+```
 See docs/markets-post-format.md.

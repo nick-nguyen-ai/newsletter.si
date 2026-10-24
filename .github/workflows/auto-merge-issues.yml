@@ -38,41 +38,20 @@ jobs:
       - name: Fetch base for path check
         run: git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
 
-      - name: Verify PR only touches allowed paths
+      - name: Verify PR only touches allowed paths (incl. deletions and renames)
         id: paths
         run: |
           set -euo pipefail
-          mapfile -t files < <(git diff --name-only --diff-filter=ACMRTUXB \
-            "origin/${{ github.base_ref }}...HEAD")
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "::error::PR has no file changes — refusing to merge."
-            exit 1
-          fi
-          echo "Changed files:"
-          printf '  %s\n' "${files[@]}"
-          disallowed=0
-          for f in "${files[@]}"; do
-            if [[ "$f" == _posts/* ]]; then
-              continue
-            fi
-            if [[ "$f" == assets/issues/* ]]; then
-              continue
-            fi
-            if [[ "$f" == _data/*.csv ]]; then
-              continue
-            fi
-            echo "::error::Disallowed path: $f (only _posts/**, _data/*.csv, assets/issues/**)"
-            disallowed=1
-          done
-          if [ "$disallowed" -ne 0 ]; then
-            exit 1
-          fi
-          echo "All paths allowed."
+          # Run the checker from the BASE branch, so a PR can't weaken the check it is judged by.
+          git show "origin/${{ github.base_ref }}:scripts/check_pr_paths.py" > "$RUNNER_TEMP/check_pr_paths.py"
+          python3 "$RUNNER_TEMP/check_pr_paths.py" "origin/${{ github.base_ref }}" HEAD
 
-      - name: Markets v2 QA (never blocks on content; fails only if a post cannot be parsed)
+      - name: Markets v2 QA (blocks on any unresolved error; warnings don't block)
         run: |
           set -euo pipefail
-          mapfile -t mk < <(git diff --name-only --diff-filter=ACMR "origin/${{ github.base_ref }}...HEAD" -- '_posts/*-markets.md')
+          # The publish routine runs `qa_markets.py --fix` before committing; here we only verify.
+          # Exit 1 = unresolved content errors, 2 = unparseable post: either way, no merge.
+          mapfile -t mk < <(git diff --name-only --no-renames --diff-filter=AM "origin/${{ github.base_ref }}...HEAD" -- '_posts/*-markets.md')
           if [ "${#mk[@]}" -eq 0 ]; then echo "No Markets posts changed."; exit 0; fi
           python3 -m pip install --quiet pyyaml jsonschema
           python3 scripts/qa_markets.py "${mk[@]}"
@@ -87,7 +66,7 @@ jobs:
         run: |
           set -euo pipefail
           bundle install
-          bundle exec jekyll build
+          JEKYLL_ENV=production bundle exec jekyll build
 
       - name: Squash-merge into main
         id: merge

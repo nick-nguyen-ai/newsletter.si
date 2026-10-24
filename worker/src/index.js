@@ -1,11 +1,17 @@
 // SignaLetter API: passwordless sign-in, per-reader "My shares" watchlist, email signup stub.
-// Storage: one Workers KV namespace (binding WATCHLIST).
-//   user:<email>        -> {"tickers":[...],"created":iso,"updated":iso}
-//   used:<nonce>        -> "1" (TTL 20 min; makes magic links single-use, best effort)
-//   rl:<email>:<hour>   -> count (TTL 1h; sign-in email rate limit)
-//   sub:<email>         -> {"lists":[...],"status":"pending"|"confirmed","updated":iso}
-// Tokens are HMAC-SHA256 signed with AUTH_SECRET, so verifying them never depends on KV
-// propagation between Cloudflare locations.
+// Storage:
+//   Workers KV (binding WATCHLIST), eventually consistent, for data:
+//     user:<email>        -> {"tickers":[...],"created":iso,"updated":iso}
+//     rl:<email>:<hour>   -> count (TTL 1h; sign-in email rate limit, best effort)
+//     sub:<email>         -> {"lists":[...],"status":"pending"|"confirmed","updated":iso}
+//     used:<nonce>        -> legacy (pre-Durable-Object) used-link markers; read only, expire by TTL
+//   Durable Object AuthState (binding AUTH_STATE), one per account (named by SHA-256 of the email),
+//   strongly consistent, for security state:
+//     nonces  -> magic-link nonces consumed so far (atomic insert = each link redeems exactly once)
+//     meta.sv -> session version; DELETE /me bumps it, which invalidates every earlier session and
+//                every unused sign-in link for that email.
+// Tokens are HMAC-SHA256 signed with AUTH_SECRET and carry the session version they were issued at.
+import { DurableObject } from "cloudflare:workers";
 import asx from "../../assets/data/asx-tickers.json";
 
 const ALLOWED = new Map(asx.tickers.map((t) => [t.code, t.name]));
@@ -58,6 +64,48 @@ async function verify(env, token, purpose) {
   }
   if (p.p !== purpose || typeof p.exp !== "number" || p.exp < now()) return null;
   return p;
+}
+
+// ---------- per-account auth state (Durable Object, SQLite storage) ----------
+export class AuthState extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.sql = ctx.storage.sql;
+    this.sql.exec("CREATE TABLE IF NOT EXISTS nonces (n TEXT PRIMARY KEY, exp INTEGER NOT NULL)");
+    this.sql.exec("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v INTEGER NOT NULL)");
+  }
+  version() {
+    const rows = this.sql.exec("SELECT v FROM meta WHERE k = 'sv'").toArray();
+    return rows.length ? rows[0].v : 0;
+  }
+  // Redeem a magic link. The body is synchronous SQLite work inside one Durable Object, so two
+  // concurrent calls for the same nonce are serialised: exactly one INSERT returns a row.
+  async redeem(n, exp, v) {
+    if ((v || 0) !== this.version()) return "revoked";
+    this.sql.exec("DELETE FROM nonces WHERE exp < ?", now());
+    const inserted = this.sql
+      .exec("INSERT INTO nonces (n, exp) VALUES (?, ?) ON CONFLICT(n) DO NOTHING RETURNING n", n, exp)
+      .toArray().length;
+    if (inserted !== 1) return "used";
+    if ((await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm((exp + 60) * 1000);
+    return "ok";
+  }
+  // Account deletion: every session and sign-in link issued before now stops working.
+  // Consumed nonces are kept (until they expire) so an already-used link can't be replayed.
+  revoke() {
+    const v = this.version() + 1;
+    this.sql.exec("INSERT INTO meta (k, v) VALUES ('sv', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", v);
+    return v;
+  }
+  async alarm() {
+    this.sql.exec("DELETE FROM nonces WHERE exp < ?", now());
+    const next = this.sql.exec("SELECT MIN(exp) AS e FROM nonces").toArray()[0].e;
+    if (next) await this.ctx.storage.setAlarm((next + 60) * 1000);
+  }
+}
+async function account(env, email) {
+  const h = b64u(await crypto.subtle.digest("SHA-256", enc.encode(email)));
+  return env.AUTH_STATE.get(env.AUTH_STATE.idFromName(h));
 }
 
 const EMAIL_RE = /^[^\s@<>()",;:]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,}$/;
@@ -117,10 +165,16 @@ async function sendEmail(env, { to, subject, text, htmlBody }) {
   return { mocked: false };
 }
 
+// Valid signature, not expired, and issued at the account's current session version.
+// Sessions minted before versions existed carry no `v` and count as version 0, so they keep
+// working until the account is deleted (or they expire).
 async function session(env, req) {
   const m = (req.headers.get("Authorization") || "").match(/^Bearer (.+)$/);
   if (!m) return null;
-  return verify(env, m[1], "session");
+  const p = await verify(env, m[1], "session");
+  if (!p || typeof p.e !== "string") return null;
+  if ((p.v || 0) !== (await (await account(env, p.e)).version())) return null;
+  return p;
 }
 
 function cleanTickers(list, max) {
@@ -149,7 +203,8 @@ async function authRequest(env, req) {
     return json(env, req, { ok: false, error: "Too many sign-in emails. Try again in an hour." }, 429);
   await env.WATCHLIST.put(rlKey, String(count + 1), { expirationTtl: 3600 });
 
-  const token = await sign(env, { p: "login", e: email, exp: now() + LOGIN_TTL, n: nonce() });
+  const v = await (await account(env, email)).version();
+  const token = await sign(env, { p: "login", e: email, v, exp: now() + LOGIN_TTL, n: nonce() });
   const url = new URL("/watchlist/", env.SITE_ORIGIN);
   url.searchParams.set("token", token);
   if (next) url.searchParams.set("next", next);
@@ -171,16 +226,22 @@ async function authVerify(env, req) {
   const body = await readJson(req);
   const p = await verify(env, body && body.token, "login");
   if (!p) return json(env, req, { ok: false, error: "This sign-in link is invalid or has expired." }, 401);
-  const usedKey = `used:${p.n}`;
-  if (await env.WATCHLIST.get(usedKey))
+  if (typeof p.n !== "string" || typeof p.e !== "string")
+    return json(env, req, { ok: false, error: "This sign-in link is invalid or has expired." }, 401);
+  // Links issued before the Durable Object existed were marked used in KV; honour those markers
+  // until they expire (at most LOGIN_TTL after deploy). Never written any more.
+  if (await env.WATCHLIST.get(`used:${p.n}`))
     return json(env, req, { ok: false, error: "This sign-in link has already been used." }, 401);
-  await env.WATCHLIST.put(usedKey, "1", { expirationTtl: LOGIN_TTL + 300 });
+  const st = await account(env, p.e);
+  const r = await st.redeem(p.n, p.exp, p.v);
+  if (r === "used") return json(env, req, { ok: false, error: "This sign-in link has already been used." }, 401);
+  if (r !== "ok") return json(env, req, { ok: false, error: "This sign-in link is invalid or has expired." }, 401);
   const userKey = `user:${p.e}`;
   if (!(await env.WATCHLIST.get(userKey))) {
     const t = new Date().toISOString();
     await env.WATCHLIST.put(userKey, JSON.stringify({ tickers: [], created: t, updated: t }));
   }
-  const s = await sign(env, { p: "session", e: p.e, exp: now() + SESSION_TTL });
+  const s = await sign(env, { p: "session", e: p.e, v: p.v || 0, exp: now() + SESSION_TTL });
   return json(env, req, { ok: true, session: s, email: p.e, expires_in: SESSION_TTL });
 }
 
@@ -204,6 +265,11 @@ async function putTickers(env, req) {
   await env.WATCHLIST.put(key, JSON.stringify({ created: u.created || t, ...u, tickers: r.tickers, updated: t }), {
     metadata: { t: r.tickers },
   });
+  // If the account was deleted while this request was in flight, undo the write.
+  if ((s.v || 0) !== (await (await account(env, s.e)).version())) {
+    await env.WATCHLIST.delete(key);
+    return json(env, req, { ok: false, error: "signed_out" }, 401);
+  }
   const q = await queueMissing(env, r.tickers);
   return json(env, req, { ok: true, tickers: r.tickers, pending: q.pending, issue_date: q.date });
 }
@@ -268,6 +334,8 @@ async function queueMissing(env, tickers) {
 async function deleteMe(env, req) {
   const s = await session(env, req);
   if (!s) return json(env, req, { ok: false, error: "signed_out" }, 401);
+  // Revoke first (strongly consistent), then delete the data, so no old session can recreate it.
+  await (await account(env, s.e)).revoke();
   await env.WATCHLIST.delete(`user:${s.e}`);
   await env.WATCHLIST.delete(`sub:${s.e}`);
   return json(env, req, { ok: true });

@@ -21,3 +21,12 @@ DEV_RETURN_LINK = "0"
 [[kv_namespaces]]
 binding = "WATCHLIST"
 id = "876368f5ce534736bcbc18e05721842f"
+
+# Per-account auth state (single-use magic links, session revocation). SQLite-backed, free plan OK.
+[[durable_objects.bindings]]
+name = "AUTH_STATE"
+class_name = "AuthState"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AuthState"]

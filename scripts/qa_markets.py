@@ -2,14 +2,28 @@
 """QA gate for signaletter.si Markets v2 posts.
 
 Policy (Nick, 18 Oct 2026): never block the whole issue. Failing claims or
-modules are DROPPED (or marked unavailable) and logged in `dropped`; the rest
-publishes. Exit codes: 0 = publishable (possibly with drops), 2 = file cannot be
-parsed/rendered at all (publish routine must fall back to the previous format).
+modules are DROPPED (or marked unavailable) by `--fix` and logged in `dropped`;
+the rest publishes. `--fix` runs BEFORE the post is committed; it then re-checks
+the fixed file. The auto-merge gate runs report-only, so a post that still has
+errors (fixer not run, or an error the fixer can't remove) is never merged.
+
+Exit codes
+  0  no unresolved errors (warnings allowed; with --fix, after the drops were applied)
+  1  unresolved errors: report-only found errors, or --fix left errors it can't remove
+     (e.g. wrong number of summary bullets, a placeholder in the summary, invalid schema)
+  2  the file cannot be parsed at all (publish routine must fall back to the previous format)
 
 Usage:
-  python3 scripts/qa_markets.py _posts/2026-10-19-markets.md            # report only
-  python3 scripts/qa_markets.py --fix _posts/2026-10-19-markets.md      # apply drops in place
+  python3 scripts/qa_markets.py _posts/2026-10-19-markets.md            # report only (the CI gate)
+  python3 scripts/qa_markets.py --fix _posts/2026-10-19-markets.md      # apply drops in place, re-check
   python3 scripts/qa_markets.py --json report.json _posts/*-markets.md
+
+Non-blocking warnings (editorial guidance only; documented in docs/markets-post-format.md):
+  budget     story-card count outside the target range
+  language   loaded words / outlet-led sentences, for the reviewer
+  time       same-session live/close quote stamped up to 6h after the nominal cutoff
+  freshness  quote labelled stale/scheduled_lag although it has the expected session
+Everything else is an error.
 
 Checks
   schema      JSON-schema validation of the front matter (docs/schemas/markets-post.schema.json)
@@ -279,7 +293,7 @@ def qa(fm: dict, rep: Report, fix: bool):
         for e in sorted(jsonschema.Draft202012Validator(schema).iter_errors(fm_json), key=lambda e: list(e.path)):
             rep.err("schema", f"{'/'.join(map(str, e.path)) or '(root)'}: {e.message[:160]}")
     else:
-        rep.warn("schema", "jsonschema not installed; schema validation skipped")
+        rep.err("schema", "jsonschema not installed; cannot validate (pip install jsonschema)")
 
     qa_edition(fm, rep, fix, label="morning", card_budget=True)
     if fm.get("close"):
@@ -307,25 +321,42 @@ def main(argv=None):
             if fm.get("format") != "markets-v2":
                 print(f"SKIP {f} (not markets-v2)")
                 continue
+            if not isinstance(fm, dict):
+                raise ValueError("front matter is not a mapping")
+            if fm.get("format") != "markets-v2":
+                print(f"SKIP {f} (not markets-v2)")
+                continue
             qa(fm, rep, args.fix)
+            unresolved = rep.errors
             if args.fix:
-                # re-validate after drops; anything still failing schema is fatal
-                rep2 = Report(f)
-                qa(fm, rep2, False)
-                if any(e.startswith("[schema]") for e in rep2.errors):
-                    rep.err("fatal", "schema still invalid after fixes")
-                    worst = 2
+                # Re-validate the fixed document; whatever is still wrong blocks publication.
                 open(f, "w", encoding="utf-8").write(dump(fm, body))
+                fm2, _ = split_front_matter(open(f, encoding="utf-8").read())
+                rep2 = Report(f)
+                qa(fm2, rep2, False)
+                unresolved = rep2.errors
         except Exception as e:  # noqa: BLE001
             rep.err("fatal", f"cannot parse: {e}")
+            unresolved = rep.errors
             worst = 2
-        status = "FATAL" if any(e.startswith("[fatal]") for e in rep.errors) else ("PASS_WITH_DROPS" if rep.drops or rep.errors else "PASS")
-        print(f"{status} {f}: {len(rep.errors)} errors, {len(rep.warnings)} warnings, {len(rep.drops)} drops")
+        if any(e.startswith("[fatal]") for e in unresolved):
+            status = "FATAL"
+        elif unresolved:
+            status = "FAIL"
+            worst = max(worst, 1)
+        else:
+            status = "PASS_WITH_DROPS" if rep.drops else "PASS"
+        print(f"{status} {f}: {len(rep.errors)} errors, {len(rep.warnings)} warnings, {len(rep.drops)} drops"
+              + (f"; {len(unresolved)} unresolved after fixes" if args.fix else ""))
         for e in rep.errors:
             print("  ERROR", e)
+        if args.fix:
+            for e in unresolved:
+                print("  UNRESOLVED", e)
         for w in rep.warnings:
             print("  warn ", w)
-        out.append({"file": f, "status": status, "errors": rep.errors, "warnings": rep.warnings, "drops": rep.drops})
+        out.append({"file": f, "status": status, "errors": rep.errors, "unresolved": unresolved,
+                    "warnings": rep.warnings, "drops": rep.drops})
     if args.json:
         json.dump(out, open(args.json, "w"), indent=2)
     return worst
